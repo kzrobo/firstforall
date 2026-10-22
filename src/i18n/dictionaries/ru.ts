@@ -110,6 +110,8 @@ const ru: DeepPartial<Dictionary> = {
     backHome: "На главную",
   },
   about: {
+    gallery: "Фотогалерея команды",
+    galleryIntro: "Сезоны сборки, соревнования, мастер-классы и аутрич — фотографии команды.",
     intro: "Мы — команда, создавшая FIRST FOR ALL — MANUAL FOR ALL.", story: "Наша история",
     storyBody: "История команды редактируется в админ-панели и будет опубликована командой.",
     philosophy: "Наша философия",

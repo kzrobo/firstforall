@@ -161,6 +161,8 @@ const en = {
     backHome: "Back to home",
   },
   about: {
+    gallery: "Team gallery",
+    galleryIntro: "Build seasons, competitions, workshops and outreach — photographed by the team.",
     title: "MAVERICKS FTC #24034",
     intro: "We are the team behind FIRST FOR ALL — MANUAL FOR ALL.",
     story: "Our story",

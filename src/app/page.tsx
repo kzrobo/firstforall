@@ -37,7 +37,7 @@ export default async function HomePage() {
               <p className="mt-5 text-ink-muted">{result.ok ? L.libraryEmpty : t.manuals.notConfigured}</p>
             </div>
           ) : (
-            <div className="grid gap-x-20 gap-y-12 md:grid-cols-12">
+            <div className="grid gap-x-8 lg:gap-x-20 gap-y-12 md:grid-cols-12">
               <Link href={`/manuals/${featured.slug}`} className="block max-w-[240px] sm:max-w-[420px] md:col-span-5 md:max-w-none lg:col-span-4">
                 <span className="block shadow-[0_2px_4px_rgba(14,22,32,0.06),0_40px_70px_-40px_rgba(14,22,32,0.45)]"><DocumentThumb manual={featured} /></span>
               </Link>
@@ -48,7 +48,7 @@ export default async function HomePage() {
                 {featured.description && <p className="t-lead mt-5 max-w-xl text-ink-muted">{featured.description}</p>}
                 {primary && (
                   <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4">
-                    <Link href={readerHref(featured.slug, primary.language)} className="inline-flex h-12 items-center bg-navy px-7 text-[15px] font-semibold text-white hover:bg-navy-800">{t.manuals.read}</Link>
+                    <Link href={readerHref(featured.slug, primary.language)} className="font-display inline-flex h-12 items-center bg-navy px-7 text-[14px] font-medium text-white hover:bg-navy-800">{t.manuals.read}</Link>
                     <a href={primary.fileUrl} download className="link-arrow text-[15px] text-navy">{t.manuals.download}</a>
                   </div>
                 )}
@@ -114,19 +114,19 @@ export default async function HomePage() {
       {/* Full-bleed team photograph */}
       {(media.photoFeature || showEmpty) && (
         <section aria-label={L.teamLabel}>
-          <MediaSlot item={media.photoFeature} slot="photo_feature" ratio="21 / 9" showEmpty={showEmpty} className="[&_figcaption]:mx-auto [&_figcaption]:max-w-content [&_figcaption]:px-5 lg:[&_figcaption]:px-10" />
+          <MediaSlot item={media.photoFeature} slot="photo_feature" ratio="21 / 9" ratioMobile="4 / 3" sizes="100vw" showEmpty={showEmpty} className="[&_figcaption]:mx-auto [&_figcaption]:max-w-content [&_figcaption]:px-5 lg:[&_figcaption]:px-10" />
         </section>
       )}
 
       {/* Initiative — brief; the full process lives on the Our Initiative page */}
       <section aria-labelledby="initiative-title" className="bg-pollen">
-        <div className="mx-auto grid max-w-content items-center gap-x-20 gap-y-12 px-5 py-20 md:grid-cols-12 lg:px-10 lg:py-28">
+        <div className="mx-auto grid max-w-content items-center gap-x-8 lg:gap-x-20 gap-y-12 px-5 py-20 md:grid-cols-12 lg:px-10 lg:py-28">
           {(media.photoInitiative || showEmpty) && (
-            <MediaSlot item={media.photoInitiative} slot="photo_initiative" ratio="4 / 5" showEmpty={showEmpty} className="md:col-span-5" />
+            <MediaSlot item={media.photoInitiative} slot="photo_initiative" ratio="4 / 5" sizes="(min-width: 768px) 40vw, 100vw" showEmpty={showEmpty} className="md:col-span-5" />
           )}
           <div className={media.photoInitiative || showEmpty ? "md:col-span-6 md:col-start-7" : "md:col-span-8"}>
             <p className="t-label text-honey-deep">{t.home.initiativeEyebrow}</p>
-            <h2 id="initiative-title" className="mt-5 text-[clamp(1.875rem,3.4vw,3rem)] font-bold leading-[1.08] tracking-[-0.03em] text-navy">{t.home.initiativeTitle}</h2>
+            <h2 id="initiative-title" className="t-campaign mt-5 text-[clamp(1.625rem,3vw,2.625rem)] leading-[1.1] text-navy">{t.home.initiativeTitle}</h2>
             <p className="t-lead mt-6 text-ink/80">{t.home.initiativeBody}</p>
             <Link href="/about#initiative" className="link-arrow mt-9 text-[15px] text-navy">{L.initiativeLink}</Link>
           </div>
@@ -134,7 +134,7 @@ export default async function HomePage() {
       </section>
 
       {/* Mavericks AI — the interface itself */}
-      <section aria-labelledby="ai-title" className="mx-auto grid max-w-content items-center gap-x-16 gap-y-12 px-5 py-20 lg:grid-cols-12 lg:px-10 lg:py-28">
+      <section aria-labelledby="ai-title" className="mx-auto grid max-w-content items-center gap-x-8 lg:gap-x-16 gap-y-12 px-5 py-20 lg:grid-cols-12 lg:px-10 lg:py-28">
         <div className="lg:col-span-5">
           <p className="t-label text-ink-muted">{L.aiLabel}</p>
           <h2 id="ai-title" className="t-h2 mt-4 text-navy">{L.aiTitle}</h2>
@@ -153,15 +153,15 @@ export default async function HomePage() {
       {/* Community — photographic pair */}
       {(media.photoPair.length > 0 || showEmpty) && (
         <section aria-labelledby="community-title" className="border-t border-line bg-paper">
-          <div className="mx-auto grid max-w-content gap-x-16 gap-y-10 px-5 py-20 lg:grid-cols-12 lg:px-10 lg:py-28">
+          <div className="mx-auto grid max-w-content gap-x-8 lg:gap-x-16 gap-y-10 px-5 py-20 lg:grid-cols-12 lg:px-10 lg:py-28">
             <div className="lg:col-span-4">
               <p className="t-label text-ink-muted">{t.home.communityEyebrow}</p>
               <h2 id="community-title" className="t-h2 mt-4 text-navy">{t.home.communityTitle}</h2>
               <p className="mt-5 text-ink-muted">{t.home.communityBody}</p>
             </div>
             <div className="grid grid-cols-12 items-start gap-5 lg:col-span-8">
-              <MediaSlot item={media.photoPair[0] ?? null} slot="photo_pair[0]" ratio="4 / 5" showEmpty={showEmpty} className="col-span-7" />
-              <MediaSlot item={media.photoPair[1] ?? null} slot="photo_pair[1]" ratio="3 / 4" showEmpty={showEmpty} className="col-span-5 mt-16" />
+              <MediaSlot item={media.photoPair[0] ?? null} slot="photo_pair[0]" ratio="4 / 5" sizes="(min-width: 1024px) 38vw, 58vw" showEmpty={showEmpty} className="col-span-7" />
+              <MediaSlot item={media.photoPair[1] ?? null} slot="photo_pair[1]" ratio="3 / 4" sizes="(min-width: 1024px) 27vw, 42vw" showEmpty={showEmpty} className="col-span-5 mt-16" />
             </div>
           </div>
         </section>
@@ -169,7 +169,7 @@ export default async function HomePage() {
 
       {/* The team */}
       <section aria-labelledby="team-title" className="on-dark bg-night text-white">
-        <div className="mx-auto grid max-w-content items-center gap-x-16 gap-y-12 px-5 py-20 lg:grid-cols-12 lg:px-10 lg:py-24">
+        <div className="mx-auto grid max-w-content items-center gap-x-8 lg:gap-x-16 gap-y-12 px-5 py-20 lg:grid-cols-12 lg:px-10 lg:py-24">
           <div className="lg:col-span-5">
             <p className="t-label text-white/50">{L.teamLabel}</p>
             <h2 id="team-title" className="t-h2 mt-4">{L.teamTitle}</h2>

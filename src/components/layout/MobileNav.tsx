@@ -44,7 +44,7 @@ export function MobileNav({ items, t, locale }: { items: { href: string; label: 
             <ul>
               {items.map((item) => (
                 <li key={item.href} className="border-b border-white/10">
-                  <Link href={item.href} className="flex items-center justify-between py-4 text-[22px] font-semibold tracking-[-0.01em] text-white">
+                  <Link href={item.href} className="font-display flex items-center justify-between py-4 text-[19px] font-medium tracking-[-0.015em] text-white">
                     {item.label}<span aria-hidden className="text-white/40">→</span>
                   </Link>
                 </li>

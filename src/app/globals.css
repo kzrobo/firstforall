@@ -22,6 +22,8 @@
   --color-line-strong: #c3cbcd;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+  /* Unbounded falls back to Inter (same Cyrillic coverage) before system fonts */
+  --font-display: var(--font-unbounded), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
   --container-content: 80rem;
   --container-prose: 40rem;
@@ -40,12 +42,17 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Type scale — one place, used everywhere */
-.t-display { font-size: clamp(2.375rem, 4.6vw, 3.75rem); line-height: 1.04; font-weight: 700; letter-spacing: -0.032em; }
-.t-h1      { font-size: clamp(2rem, 3.4vw, 2.875rem); line-height: 1.1; font-weight: 700; letter-spacing: -0.028em; }
-.t-h2      { font-size: clamp(1.625rem, 2.5vw, 2.25rem); line-height: 1.15; font-weight: 650; letter-spacing: -0.022em; }
-.t-h3      { font-size: 1.25rem; line-height: 1.3; font-weight: 600; letter-spacing: -0.012em; }
+/* Type scale — Unbounded for display/headings, Inter for everything you read or operate.
+   Unbounded is wide: sizes sit ~15% below an Inter scale, tracking is tightened slightly,
+   and line-height is opened a little so Cyrillic diacritics (Қ, Ғ, Ұ, Й) never collide. */
+.t-display { font-family: var(--font-display); font-weight: 700; font-size: clamp(2rem, 4vw, 3.25rem); line-height: 1.08; letter-spacing: -0.03em; }
+.t-h1      { font-family: var(--font-display); font-weight: 600; font-size: clamp(1.625rem, 2.7vw, 2.375rem); line-height: 1.14; letter-spacing: -0.025em; }
+.t-h2      { font-family: var(--font-display); font-weight: 600; font-size: clamp(1.375rem, 2.1vw, 1.875rem); line-height: 1.2; letter-spacing: -0.02em; }
+.t-h3      { font-family: var(--font-display); font-weight: 500; font-size: 1.0625rem; line-height: 1.35; letter-spacing: -0.01em; }
+.t-campaign { font-family: var(--font-display); font-weight: 700; line-height: 1; letter-spacing: -0.018em; word-spacing: 0.08em; }
+.font-display { font-family: var(--font-display); }
 .t-lead    { font-size: clamp(1.0625rem, 1.3vw, 1.1875rem); line-height: 1.6; }
+.t-h1, .t-h2, .t-h3, .t-display, .t-campaign { overflow-wrap: break-word; hyphens: manual; text-wrap: balance; }
 .t-label   { font-size: 0.75rem; line-height: 1.2; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
 .t-num     { font-variant-numeric: tabular-nums; }
 

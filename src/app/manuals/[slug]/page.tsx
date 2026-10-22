@@ -38,7 +38,7 @@ export default async function ManualOverviewPage({ params }: Props) {
             <Link href="/manuals" className="hover:text-navy">{t.nav.manuals}</Link><span aria-hidden className="mx-2">/</span>{manual.season}
           </nav>
         </div>
-        <div className="mx-auto grid max-w-content gap-x-16 gap-y-10 px-5 pb-14 pt-10 md:grid-cols-12 lg:px-10 lg:pb-20">
+        <div className="mx-auto grid max-w-content gap-x-8 lg:gap-x-16 gap-y-10 px-5 pb-14 pt-10 md:grid-cols-12 lg:px-10 lg:pb-20">
           <div className="max-w-[260px] md:col-span-4 md:max-w-none lg:col-span-3">
             <DocumentThumb manual={manual} />
           </div>
@@ -48,7 +48,7 @@ export default async function ManualOverviewPage({ params }: Props) {
             {manual.description && <p className="t-lead mt-6 max-w-prose text-ink-muted">{manual.description}</p>}
             {primary && (
               <div className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-4">
-                <Link href={readerHref(manual.slug, primary.language)} className="inline-flex h-12 items-center bg-navy px-6 text-[15px] font-semibold text-white hover:bg-navy-800">
+                <Link href={readerHref(manual.slug, primary.language)} className="font-display inline-flex h-12 items-center bg-navy px-6 text-[14px] font-medium text-white hover:bg-navy-800">
                   {t.manuals.read}
                 </Link>
                 <a href={primary.fileUrl} download className="link-arrow text-[15px] text-navy">{t.manuals.download}</a>

@@ -4,11 +4,27 @@ import { z } from "zod";
 import { publicStorageUrl } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-const mediaRef = z.object({ path: z.string().min(1), alt: z.string().default(""), caption: z.string().optional() });
-const mediaList = z.object({ items: z.array(mediaRef).max(12) });
+const focus = z.string().regex(/^\d{1,3}% \d{1,3}%$/);
+const mediaRef = z.object({
+  path: z.string().min(1),
+  alt: z.string().default(""),
+  caption: z.string().optional(),
+  focus: focus.optional(),
+  focusMobile: focus.optional(),
+  layout: z.enum(["wide", "tall", "standard"]).optional(),
+});
+const mediaList = z.object({ items: z.array(mediaRef).max(24) });
 
 /** One uploaded image or video from the `public-media` bucket, with its description. */
-export interface MediaItem { url: string; alt: string; caption: string | null }
+export interface MediaItem {
+  url: string;
+  alt: string;
+  caption: string | null;
+  /** CSS object-position focal point, e.g. "50% 30%" */
+  focus: string;
+  focusMobile: string;
+  layout: "wide" | "tall" | "standard";
+}
 
 export interface SiteMedia {
   heroVideo: MediaItem | null;
@@ -19,10 +35,14 @@ export interface SiteMedia {
   photoFeature: MediaItem | null;
   photoInitiative: MediaItem | null;
   photoPair: MediaItem[];
+  aboutHero: MediaItem | null;
+  aboutStory: MediaItem | null;
+  teamGallery: MediaItem[];
 }
 
 const toItem = (r: z.infer<typeof mediaRef>): MediaItem => ({
   url: publicStorageUrl("public-media", r.path), alt: r.alt, caption: r.caption ?? null,
+  focus: r.focus ?? "50% 50%", focusMobile: r.focusMobile ?? r.focus ?? "50% 50%", layout: r.layout ?? "standard",
 });
 
 /** Pure parser so it can be unit-tested without a database. */
@@ -34,6 +54,7 @@ export function parseSiteMedia(rows: { key: string; value: unknown }[] | null | 
     heroVideo: one("hero_video"), heroPoster: one("hero_poster"), heroPosterMobile: one("hero_poster_mobile"),
     filmVideo: one("film_video"), filmPoster: one("film_poster"),
     photoFeature: one("photo_feature"), photoInitiative: one("photo_initiative"), photoPair: many("photo_pair"),
+    aboutHero: one("about_hero"), aboutStory: one("about_story"), teamGallery: many("team_gallery"),
   };
 }
 

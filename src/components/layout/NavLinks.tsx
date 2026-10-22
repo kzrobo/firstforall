@@ -14,10 +14,10 @@ export function NavLinks({ items }: { items: { href: string; label: string }[] }
             <Link
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`relative flex items-center px-4 text-[15px] font-medium transition-colors xl:px-5 ${active ? "text-white" : "text-white/75 hover:text-white"}`}
+              className={`font-display relative flex items-center px-3.5 text-[13.5px] font-medium tracking-[-0.005em] transition-colors xl:px-5 ${active ? "text-white" : "text-white/75 hover:text-white"}`}
             >
               {item.label}
-              {active && <span aria-hidden className="absolute inset-x-4 bottom-0 h-[2px] bg-honey xl:inset-x-5" />}
+              {active && <span aria-hidden className="absolute inset-x-3.5 bottom-0 h-[2px] bg-honey xl:inset-x-5" />}
             </Link>
           </li>
         );

@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import type { MediaItem } from "@/lib/site/repository";
 
@@ -31,16 +32,23 @@ export function HeroVideo({ video, poster, posterMobile, labels }: {
   return (
     <div className="absolute inset-0 -z-10">
       {still && !enabled && (
-        <picture>
-          {posterMobile && <source media="(max-width: 640px)" srcSet={posterMobile.url} />}
-          <img src={still.url} alt={still.alt} fetchPriority="high" className="size-full object-cover" />
-        </picture>
+        <>
+          {/* Desktop poster (and mobile, unless a dedicated mobile crop is uploaded) */}
+          <Image src={still.url} alt={still.alt} fill priority sizes="100vw"
+            className={`object-cover [object-position:var(--fm)] sm:[object-position:var(--f)] ${posterMobile && poster ? "hidden sm:block" : ""}`}
+            style={{ "--f": still.focus, "--fm": still.focusMobile } as React.CSSProperties} />
+          {posterMobile && poster && (
+            <Image src={posterMobile.url} alt={posterMobile.alt} fill priority sizes="100vw" className="object-cover sm:hidden"
+              style={{ objectPosition: posterMobile.focusMobile }} />
+          )}
+        </>
       )}
       {video && enabled && (
         <>
           <video
             ref={ref}
             className="size-full object-cover"
+            style={{ objectPosition: video.focus }}
             src={video.url}
             poster={poster?.url}
             autoPlay

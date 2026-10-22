@@ -6,6 +6,17 @@ const KNOWN: Record<string, { english: string; native: string }> = {
   es: { english: "Spanish", native: "Español" },
 };
 
+/**
+ * Names of the core languages in each interface language. Fixed here (not Intl) because
+ * Node and browsers ship different CLDR data, which caused hydration mismatches in kk.
+ */
+const NAMES: Record<string, Record<string, string>> = {
+  en: { en: "English", kk: "Kazakh", ru: "Russian", es: "Spanish" },
+  kk: { en: "Ағылшын", kk: "Қазақша", ru: "Орыс", es: "Испан" },
+  ru: { en: "Английский", kk: "Казахский", ru: "Русский", es: "Испанский" },
+  es: { en: "Inglés", kk: "Kazajo", ru: "Ruso", es: "Español" },
+};
+
 const BCP47 = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/;
 
 export function isLanguageTag(tag: string): boolean {
@@ -13,6 +24,8 @@ export function isLanguageTag(tag: string): boolean {
 }
 
 export function languageName(tag: string, displayLocale = "en"): string {
+  const fixed = NAMES[displayLocale]?.[tag];
+  if (fixed) return fixed;
   const base = KNOWN[tag];
   if (base && displayLocale === tag) return base.native;
   try {

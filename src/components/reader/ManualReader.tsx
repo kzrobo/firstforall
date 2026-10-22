@@ -360,7 +360,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
         <div ref={scroller} className="relative min-w-0 flex-1 touch-pan-x touch-pan-y overflow-auto" tabIndex={0} aria-label={manual.title}>
           {error ? (
             <div role="alert" className="mx-auto mt-24 max-w-md px-5 text-center">
-              <p className="t-h3 text-navy">{t.error}</p>
+              <p className="text-[18px] font-semibold text-navy">{t.error}</p>
               <div className="mt-6 flex justify-center gap-6">
                 <button type="button" onClick={() => setAttempt((a) => a + 1)} className="inline-flex h-11 items-center bg-navy px-5 text-[14px] font-semibold text-white">{t.retry}</button>
                 <a href={current.fileUrl} download className="link-arrow text-[14px] text-navy">{t.download}</a>

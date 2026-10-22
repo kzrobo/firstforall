@@ -35,7 +35,7 @@ export function Hero({ t, media, showEmpty }: { t: Dictionary; media: SiteMedia;
         <p className="flex items-center gap-4 text-[13px] font-semibold tracking-[0.08em] text-white/75">
           <span>MAVERICKS</span><span aria-hidden className="h-4 w-px bg-white/40" /><span className="t-num font-medium text-white/60">FTC #24034</span>
         </p>
-        <h1 id="hero-title" className="mt-6 text-[clamp(2.75rem,8.4vw,7.75rem)] font-bold leading-[0.94] tracking-[-0.045em]">
+        <h1 id="hero-title" className="t-campaign mt-6 text-[clamp(2.125rem,7.4vw,6.5rem)] leading-[1.02]">
           <span className="block">{t.hero.title1}</span>
           <span className="block">{t.hero.title2}</span>
         </h1>
@@ -47,7 +47,7 @@ export function Hero({ t, media, showEmpty }: { t: Dictionary; media: SiteMedia;
               <FilmDialog src={media.filmVideo.url} poster={media.filmPoster?.url} label={t.landing.watchFilm} closeLabel={t.landing.closeFilm} className="text-white" />
             )}
             <Link href="/about#initiative" className="link-arrow text-[15px] text-white hover:text-honey">{t.hero.secondary}</Link>
-            <Link href="/manuals" className="inline-flex h-12 items-center bg-white px-7 text-[15px] font-semibold text-night transition-colors hover:bg-honey-pale">
+            <Link href="/manuals" className="font-display inline-flex h-12 items-center bg-white px-7 text-[14px] font-medium tracking-[-0.005em] text-night transition-colors hover:bg-honey-pale">
               {t.hero.primary}
             </Link>
           </div>

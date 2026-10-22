@@ -110,6 +110,8 @@ const es: DeepPartial<Dictionary> = {
     backHome: "Volver al inicio",
   },
   about: {
+    gallery: "Galería del equipo",
+    galleryIntro: "Temporadas de construcción, competencias, talleres y divulgación — fotografiadas por el equipo.",
     intro: "Somos el equipo detrás de FIRST FOR ALL — MANUAL FOR ALL.", story: "Nuestra historia",
     storyBody: "La historia del equipo se gestiona en el panel de administración y será publicada por el equipo.",
     philosophy: "Nuestra filosofía",
