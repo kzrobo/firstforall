@@ -1,103 +1,88 @@
-import Image from "next/image";
+import Link from "next/link";
+import { FeaturedManual } from "@/components/home/FeaturedManual";
+import { Hero } from "@/components/home/Hero";
+import { LanguagePicker } from "@/components/home/LanguagePicker";
+import { Notice } from "@/components/ui/Notice";
+import { Section } from "@/components/ui/Section";
+import { getI18n } from "@/i18n/server";
+import { facetValues } from "@/lib/manuals/filters";
+import { listPublishedManuals } from "@/lib/manuals/repository";
+import { getSiteMedia, listSponsors } from "@/lib/site/repository";
 
-export default function Home() {
+export default async function HomePage() {
+  const { t, locale } = await getI18n();
+  const [result, media, sponsors] = await Promise.all([listPublishedManuals(), getSiteMedia(), listSponsors()]);
+  const manuals = result.ok ? result.data : [];
+  const featured = manuals.find((m) => m.isFeatured) ?? manuals[0] ?? null;
+  const { languages } = facetValues(manuals);
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <>
+      <Hero t={t} media={media} />
+      <FeaturedManual t={t} manual={featured} locale={locale} notConfigured={!result.ok && result.reason === "not_configured"} />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      <div className="bg-paper">
+        <Section id="languages" eyebrow={t.home.readInLanguageEyebrow} title={t.home.readInLanguageTitle}>
+          <p className="mt-5 max-w-2xl text-lg text-ink-muted">{t.home.readInLanguageBody}</p>
+          <LanguagePicker
+            locale={locale}
+            languages={languages}
+            emptyLabel={t.home.noTranslations}
+            items={manuals.map((m) => ({ slug: m.slug, title: m.title, season: m.season, languages: m.translations.map((tr) => tr.language) }))}
+          />
+        </Section>
+      </div>
+
+      <Section id="ai" eyebrow={t.home.aiEyebrow} title={t.home.aiTitle}>
+        <div className="mt-6 grid gap-10 md:grid-cols-2">
+          <p className="max-w-xl text-lg leading-relaxed text-ink-muted">{t.home.aiBody}</p>
+          <div className="self-start"><Notice tone="warning">{t.home.aiStatus}</Notice></div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </Section>
+
+      <section id="initiative" aria-labelledby="initiative-title" className="on-dark bg-navy text-white">
+        <div className="mx-auto grid max-w-content gap-12 px-5 py-24 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:px-8 lg:py-32">
+          <div>
+            <p className="eyebrow !text-white/60">{t.home.initiativeEyebrow}</p>
+            <h2 id="initiative-title" className="mt-4 text-3xl font-semibold leading-tight tracking-[-0.02em] md:text-[2.5rem]">{t.home.initiativeTitle}</h2>
+          </div>
+          <div className="lg:pt-12">
+            <p className="text-lg leading-relaxed text-white/80">{t.home.initiativeBody}</p>
+            <Link href="/about#initiative" className="mt-8 inline-flex items-center gap-2 font-semibold text-honey">{t.hero.secondary} <span aria-hidden>→</span></Link>
+          </div>
+        </div>
+      </section>
+
+      <Section id="community" eyebrow={t.home.communityEyebrow} title={t.home.communityTitle}>
+        <p className="mt-5 max-w-2xl text-lg text-ink-muted">{t.home.communityBody}</p>
+      </Section>
+
+      <div className="bg-soft">
+        <Section id="film" eyebrow={t.home.filmEyebrow}>
+          {media.filmVideo ? (
+            <video controls preload="metadata" poster={media.filmPoster ?? undefined} src={media.filmVideo} className="mt-8 aspect-video w-full bg-navy" />
+          ) : (
+            <div className="mt-8 flex aspect-[21/9] items-center justify-center border border-dashed border-ink-muted/30 px-6 text-center text-ink-muted">{t.home.filmEmpty}</div>
+          )}
+        </Section>
+      </div>
+
+      <Section id="partners" eyebrow={t.home.partnersEyebrow}>
+        {sponsors.length ? (
+          <ul className="mt-10 flex flex-wrap items-center gap-x-14 gap-y-8">
+            {sponsors.map((s) => (
+              <li key={s.id}>
+                <a href={s.url ?? undefined} rel="noopener noreferrer" target="_blank" className="block">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- storage-hosted logo */}
+                  {s.logoUrl ? <img src={s.logoUrl} alt={s.name} className="h-12 w-auto object-contain" /> : <span className="text-lg font-semibold">{s.name}</span>}
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-6 text-ink-muted">{t.home.partnersEmpty}</p>
+        )}
+      </Section>
+    </>
   );
 }
