@@ -29,6 +29,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
   const root = useRef<HTMLDivElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const searchInput = useRef<HTMLInputElement>(null);
+  const pages = useRef<HTMLDivElement>(null);
   const textCache = useRef(new Map<number, string>());
 
   const [doc, setDoc] = useState<PDFDocumentProxy | null>(null);
@@ -150,6 +151,42 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
     return () => window.removeEventListener("keydown", onKey);
   }, [goTo, page]);
 
+  // Pinch-to-zoom on touch screens: preview with a CSS transform, re-render on release.
+  const scaleRef = useRef(1);
+  scaleRef.current = effectiveScale;
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el) return;
+    let start: { dist: number; scale: number } | null = null;
+    let ratio = 1;
+    const dist = (e: TouchEvent) => Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+    const onStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) { start = { dist: dist(e), scale: scaleRef.current }; ratio = 1; }
+    };
+    const onMove = (e: TouchEvent) => {
+      if (!start || e.touches.length !== 2) return;
+      e.preventDefault();
+      ratio = Math.min(4 / start.scale, Math.max(0.3 / start.scale, dist(e) / start.dist));
+      if (pages.current) { pages.current.style.transformOrigin = `50% ${el.scrollTop + el.clientHeight / 2}px`; pages.current.style.transform = `scale(${ratio})`; }
+    };
+    const onEnd = () => {
+      if (!start) return;
+      if (pages.current) pages.current.style.transform = "";
+      if (Math.abs(ratio - 1) > 0.03) setScale(Math.round(start.scale * ratio * 100) / 100);
+      start = null;
+    };
+    el.addEventListener("touchstart", onStart, { passive: true });
+    el.addEventListener("touchmove", onMove, { passive: false });
+    el.addEventListener("touchend", onEnd);
+    el.addEventListener("touchcancel", onEnd);
+    return () => {
+      el.removeEventListener("touchstart", onStart);
+      el.removeEventListener("touchmove", onMove);
+      el.removeEventListener("touchend", onEnd);
+      el.removeEventListener("touchcancel", onEnd);
+    };
+  }, []);
+
   const zoom = (dir: 1 | -1) => {
     const cur = effectiveScale;
     const next = dir > 0 ? ZOOM_STEPS.find((z) => z > cur + 0.01) : [...ZOOM_STEPS].reverse().find((z) => z < cur - 0.01);
@@ -233,7 +270,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
           </label>
           {divider}
 
-          <div className="ml-auto flex items-center md:ml-0">
+          <div className="hidden items-center md:flex">
             <button type="button" className={iconBtn} onClick={() => goTo(page - 1)} disabled={!doc || page <= 1} title={t.prev}><span className="sr-only">{t.prev}</span><Icon name="prev" /></button>
             <form onSubmit={(e) => { e.preventDefault(); goTo(Number(pageInput) || 1); }} className="flex items-center gap-1.5 text-[14px]">
               <label><span className="sr-only">{t.page}</span>
@@ -266,6 +303,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
             <button type="button" className={iconBtn} onClick={toggleFullscreen} title={t.fullscreen}><span className="sr-only">{t.fullscreen}</span><Icon name="expand" /></button>
           </div>
 
+          <a href={current.fileUrl} download className={`${iconBtn} ml-auto md:hidden`} title={t.download}><span className="sr-only">{t.download}</span><Icon name="download" /></a>
           <button type="button" className={`${iconBtn} lg:hidden`} aria-expanded={mobileTools} onClick={() => setMobileTools((v) => !v)} title={t.search}>
             <span className="sr-only">{t.search}</span><Icon name={mobileTools ? "close" : "search"} />
           </button>
@@ -275,11 +313,6 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
         {mobileTools && (
           <div className="flex items-center gap-2 border-t border-line px-3 py-2 lg:hidden">
             <div className="flex-1">{searchForm}</div>
-            <div className="flex items-center md:hidden">
-              <button type="button" className={iconBtn} onClick={() => zoom(-1)} title={t.zoomOut}><span className="sr-only">{t.zoomOut}</span><Icon name="minus" /></button>
-              <button type="button" className={iconBtn} onClick={() => zoom(1)} title={t.zoomIn}><span className="sr-only">{t.zoomIn}</span><Icon name="plus" /></button>
-              <a href={current.fileUrl} download className={iconBtn} title={t.download}><span className="sr-only">{t.download}</span><Icon name="download" /></a>
-            </div>
           </div>
         )}
       </div>
@@ -324,7 +357,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
           </div>
         </aside>
 
-        <div ref={scroller} className="relative min-w-0 flex-1 overflow-auto" tabIndex={0} aria-label={manual.title}>
+        <div ref={scroller} className="relative min-w-0 flex-1 touch-pan-x touch-pan-y overflow-auto" tabIndex={0} aria-label={manual.title}>
           {error ? (
             <div role="alert" className="mx-auto mt-24 max-w-md px-5 text-center">
               <p className="t-h3 text-navy">{t.error}</p>
@@ -339,7 +372,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
               {t.loading}
             </div>
           ) : (
-            <div className="flex flex-col gap-5 px-3 py-6 md:px-12 md:py-10">
+            <div ref={pages} className="flex w-max min-w-full flex-col items-center gap-5 px-3 pb-24 pt-5 md:px-12 md:py-10">
               {Array.from({ length: doc.numPages }, (_, i) => (
                 <PdfPage key={i} doc={doc} pageNumber={i + 1} scale={effectiveScale} aspect={aspect} label={`${t.page} ${i + 1} ${t.of} ${doc.numPages}`} />
               ))}
@@ -347,6 +380,30 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
           )}
         </div>
       </div>
+      {/* Mobile: thumb-reachable page navigation and zoom */}
+      <nav aria-label={t.page} className="absolute inset-x-0 bottom-0 z-20 border-t border-line bg-paper/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
+        <div className="flex h-14 items-center justify-between px-2">
+          <div className="flex items-center">
+            <button type="button" className={`${iconBtn} size-11`} onClick={() => goTo(page - 1)} disabled={!doc || page <= 1}><span className="sr-only">{t.prev}</span><Icon name="prev" className="size-5" /></button>
+            <form onSubmit={(e) => { e.preventDefault(); goTo(Number(pageInput) || 1); (document.activeElement as HTMLElement)?.blur(); }} className="flex items-center gap-1.5 text-[15px]">
+              <label><span className="sr-only">{t.page}</span>
+                <input value={pageInput} onChange={(e) => setPageInput(e.target.value.replace(/\D/g, ""))} inputMode="numeric" enterKeyHint="go"
+                  className="t-num h-9 w-12 border border-line bg-paper text-center text-[16px] focus:border-tech focus:outline-none" />
+              </label>
+              <span className="t-num text-ink-muted">/ {doc?.numPages ?? "–"}</span>
+            </form>
+            <button type="button" className={`${iconBtn} size-11`} onClick={() => goTo(page + 1)} disabled={!doc || page >= (doc?.numPages ?? 1)}><span className="sr-only">{t.next}</span><Icon name="next" className="size-5" /></button>
+          </div>
+          <div className="flex items-center">
+            <button type="button" className={`${iconBtn} size-11`} onClick={() => zoom(-1)}><span className="sr-only">{t.zoomOut}</span><Icon name="minus" className="size-5" /></button>
+            <button type="button" onClick={() => setScale("fit")} aria-pressed={scale === "fit"} title={t.fitWidth}
+              className={`t-num h-11 w-14 text-center text-[14px] ${scale === "fit" ? "font-semibold text-navy" : "text-ink-muted"}`}>
+              {Math.round(effectiveScale * 100)}%
+            </button>
+            <button type="button" className={`${iconBtn} size-11`} onClick={() => zoom(1)}><span className="sr-only">{t.zoomIn}</span><Icon name="plus" className="size-5" /></button>
+          </div>
+        </div>
+      </nav>
     </div>
   );
 }

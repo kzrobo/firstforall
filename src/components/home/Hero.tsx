@@ -1,45 +1,56 @@
-import Image from "next/image";
 import Link from "next/link";
+import { FilmDialog } from "@/components/media/FilmDialog";
 import type { Dictionary } from "@/i18n/dictionary";
 import type { SiteMedia } from "@/lib/site/repository";
 import { HeroVideo } from "./HeroVideo";
-import { Rings } from "./Rings";
 
-export function Hero({ t, media }: { t: Dictionary; media: SiteMedia }) {
+/**
+ * Full-bleed, video-first hero. Media comes from site_settings (hero_video, hero_poster,
+ * hero_poster_mobile). Until footage is uploaded, a designed poster field is shown.
+ */
+export function Hero({ t, media, showEmpty }: { t: Dictionary; media: SiteMedia; showEmpty: boolean }) {
   const hasMedia = Boolean(media.heroVideo || media.heroPoster);
   return (
-    <section aria-labelledby="hero-title" className="on-dark relative isolate overflow-hidden bg-[#0b1a2e] text-white">
+    <section aria-labelledby="hero-title" className="on-dark relative isolate flex min-h-[calc(100svh-4rem)] flex-col overflow-hidden bg-[#0a1524] text-white lg:min-h-[max(640px,calc(100svh-108px))]">
       {hasMedia ? (
-        <>
-          <HeroVideo src={media.heroVideo} poster={media.heroPoster} labels={t.hero} />
-          {/* Readability: darken only where the text sits */}
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-[#0b1a2e]/85 via-[#0b1a2e]/45 to-transparent" />
-          <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#0b1a2e]/70 to-transparent" />
-        </>
+        <HeroVideo video={media.heroVideo} poster={media.heroPoster} posterMobile={media.heroPosterMobile} labels={t.hero} />
       ) : (
-        // Designed media field until team footage is uploaded (Admin › Settings › hero_video).
-        <div aria-hidden className="absolute inset-0">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_72%_55%,#173352_0%,#0b1a2e_62%)]" />
-          <Rings className="absolute left-[52%] top-1/2 h-[150%] -translate-y-1/2 text-white/[0.07]" count={7} />
-          <Image src="/brand/mavericks-emblem.jpg" alt="" width={520} height={520} priority
-            className="absolute left-[72%] top-1/2 hidden w-[min(34vw,460px)] -translate-x-1/2 -translate-y-1/2 opacity-90 mix-blend-screen [mask-image:radial-gradient(closest-side,#000_50%,transparent_96%)] lg:block" />
+        <div aria-hidden className="absolute inset-0 -z-10">
+          {/* Poster field: low-key cinematic light, no imagery invented */}
+          <div className="absolute inset-0 bg-[radial-gradient(120%_90%_at_78%_18%,#1d3a5c_0%,#0f2238_38%,#0a1524_72%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(60%_50%_at_12%_100%,rgba(232,184,77,0.10),transparent_70%)]" />
+          <div className="film-grain absolute inset-0" />
+          {showEmpty && (
+            <p className="absolute right-5 top-5 text-[12px] font-medium tracking-[0.04em] text-white/40 lg:right-10 lg:top-8">
+              Hero film · slots <code>hero_video</code> / <code>hero_poster</code>
+            </p>
+          )}
         </div>
       )}
+      {/* Readability: weighted to the lower-left where the type sits */}
+      <div aria-hidden className="absolute inset-0 -z-[1] bg-gradient-to-t from-[#0a1524]/90 via-[#0a1524]/25 to-transparent" />
+      <div aria-hidden className="absolute inset-0 -z-[1] bg-gradient-to-r from-[#0a1524]/60 to-transparent" />
 
-      <div className="relative mx-auto flex min-h-[min(80vh,720px)] max-w-content flex-col justify-end px-5 pb-16 pt-28 lg:px-10 lg:pb-24">
-        <p className="flex items-center gap-4 text-[13px] font-semibold tracking-[0.06em] text-white/80">
-          <span>MAVERICKS</span><span aria-hidden className="h-5 w-px bg-white/40" /><span className="font-medium t-num text-white/60">FTC #24034</span>
+      <div className="mx-auto mt-auto w-full max-w-content px-5 pb-10 pt-28 lg:px-10 lg:pb-14">
+        <p className="flex items-center gap-4 text-[13px] font-semibold tracking-[0.08em] text-white/75">
+          <span>MAVERICKS</span><span aria-hidden className="h-4 w-px bg-white/40" /><span className="t-num font-medium text-white/60">FTC #24034</span>
         </p>
-        <h1 id="hero-title" className="t-display mt-6 max-w-[16ch]">
-          {t.hero.title1}<br />{t.hero.title2}
+        <h1 id="hero-title" className="mt-6 text-[clamp(2.75rem,8.4vw,7.75rem)] font-bold leading-[0.94] tracking-[-0.045em]">
+          <span className="block">{t.hero.title1}</span>
+          <span className="block">{t.hero.title2}</span>
         </h1>
-        <span aria-hidden className="mt-7 block h-[3px] w-12 bg-honey" />
-        <p className="t-lead mt-6 max-w-[34rem] text-white/85">{t.hero.subtitle}</p>
-        <div className="mt-10 flex flex-wrap items-center gap-x-9 gap-y-5">
-          <Link href="/manuals" className="inline-flex h-12 items-center bg-white px-6 text-[15px] font-semibold text-night transition-colors hover:bg-honey-pale">
-            {t.hero.primary}
-          </Link>
-          <Link href="/about#initiative" className="link-arrow text-[15px] text-white hover:text-honey">{t.hero.secondary}</Link>
+
+        <div className="mt-10 grid gap-8 border-t border-white/20 pt-7 md:grid-cols-12 md:items-center lg:mt-14">
+          <p className="t-lead max-w-md text-white/85 md:col-span-5">{t.hero.subtitle}</p>
+          <div className="flex flex-wrap items-center gap-x-9 gap-y-5 md:col-span-7 md:justify-end">
+            {media.filmVideo && (
+              <FilmDialog src={media.filmVideo.url} poster={media.filmPoster?.url} label={t.landing.watchFilm} closeLabel={t.landing.closeFilm} className="text-white" />
+            )}
+            <Link href="/about#initiative" className="link-arrow text-[15px] text-white hover:text-honey">{t.hero.secondary}</Link>
+            <Link href="/manuals" className="inline-flex h-12 items-center bg-white px-7 text-[15px] font-semibold text-night transition-colors hover:bg-honey-pale">
+              {t.hero.primary}
+            </Link>
+          </div>
         </div>
       </div>
     </section>

@@ -12,7 +12,6 @@ type Facet = "season" | "language" | "category";
 
 export function ManualLibrary({ manuals, t, locale, initial }: { manuals: Manual[]; t: Dictionary; locale: string; initial: Partial<LibraryFilters> }) {
   const [f, setF] = useState<LibraryFilters>({ ...EMPTY_FILTERS, ...initial });
-  const [filtersOpen, setFiltersOpen] = useState(false);
   const facets = useMemo(() => facetValues(manuals), [manuals]);
   const results = useMemo(() => filterManuals(manuals, f), [manuals, f]);
   const set = (patch: Partial<LibraryFilters>) => setF((prev) => ({ ...prev, ...patch }));
@@ -53,39 +52,28 @@ export function ManualLibrary({ manuals, t, locale, initial }: { manuals: Manual
         </div>
       </div>
 
-      <div className="mx-auto grid max-w-content gap-x-14 px-5 py-10 lg:grid-cols-12 lg:px-10 lg:py-14">
-        {/* Filters */}
-        <aside className="lg:col-span-3" aria-label="Filters">
-          <button type="button" onClick={() => setFiltersOpen((v) => !v)} aria-expanded={filtersOpen}
-            className="mb-6 flex w-full items-center justify-between border-y border-line py-3 text-[15px] font-medium lg:hidden">
-            Filters{active ? ` (${active})` : ""}<span aria-hidden>{filtersOpen ? "−" : "+"}</span>
-          </button>
-          <div className={`${filtersOpen ? "block" : "hidden"} space-y-9 pb-8 lg:block`}>
-            {groups.map((g) => (
-              <fieldset key={g.key}>
-                <legend className="t-label text-ink-muted">{g.label}</legend>
-                <ul className="mt-3 space-y-0.5">
-                  {[{ value: "", label: t.manuals.all }, ...g.values].map((v) => {
-                    const on = f[g.key] === v.value;
-                    return (
-                      <li key={v.value || "all"}>
-                        <label className={`flex cursor-pointer items-center gap-3 py-1.5 text-[15px] ${on ? "font-semibold text-navy" : "text-ink-muted hover:text-navy"}`}>
-                          <input type="radio" name={g.key} checked={on} onChange={() => set({ [g.key]: v.value })} className="sr-only peer" />
-                          <span aria-hidden className={`h-4 w-[2px] ${on ? "bg-honey" : "bg-transparent"}`} />
-                          <span className="peer-focus-visible:underline">{v.label}</span>
-                        </label>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </fieldset>
-            ))}
-          </div>
-        </aside>
-
-        {/* Results */}
-        <div className="lg:col-span-9">
-          <div className="flex items-baseline justify-between border-b border-line pb-4">
+      <div className="mx-auto max-w-content px-5 py-8 lg:px-10 lg:py-10">
+        {/* Filters — one quiet row, so results get the full width */}
+        <div className="flex flex-wrap items-end gap-x-8 gap-y-4 border-b border-line pb-5">
+          {groups.map((g) => (
+            <label key={g.key} className="flex min-w-[9.5rem] flex-1 flex-col sm:flex-none">
+              <span className="t-label text-ink-muted">{g.label}</span>
+              <select
+                value={f[g.key]}
+                onChange={(e) => set({ [g.key]: e.target.value })}
+                className={`mt-1.5 h-10 border-b bg-transparent pr-6 text-[15px] focus:outline-none ${f[g.key] ? "border-honey font-semibold text-navy" : "border-line-strong text-ink"}`}
+              >
+                <option value="">{t.manuals.all}</option>
+                {g.values.map((v) => <option key={v.value} value={v.value}>{v.label}</option>)}
+              </select>
+            </label>
+          ))}
+          {active > 0 && (
+            <button type="button" onClick={() => set({ season: "", language: "", category: "" })} className="h-10 text-[14px] text-tech hover:underline">
+              × {t.manuals.all}
+            </button>
+          )}
+          <div className="ml-auto flex items-center gap-6">
             <p className="text-[14px] text-ink-muted" aria-live="polite"><span className="t-num font-semibold text-ink">{results.length}</span> / {manuals.length}</p>
             <label className="flex items-center gap-2 text-[14px] text-ink-muted">
               {t.manuals.sort}
@@ -95,36 +83,39 @@ export function ManualLibrary({ manuals, t, locale, initial }: { manuals: Manual
               </select>
             </label>
           </div>
+        </div>
 
-          {results.length === 0 ? (
-            <p className="py-16 text-ink-muted">{t.manuals.empty}</p>
-          ) : (
-            <ul className="grid grid-cols-2 gap-x-6 gap-y-12 pt-10 sm:grid-cols-3 lg:gap-x-8 xl:grid-cols-4">
-              {results.map((m) => (
-                <li key={m.id} className="group flex flex-col">
-                  <Link href={`/manuals/${m.slug}`} className="block transition-transform duration-200 group-hover:-translate-y-1" tabIndex={-1} aria-hidden>
-                    <DocumentThumb manual={m} />
-                  </Link>
-                  <p className="mt-5 text-[13px] font-medium text-tech t-num">{m.season} · <span className="capitalize">{m.category}</span></p>
-                  <h2 className="mt-1 text-[16px] font-semibold leading-snug text-navy">
+        {results.length === 0 ? (
+          <p className="py-16 text-ink-muted">{t.manuals.empty}</p>
+        ) : (
+          <ul className="divide-y divide-line sm:grid sm:grid-cols-2 sm:gap-x-10 sm:gap-y-16 sm:divide-y-0 sm:pt-12 lg:grid-cols-3 lg:gap-x-14">
+            {results.map((m) => (
+              <li key={m.id} className="group grid grid-cols-[104px_1fr] gap-x-5 py-7 sm:block sm:py-0">
+                <Link href={`/manuals/${m.slug}`} tabIndex={-1} aria-hidden
+                  className="block self-start shadow-[0_1px_2px_rgba(14,22,32,0.06)] transition-[transform,box-shadow] duration-200 sm:group-hover:-translate-y-1 sm:group-hover:shadow-[0_30px_50px_-30px_rgba(14,22,32,0.4)]">
+                  <DocumentThumb manual={m} />
+                </Link>
+                <div className="sm:mt-6">
+                  <p className="text-[13px] font-medium text-tech t-num">{m.season}{m.seasonName ? ` · ${m.seasonName}` : ""}</p>
+                  <h2 className="mt-1.5 text-[18px] font-semibold leading-snug tracking-[-0.01em] text-navy sm:text-[20px]">
                     <Link href={`/manuals/${m.slug}`} className="hover:underline">{m.title}</Link>
                   </h2>
-                  <p className="mt-1.5 text-[13px] text-ink-muted">{t.manuals.revision} {m.revision}</p>
-                  <ul className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-[13px]" aria-label={t.manuals.translations}>
+                  <p className="mt-2 text-[13px] text-ink-muted"><span className="capitalize">{m.category}</span> · {t.manuals.revision} {m.revision}</p>
+                  <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-1.5 border-t border-line pt-3 text-[14px]" aria-label={t.manuals.translations}>
                     {m.translations.map((tr) => (
                       <li key={tr.id}>
-                        <Link href={readerHref(m.slug, tr.language)} title={`${t.manuals.read}: ${languageName(tr.language, locale)}`}
-                          className={`font-semibold uppercase tracking-[0.05em] hover:underline ${f.language === tr.language ? "text-navy underline decoration-honey decoration-2 underline-offset-4" : "text-tech"}`}>
-                          {tr.language}
+                        <Link href={readerHref(m.slug, tr.language)} title={t.manuals.read}
+                          className={`font-medium hover:underline ${f.language === tr.language ? "text-navy underline decoration-honey decoration-2 underline-offset-4" : "text-tech"}`}>
+                          {languageName(tr.language, locale)}
                         </Link>
                       </li>
                     ))}
                   </ul>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </>
   );
