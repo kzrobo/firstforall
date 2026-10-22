@@ -13,7 +13,7 @@ export function mergeDictionary<T extends object>(base: T, override: DeepPartial
   const out: Record<string, unknown> = { ...(base as Record<string, unknown>) };
   for (const [key, value] of Object.entries(override)) {
     const baseValue = (base as Record<string, unknown>)[key];
-    if (value && typeof value === "object" && baseValue && typeof baseValue === "object") {
+    if (value && typeof value === "object" && !Array.isArray(value) && baseValue && typeof baseValue === "object") {
       out[key] = mergeDictionary(baseValue as object, value as DeepPartial<object>);
     } else if (value !== undefined) {
       out[key] = value;

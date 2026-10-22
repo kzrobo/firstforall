@@ -8,6 +8,7 @@ import { languageName } from "@/lib/languages";
 import { mapPageAcrossTranslations } from "@/lib/manuals/reader-nav";
 import type { ManualTranslation } from "@/lib/manuals/types";
 import { readerHref } from "@/components/manuals/format";
+import { Icon } from "./icons";
 import { PdfPage } from "./PdfPage";
 import { loadPdfJs, readOutline, searchDocument, type OutlineEntry } from "./pdf";
 
@@ -27,6 +28,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
   const params = useSearchParams();
   const root = useRef<HTMLDivElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
+  const searchInput = useRef<HTMLInputElement>(null);
   const textCache = useRef(new Map<number, string>());
 
   const [doc, setDoc] = useState<PDFDocumentProxy | null>(null);
@@ -39,11 +41,24 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
   const [page, setPage] = useState(initialPage);
   const [pageInput, setPageInput] = useState(String(initialPage));
   const [outline, setOutline] = useState<OutlineEntry[] | null>(null);
-  const [tocOpen, setTocOpen] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [mobileTools, setMobileTools] = useState(false);
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<{ page: number; count: number }[] | null>(null);
   const [searching, setSearching] = useState(false);
-  const pageReset = params.get("r") === "1";
+  const [notice, setNotice] = useState(params.get("r") === "1");
+
+  // Contents panel starts open on wide screens only.
+  useEffect(() => {
+    if (window.matchMedia("(min-width: 1024px)").matches) setPanelOpen(true);
+  }, []);
+
+  // The reader owns the viewport: stop the document behind it from scrolling.
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, []);
 
   // Load document
   useEffect(() => {
@@ -80,18 +95,20 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
   const effectiveScale = useMemo(() => {
     if (scale !== "fit") return scale;
     if (!containerWidth) return 1;
-    return Math.min(2.5, Math.max(0.3, (containerWidth - 32) / pageWidth));
+    const gutter = containerWidth < 640 ? 24 : 96;
+    return Math.min(2, Math.max(0.3, (containerWidth - gutter) / pageWidth));
   }, [scale, containerWidth, pageWidth]);
 
+  // Scroll only the document pane (never the window).
   const goTo = useCallback((n: number, behavior: ScrollBehavior = "smooth") => {
     if (!doc) return;
     const target = Math.min(Math.max(1, n), doc.numPages);
-    scroller.current?.querySelector(`[data-page="${target}"]`)?.scrollIntoView({ behavior, block: "start" });
+    const el = scroller.current?.querySelector<HTMLElement>(`[data-page="${target}"]`);
+    if (el && scroller.current) scroller.current.scrollTo({ top: el.offsetTop - 16, behavior });
     setPage(target);
     setPageInput(String(target));
   }, [doc]);
 
-  // Jump to the initial page once the document is laid out
   useEffect(() => {
     if (doc && initialPage > 1) requestAnimationFrame(() => goTo(initialPage, "auto"));
   }, [doc, initialPage, goTo]);
@@ -118,13 +135,13 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
   // Keep the URL shareable (?lang=&page=) without adding history entries
   useEffect(() => {
     if (!doc) return;
-    const url = readerHref(manual.slug, current.language, page);
-    window.history.replaceState(window.history.state, "", url);
+    window.history.replaceState(window.history.state, "", readerHref(manual.slug, current.language, page));
   }, [page, doc, manual.slug, current.language]);
 
   // Keyboard shortcuts
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "f") { e.preventDefault(); setMobileTools(true); searchInput.current?.focus(); return; }
       if ((e.target as HTMLElement).closest("input,select,textarea")) return;
       if (e.key === "ArrowRight" || e.key === "PageDown") { e.preventDefault(); goTo(page + 1); }
       if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); goTo(page - 1); }
@@ -150,6 +167,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
     e.preventDefault();
     if (!doc || !query.trim()) return setHits(null);
     setSearching(true);
+    setPanelOpen(true);
     try { setHits(await searchDocument(doc, query, textCache.current)); } finally { setSearching(false); }
   };
 
@@ -158,123 +176,170 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
     else void root.current?.requestFullscreen?.();
   };
 
-  const btn = "inline-flex h-9 min-w-9 items-center justify-center rounded-md px-2 text-sm text-ink hover:bg-soft disabled:opacity-40";
+  const iconBtn = "inline-flex size-9 items-center justify-center text-ink-muted hover:bg-soft hover:text-navy disabled:pointer-events-none disabled:opacity-35";
+  const divider = <span aria-hidden className="mx-2 hidden h-5 w-px bg-line md:block" />;
 
   const renderOutline = (items: OutlineEntry[], depth = 0) => (
-    <ul className={depth ? "ml-3 border-l border-line pl-2" : ""}>
-      {items.map((it, i) => (
-        <li key={`${depth}-${i}`}>
-          <button
-            type="button"
-            disabled={it.page === null}
-            onClick={() => { if (it.page) { goTo(it.page); setTocOpen(false); } }}
-            className="flex w-full items-baseline justify-between gap-3 rounded px-2 py-1.5 text-left text-sm hover:bg-soft"
-          >
-            <span>{it.title}</span>{it.page && <span className="text-xs tabular-nums text-ink-muted">{it.page}</span>}
-          </button>
-          {it.children.length > 0 && renderOutline(it.children, depth + 1)}
-        </li>
-      ))}
+    <ul className={depth ? "ml-3 border-l border-line" : ""}>
+      {items.map((it, i) => {
+        const here = it.page !== null && it.page <= page && (items[i + 1]?.page ?? Infinity) > page && depth === 0;
+        return (
+          <li key={`${depth}-${i}`}>
+            <button
+              type="button"
+              disabled={it.page === null}
+              onClick={() => { if (it.page) { goTo(it.page); if (!window.matchMedia("(min-width: 1024px)").matches) setPanelOpen(false); } }}
+              className={`flex w-full items-baseline justify-between gap-3 border-l-2 py-2 pl-3 pr-2 text-left text-[14px] leading-snug ${here ? "border-honey font-semibold text-navy" : "border-transparent text-ink hover:text-navy"}`}
+            >
+              <span>{it.title}</span>{it.page && <span className="t-num text-[12px] text-ink-faint">{it.page}</span>}
+            </button>
+            {it.children.length > 0 && renderOutline(it.children, depth + 1)}
+          </li>
+        );
+      })}
     </ul>
   );
 
+  const searchForm = (
+    <form role="search" onSubmit={runSearch} className="flex h-9 items-center gap-2 border border-line bg-paper px-2.5 focus-within:border-tech">
+      <Icon name="search" className="size-4 text-ink-faint" />
+      <label className="flex-1"><span className="sr-only">{t.search}</span>
+        <input ref={searchInput} type="search" value={query} placeholder={t.searchPlaceholder}
+          onChange={(e) => { setQuery(e.target.value); if (!e.target.value) setHits(null); }}
+          className="w-full bg-transparent text-[14px] placeholder:text-ink-faint focus:outline-none" />
+      </label>
+    </form>
+  );
+
   return (
-    <div ref={root} className="flex h-[calc(100dvh-4rem)] flex-col bg-soft">
+    <div ref={root} className="fixed inset-x-0 bottom-0 top-16 z-30 flex flex-col bg-[#e9ebe6] lg:top-[108px]">
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-2 border-b border-line bg-paper px-3 py-2 lg:px-4">
-        <button type="button" className={`${btn} lg:hidden`} aria-expanded={tocOpen} onClick={() => setTocOpen((v) => !v)}>
-          <span className="sr-only">{t.toc}</span>
-          <svg aria-hidden className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 6h16M4 12h10M4 18h16" /></svg>
-        </button>
-        <Link href={`/manuals/${manual.slug}`} className="hidden max-w-[22ch] truncate text-sm font-semibold text-navy hover:underline md:block" title={t.back}>
-          {manual.title}
-        </Link>
-        <span className="mx-1 hidden h-6 w-px bg-line md:block" />
-        <label className="flex items-center">
-          <span className="sr-only">{t.language}</span>
-          <select value={current.language} onChange={(e) => switchLanguage(e.target.value)} className="h-9 rounded-md border border-line bg-paper px-2 text-sm">
-            {translations.map((tr) => <option key={tr.id} value={tr.language}>{languageName(tr.language, locale)}</option>)}
-          </select>
-        </label>
-
-        <div className="flex items-center gap-1">
-          <button type="button" className={btn} onClick={() => goTo(page - 1)} disabled={!doc || page <= 1} aria-label={t.prev}>‹</button>
-          <form onSubmit={(e) => { e.preventDefault(); goTo(Number(pageInput) || 1); }} className="flex items-center gap-1 text-sm">
-            <label><span className="sr-only">{t.page}</span>
-              <input value={pageInput} onChange={(e) => setPageInput(e.target.value.replace(/\D/g, ""))} inputMode="numeric" className="h-9 w-12 rounded-md border border-line text-center tabular-nums" />
-            </label>
-            <span className="text-ink-muted tabular-nums">{t.of} {doc?.numPages ?? "–"}</span>
-          </form>
-          <button type="button" className={btn} onClick={() => goTo(page + 1)} disabled={!doc || page >= (doc?.numPages ?? 1)} aria-label={t.next}>›</button>
-        </div>
-
-        <div className="flex items-center gap-1">
-          <button type="button" className={btn} onClick={() => zoom(-1)} aria-label={t.zoomOut}>−</button>
-          <span className="w-12 text-center text-sm tabular-nums text-ink-muted" aria-live="polite">{Math.round(effectiveScale * 100)}%</span>
-          <button type="button" className={btn} onClick={() => zoom(1)} aria-label={t.zoomIn}>+</button>
-          <button type="button" className={`${btn} hidden sm:inline-flex`} onClick={() => setScale("fit")} aria-pressed={scale === "fit"}>{t.fitWidth}</button>
-        </div>
-
-        <form role="search" onSubmit={runSearch} className="order-last flex w-full items-center gap-2 sm:order-none sm:ml-auto sm:w-auto">
-          <label className="flex-1"><span className="sr-only">{t.search}</span>
-            <input type="search" value={query} onChange={(e) => { setQuery(e.target.value); if (!e.target.value) setHits(null); }} placeholder={t.searchPlaceholder} className="h-9 w-full rounded-md border border-line px-3 text-sm sm:w-56" />
+      <div className="border-b border-line bg-paper">
+        <div className="flex h-14 items-center gap-1 px-2 md:px-4">
+          <button type="button" className={iconBtn} aria-expanded={panelOpen} onClick={() => setPanelOpen((v) => !v)} title={t.toc}>
+            <span className="sr-only">{t.toc}</span><Icon name="toc" />
+          </button>
+          <Link href={`/manuals/${manual.slug}`} className="ml-1 hidden max-w-[26ch] truncate text-[14px] font-semibold text-navy hover:underline xl:block" title={t.back}>
+            {manual.title}
+          </Link>
+          {divider}
+          <label className="relative flex items-center">
+            <span className="sr-only">{t.language}</span>
+            <select value={current.language} onChange={(e) => switchLanguage(e.target.value)}
+              className="h-9 appearance-none bg-transparent pl-2 pr-6 text-[14px] font-medium text-ink hover:text-navy">
+              {translations.map((tr) => <option key={tr.id} value={tr.language}>{languageName(tr.language, locale)}</option>)}
+            </select>
+            <svg aria-hidden className="pointer-events-none absolute right-1.5 size-3 text-ink-muted" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="m3 4.5 3 3 3-3" /></svg>
           </label>
-        </form>
+          {divider}
 
-        <div className="flex items-center gap-1">
-          <a href={current.fileUrl} download className={btn}>{t.download}</a>
-          <a href={current.fileUrl} target="_blank" rel="noopener noreferrer" className={`${btn} hidden md:inline-flex`} title={t.print}>{t.print}</a>
-          <button type="button" className={`${btn} hidden md:inline-flex`} onClick={toggleFullscreen}>{t.fullscreen}</button>
+          <div className="ml-auto flex items-center md:ml-0">
+            <button type="button" className={iconBtn} onClick={() => goTo(page - 1)} disabled={!doc || page <= 1} title={t.prev}><span className="sr-only">{t.prev}</span><Icon name="prev" /></button>
+            <form onSubmit={(e) => { e.preventDefault(); goTo(Number(pageInput) || 1); }} className="flex items-center gap-1.5 text-[14px]">
+              <label><span className="sr-only">{t.page}</span>
+                <input value={pageInput} onChange={(e) => setPageInput(e.target.value.replace(/\D/g, ""))} inputMode="numeric"
+                  className="t-num h-8 w-11 border border-line bg-paper text-center focus:border-tech focus:outline-none" />
+              </label>
+              <span className="t-num text-ink-muted">/ {doc?.numPages ?? "–"}</span>
+            </form>
+            <button type="button" className={iconBtn} onClick={() => goTo(page + 1)} disabled={!doc || page >= (doc?.numPages ?? 1)} title={t.next}><span className="sr-only">{t.next}</span><Icon name="next" /></button>
+          </div>
+
+          <div className="hidden items-center md:flex">
+            {divider}
+            <button type="button" className={iconBtn} onClick={() => zoom(-1)} title={t.zoomOut}><span className="sr-only">{t.zoomOut}</span><Icon name="minus" /></button>
+            <button type="button" onClick={() => setScale("fit")} title={t.fitWidth} aria-pressed={scale === "fit"}
+              className={`t-num h-9 w-14 text-center text-[13px] hover:bg-soft ${scale === "fit" ? "font-semibold text-navy" : "text-ink-muted"}`}>
+              {Math.round(effectiveScale * 100)}%
+            </button>
+            <button type="button" className={iconBtn} onClick={() => zoom(1)} title={t.zoomIn}><span className="sr-only">{t.zoomIn}</span><Icon name="plus" /></button>
+          </div>
+
+          <div className="ml-auto hidden w-60 lg:block">{searchForm}</div>
+
+          <div className="hidden items-center md:flex">
+            {divider}
+            <a href={current.fileUrl} download className="inline-flex h-9 items-center gap-2 px-2.5 text-[14px] font-medium text-navy hover:bg-soft">
+              <Icon name="download" />{t.download}
+            </a>
+            <a href={current.fileUrl} target="_blank" rel="noopener noreferrer" className={iconBtn} title={t.print}><span className="sr-only">{t.print}</span><Icon name="print" /></a>
+            <button type="button" className={iconBtn} onClick={toggleFullscreen} title={t.fullscreen}><span className="sr-only">{t.fullscreen}</span><Icon name="expand" /></button>
+          </div>
+
+          <button type="button" className={`${iconBtn} lg:hidden`} aria-expanded={mobileTools} onClick={() => setMobileTools((v) => !v)} title={t.search}>
+            <span className="sr-only">{t.search}</span><Icon name={mobileTools ? "close" : "search"} />
+          </button>
         </div>
+
+        {/* Compact secondary row for small screens */}
+        {mobileTools && (
+          <div className="flex items-center gap-2 border-t border-line px-3 py-2 lg:hidden">
+            <div className="flex-1">{searchForm}</div>
+            <div className="flex items-center md:hidden">
+              <button type="button" className={iconBtn} onClick={() => zoom(-1)} title={t.zoomOut}><span className="sr-only">{t.zoomOut}</span><Icon name="minus" /></button>
+              <button type="button" className={iconBtn} onClick={() => zoom(1)} title={t.zoomIn}><span className="sr-only">{t.zoomIn}</span><Icon name="plus" /></button>
+              <a href={current.fileUrl} download className={iconBtn} title={t.download}><span className="sr-only">{t.download}</span><Icon name="download" /></a>
+            </div>
+          </div>
+        )}
       </div>
 
-      {pageReset && <p role="status" className="border-b border-honey/60 bg-honey-pale/60 px-4 py-2 text-sm">{t.pageReset}</p>}
+      {notice && (
+        <div role="status" className="flex items-center justify-between gap-4 border-b border-honey/50 bg-honey-pale/70 px-4 py-2 text-[14px]">
+          {t.pageReset}
+          <button type="button" onClick={() => setNotice(false)} className="text-ink-muted hover:text-ink"><span className="sr-only">{t.retry}</span><Icon name="close" className="size-4" /></button>
+        </div>
+      )}
 
       <div className="relative flex min-h-0 flex-1">
-        {/* Side panel: search results or outline */}
+        {/* Side panel: outline, or search results while searching */}
+        {panelOpen && <button aria-hidden tabIndex={-1} className="absolute inset-0 z-10 bg-night/30 lg:hidden" onClick={() => setPanelOpen(false)} />}
         <aside
-          aria-label={t.toc}
-          className={`${tocOpen ? "absolute inset-y-0 left-0 z-20 w-80 max-w-[85vw] shadow-xl" : "hidden"} overflow-y-auto border-r border-line bg-paper p-3 lg:static lg:block lg:w-72 lg:shadow-none`}
+          aria-label={hits !== null ? t.search : t.toc}
+          className={`${panelOpen ? "flex" : "hidden"} absolute inset-y-0 left-0 z-20 w-[19rem] max-w-[85vw] flex-col border-r border-line bg-paper lg:static lg:z-auto`}
         >
-          {hits !== null ? (
-            <div>
-              <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wider text-ink-muted">
-                {searching ? "…" : hits.length ? `${hits.reduce((s, h) => s + h.count, 0)} ${t.matches}` : t.noMatches}
-              </p>
+          <div className="flex items-center justify-between border-b border-line px-4 py-3">
+            <h2 className="t-label text-ink-muted">
+              {hits !== null ? (searching ? "…" : hits.length ? `${hits.reduce((s, h) => s + h.count, 0)} ${t.matches}` : t.noMatches) : t.toc}
+            </h2>
+            {hits !== null && <button type="button" onClick={() => { setHits(null); setQuery(""); }} className="text-[13px] text-tech hover:underline">{t.toc}</button>}
+          </div>
+          <div className="flex-1 overflow-y-auto px-2 py-3">
+            {hits !== null ? (
               <ul>
                 {hits.map((h) => (
                   <li key={h.page}>
-                    <button type="button" onClick={() => { goTo(h.page); setTocOpen(false); }} className="flex w-full justify-between rounded px-2 py-1.5 text-sm hover:bg-soft">
-                      <span>{t.page} {h.page}</span><span className="text-ink-muted">{h.count}</span>
+                    <button type="button" onClick={() => { goTo(h.page); }}
+                      className={`flex w-full justify-between border-l-2 py-2 pl-3 pr-2 text-[14px] ${h.page === page ? "border-honey font-semibold text-navy" : "border-transparent hover:text-navy"}`}>
+                      <span>{t.page} <span className="t-num">{h.page}</span></span><span className="t-num text-ink-faint">{h.count}</span>
                     </button>
                   </li>
                 ))}
               </ul>
-            </div>
-          ) : (
-            <>
-              <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wider text-ink-muted">{t.toc}</p>
-              {outline === null ? <p className="px-2 text-sm text-ink-muted">…</p> : outline.length ? renderOutline(outline) : <p className="px-2 text-sm text-ink-muted">{t.noToc}</p>}
-            </>
-          )}
+            ) : outline === null ? (
+              <p className="px-3 text-[14px] text-ink-muted">…</p>
+            ) : outline.length ? renderOutline(outline) : (
+              <p className="px-3 text-[14px] text-ink-muted">{t.noToc}</p>
+            )}
+          </div>
         </aside>
 
-        <div ref={scroller} className="min-w-0 flex-1 overflow-auto" tabIndex={0} aria-label={manual.title}>
+        <div ref={scroller} className="relative min-w-0 flex-1 overflow-auto" tabIndex={0} aria-label={manual.title}>
           {error ? (
-            <div role="alert" className="mx-auto mt-20 max-w-md text-center">
-              <p className="text-lg font-medium">{t.error}</p>
-              <div className="mt-6 flex justify-center gap-3">
-                <button type="button" onClick={() => setAttempt((a) => a + 1)} className="rounded-md bg-navy px-4 py-2 text-sm font-semibold text-white">{t.retry}</button>
-                <a href={current.fileUrl} download className="rounded-md border border-line px-4 py-2 text-sm font-semibold">{t.download}</a>
+            <div role="alert" className="mx-auto mt-24 max-w-md px-5 text-center">
+              <p className="t-h3 text-navy">{t.error}</p>
+              <div className="mt-6 flex justify-center gap-6">
+                <button type="button" onClick={() => setAttempt((a) => a + 1)} className="inline-flex h-11 items-center bg-navy px-5 text-[14px] font-semibold text-white">{t.retry}</button>
+                <a href={current.fileUrl} download className="link-arrow text-[14px] text-navy">{t.download}</a>
               </div>
             </div>
           ) : !doc ? (
-            <div role="status" className="mt-24 flex flex-col items-center gap-4 text-ink-muted">
-              <span className="size-8 animate-spin rounded-full border-2 border-line border-t-tech" aria-hidden />
+            <div role="status" className="mt-28 flex flex-col items-center gap-4 text-[14px] text-ink-muted">
+              <span className="h-[2px] w-24 overflow-hidden bg-line"><span className="block h-full w-1/3 animate-[pulse_1s_ease-in-out_infinite] bg-tech" /></span>
               {t.loading}
             </div>
           ) : (
-            <div className="flex flex-col gap-4 px-4 py-6">
+            <div className="flex flex-col gap-5 px-3 py-6 md:px-12 md:py-10">
               {Array.from({ length: doc.numPages }, (_, i) => (
                 <PdfPage key={i} doc={doc} pageNumber={i + 1} scale={effectiveScale} aspect={aspect} label={`${t.page} ${i + 1} ${t.of} ${doc.numPages}`} />
               ))}

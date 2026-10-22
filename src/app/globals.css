@@ -7,66 +7,56 @@
   --color-soft: #f0f2ed;
   --color-ink: #17212b;
   --color-ink-muted: #59646d;
+  --color-ink-faint: #8a949b;
+  --color-night: #0e1620;      /* header tier 1, footer */
+  --color-night-2: #18232f;    /* header tier 2 */
   --color-navy: #001b3d;
   --color-navy-800: #0b2a52;
   --color-tech: #245c95;
   --color-honey: #e8b84d;
+  --color-honey-deep: #b8861c; /* honey that passes contrast on light grounds */
   --color-honey-pale: #f4e5b8;
+  --color-pollen: #f1ebc6;     /* BioBuzz field colour, used for one band only */
   --color-moss: #718d65;
   --color-line: #dce2e3;
+  --color-line-strong: #c3cbcd;
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
 
-  --container-content: 76rem;
-  --container-prose: 42rem;
+  --container-content: 80rem;
+  --container-prose: 40rem;
+  --radius-xs: 2px;
 }
 
-html {
-  -webkit-text-size-adjust: 100%;
-}
+html { -webkit-text-size-adjust: 100%; }
 
 body {
   background: var(--color-canvas);
   color: var(--color-ink);
   font-family: var(--font-sans);
-  font-feature-settings: "cv11", "ss01";
+  font-size: 1rem;
+  line-height: 1.6;
+  font-feature-settings: "cv05", "cv11", "ss03";
   text-rendering: optimizeLegibility;
 }
 
-:focus-visible {
-  outline: 2px solid var(--color-tech);
-  outline-offset: 2px;
-  border-radius: 2px;
-}
+/* Type scale — one place, used everywhere */
+.t-display { font-size: clamp(2.375rem, 4.6vw, 3.75rem); line-height: 1.04; font-weight: 700; letter-spacing: -0.032em; }
+.t-h1      { font-size: clamp(2rem, 3.4vw, 2.875rem); line-height: 1.1; font-weight: 700; letter-spacing: -0.028em; }
+.t-h2      { font-size: clamp(1.625rem, 2.5vw, 2.25rem); line-height: 1.15; font-weight: 650; letter-spacing: -0.022em; }
+.t-h3      { font-size: 1.25rem; line-height: 1.3; font-weight: 600; letter-spacing: -0.012em; }
+.t-lead    { font-size: clamp(1.0625rem, 1.3vw, 1.1875rem); line-height: 1.6; }
+.t-label   { font-size: 0.75rem; line-height: 1.2; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+.t-num     { font-variant-numeric: tabular-nums; }
 
-.on-dark :focus-visible {
-  outline-color: var(--color-honey);
-}
+:focus-visible { outline: 2px solid var(--color-tech); outline-offset: 2px; }
+.on-dark :focus-visible { outline-color: var(--color-honey); }
+
+/* Text link with arrow, the primary secondary-action style (no pills) */
+.link-arrow { display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 600; }
+.link-arrow::after { content: "→"; transition: transform 160ms ease; }
+.link-arrow:hover::after { transform: translateX(3px); }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* Thin honey rule used as the BioBuzz accent above section eyebrows */
-.eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.625rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-ink-muted);
-}
-.eyebrow::before {
-  content: "";
-  width: 1.5rem;
-  height: 2px;
-  background: var(--color-honey);
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }

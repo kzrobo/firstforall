@@ -23,3 +23,12 @@ describe("i18n", () => {
     }
   });
 });
+
+describe("dictionary merge", () => {
+  it("keeps translated arrays as arrays", () => {
+    const steps = getDictionary("kk").landing.steps;
+    expect(Array.isArray(steps)).toBe(true);
+    expect(steps).toHaveLength(4);
+    expect(steps[0].title).not.toBe(en.landing.steps[0].title);
+  });
+});

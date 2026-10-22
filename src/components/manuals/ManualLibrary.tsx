@@ -1,87 +1,131 @@
 "use client";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Dictionary } from "@/i18n/dictionary";
 import { languageName } from "@/lib/languages";
 import { EMPTY_FILTERS, facetValues, filterManuals, type LibraryFilters } from "@/lib/manuals/filters";
 import type { Manual } from "@/lib/manuals/types";
-import { formatBytes, readerHref } from "./format";
+import { DocumentThumb } from "./DocumentThumb";
+import { readerHref } from "./format";
 
-export function ManualLibrary({ manuals, t, locale }: { manuals: Manual[]; t: Dictionary; locale: string }) {
-  const [f, setF] = useState<LibraryFilters>(EMPTY_FILTERS);
+type Facet = "season" | "language" | "category";
+
+export function ManualLibrary({ manuals, t, locale, initial }: { manuals: Manual[]; t: Dictionary; locale: string; initial: Partial<LibraryFilters> }) {
+  const [f, setF] = useState<LibraryFilters>({ ...EMPTY_FILTERS, ...initial });
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const facets = useMemo(() => facetValues(manuals), [manuals]);
   const results = useMemo(() => filterManuals(manuals, f), [manuals, f]);
   const set = (patch: Partial<LibraryFilters>) => setF((prev) => ({ ...prev, ...patch }));
-  const select = "h-11 w-full rounded-md border border-line bg-paper px-3 text-[15px]";
+
+  // Keep the URL shareable without a navigation round-trip.
+  useEffect(() => {
+    const qs = new URLSearchParams();
+    if (f.q) qs.set("q", f.q);
+    if (f.language) qs.set("lang", f.language);
+    if (f.season) qs.set("season", f.season);
+    if (f.category) qs.set("category", f.category);
+    window.history.replaceState(window.history.state, "", qs.size ? `/manuals?${qs}` : "/manuals");
+  }, [f.q, f.language, f.season, f.category]);
+
+  const groups: { key: Facet; label: string; values: { value: string; label: string }[] }[] = [
+    { key: "language", label: t.manuals.language, values: facets.languages.map((v) => ({ value: v, label: languageName(v, locale) })) },
+    { key: "season", label: t.manuals.season, values: facets.seasons.map((v) => ({ value: v, label: v })) },
+    { key: "category", label: t.manuals.category, values: facets.categories.map((v) => ({ value: v, label: v.charAt(0).toUpperCase() + v.slice(1) })) },
+  ];
+  const active = groups.filter((g) => f[g.key]).length;
 
   return (
-    <div>
-      <div className="grid gap-3 border-y border-line py-5 md:grid-cols-[2fr_1fr_1fr_1fr_1fr]">
-        <label className="block" id="search">
-          <span className="sr-only">{t.manuals.search}</span>
-          <input type="search" value={f.q} onChange={(e) => set({ q: e.target.value })} placeholder={t.manuals.search} className={select} />
-        </label>
-        <label><span className="sr-only">{t.manuals.season}</span>
-          <select className={select} value={f.season} onChange={(e) => set({ season: e.target.value })}>
-            <option value="">{t.manuals.season}: {t.manuals.all}</option>
-            {facets.seasons.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
-        </label>
-        <label><span className="sr-only">{t.manuals.language}</span>
-          <select className={select} value={f.language} onChange={(e) => set({ language: e.target.value })}>
-            <option value="">{t.manuals.language}: {t.manuals.all}</option>
-            {facets.languages.map((l) => <option key={l} value={l}>{languageName(l, locale)}</option>)}
-          </select>
-        </label>
-        <label><span className="sr-only">{t.manuals.category}</span>
-          <select className={select} value={f.category} onChange={(e) => set({ category: e.target.value })}>
-            <option value="">{t.manuals.category}: {t.manuals.all}</option>
-            {facets.categories.map((c) => <option key={c} value={c}>{c}</option>)}
-          </select>
-        </label>
-        <label><span className="sr-only">{t.manuals.sort}</span>
-          <select className={select} value={f.sort} onChange={(e) => set({ sort: e.target.value as LibraryFilters["sort"] })}>
-            <option value="newest">{t.manuals.sortNewest}</option>
-            <option value="title">{t.manuals.sortTitle}</option>
-          </select>
-        </label>
+    <>
+      {/* Search band */}
+      <div id="search" className="border-b border-line bg-paper">
+        <div className="mx-auto max-w-content px-5 pb-8 lg:px-10">
+          <label className="flex items-center gap-3 border-b-2 border-navy">
+            <svg aria-hidden className="size-5 text-navy" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="6.5" /><path d="m20 20-4.2-4.2" /></svg>
+            <span className="sr-only">{t.manuals.search}</span>
+            <input
+              type="search"
+              value={f.q}
+              onChange={(e) => set({ q: e.target.value })}
+              placeholder={t.landing.searchPlaceholder}
+              className="h-14 w-full bg-transparent text-[18px] placeholder:text-ink-faint focus:outline-none"
+            />
+          </label>
+        </div>
       </div>
 
-      <p className="sr-only" aria-live="polite">{results.length}</p>
-      {results.length === 0 ? (
-        <p className="py-16 text-ink-muted">{t.manuals.empty}</p>
-      ) : (
-        <ul className="divide-y divide-line">
-          {results.map((m) => (
-            <li key={m.id} className="grid gap-4 py-8 md:grid-cols-[minmax(0,6fr)_minmax(0,6fr)] md:gap-12">
-              <div>
-                <p className="text-sm text-tech">{m.season}{m.seasonName ? ` · ${m.seasonName}` : ""} · <span className="capitalize">{m.category}</span></p>
-                <h2 className="mt-1.5 text-2xl font-semibold tracking-[-0.01em] text-navy">
-                  <Link href={`/manuals/${m.slug}`} className="hover:underline">{m.title}</Link>
-                </h2>
-                {m.description && <p className="mt-3 line-clamp-3 text-ink-muted">{m.description}</p>}
-                <p className="mt-3 text-sm text-ink-muted">{t.manuals.revision} {m.revision}</p>
-              </div>
-              <ul className="self-center text-[15px]" aria-label={t.manuals.translations}>
-                {m.translations.map((tr) => (
-                  <li key={tr.id} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 border-b border-line py-2.5 last:border-0">
-                    <span className="font-medium">
-                      {languageName(tr.language, locale)}
-                      <span className="ml-2 text-xs font-normal text-ink-muted">{tr.isSource ? t.manuals.official : t.manuals.community}</span>
-                    </span>
-                    <span className="flex gap-4 text-sm">
-                      <Link className="font-semibold text-tech hover:underline" href={readerHref(m.slug, tr.language)}>{t.manuals.read}</Link>
-                      <a className="text-ink-muted hover:text-navy" href={tr.fileUrl} download>
-                        PDF{formatBytes(tr.fileSizeBytes) ? ` · ${formatBytes(tr.fileSizeBytes)}` : ""}
-                      </a>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+      <div className="mx-auto grid max-w-content gap-x-14 px-5 py-10 lg:grid-cols-12 lg:px-10 lg:py-14">
+        {/* Filters */}
+        <aside className="lg:col-span-3" aria-label="Filters">
+          <button type="button" onClick={() => setFiltersOpen((v) => !v)} aria-expanded={filtersOpen}
+            className="mb-6 flex w-full items-center justify-between border-y border-line py-3 text-[15px] font-medium lg:hidden">
+            Filters{active ? ` (${active})` : ""}<span aria-hidden>{filtersOpen ? "−" : "+"}</span>
+          </button>
+          <div className={`${filtersOpen ? "block" : "hidden"} space-y-9 pb-8 lg:block`}>
+            {groups.map((g) => (
+              <fieldset key={g.key}>
+                <legend className="t-label text-ink-muted">{g.label}</legend>
+                <ul className="mt-3 space-y-0.5">
+                  {[{ value: "", label: t.manuals.all }, ...g.values].map((v) => {
+                    const on = f[g.key] === v.value;
+                    return (
+                      <li key={v.value || "all"}>
+                        <label className={`flex cursor-pointer items-center gap-3 py-1.5 text-[15px] ${on ? "font-semibold text-navy" : "text-ink-muted hover:text-navy"}`}>
+                          <input type="radio" name={g.key} checked={on} onChange={() => set({ [g.key]: v.value })} className="sr-only peer" />
+                          <span aria-hidden className={`h-4 w-[2px] ${on ? "bg-honey" : "bg-transparent"}`} />
+                          <span className="peer-focus-visible:underline">{v.label}</span>
+                        </label>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </fieldset>
+            ))}
+          </div>
+        </aside>
+
+        {/* Results */}
+        <div className="lg:col-span-9">
+          <div className="flex items-baseline justify-between border-b border-line pb-4">
+            <p className="text-[14px] text-ink-muted" aria-live="polite"><span className="t-num font-semibold text-ink">{results.length}</span> / {manuals.length}</p>
+            <label className="flex items-center gap-2 text-[14px] text-ink-muted">
+              {t.manuals.sort}
+              <select value={f.sort} onChange={(e) => set({ sort: e.target.value as LibraryFilters["sort"] })} className="bg-transparent font-medium text-ink">
+                <option value="newest">{t.manuals.sortNewest}</option>
+                <option value="title">{t.manuals.sortTitle}</option>
+              </select>
+            </label>
+          </div>
+
+          {results.length === 0 ? (
+            <p className="py-16 text-ink-muted">{t.manuals.empty}</p>
+          ) : (
+            <ul className="grid grid-cols-2 gap-x-6 gap-y-12 pt-10 sm:grid-cols-3 lg:gap-x-8 xl:grid-cols-4">
+              {results.map((m) => (
+                <li key={m.id} className="group flex flex-col">
+                  <Link href={`/manuals/${m.slug}`} className="block transition-transform duration-200 group-hover:-translate-y-1" tabIndex={-1} aria-hidden>
+                    <DocumentThumb manual={m} />
+                  </Link>
+                  <p className="mt-5 text-[13px] font-medium text-tech t-num">{m.season} · <span className="capitalize">{m.category}</span></p>
+                  <h2 className="mt-1 text-[16px] font-semibold leading-snug text-navy">
+                    <Link href={`/manuals/${m.slug}`} className="hover:underline">{m.title}</Link>
+                  </h2>
+                  <p className="mt-1.5 text-[13px] text-ink-muted">{t.manuals.revision} {m.revision}</p>
+                  <ul className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-[13px]" aria-label={t.manuals.translations}>
+                    {m.translations.map((tr) => (
+                      <li key={tr.id}>
+                        <Link href={readerHref(m.slug, tr.language)} title={`${t.manuals.read}: ${languageName(tr.language, locale)}`}
+                          className={`font-semibold uppercase tracking-[0.05em] hover:underline ${f.language === tr.language ? "text-navy underline decoration-honey decoration-2 underline-offset-4" : "text-tech"}`}>
+                          {tr.language}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    </>
   );
 }

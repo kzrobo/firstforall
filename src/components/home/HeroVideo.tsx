@@ -30,32 +30,32 @@ export function HeroVideo({ src, poster, labels }: { src: string | null; poster:
         <img src={poster} alt="" className="absolute inset-0 size-full object-cover" />
       )}
       {src && enabled && (
-        <video
-          ref={ref}
-          className="absolute inset-0 size-full object-cover"
-          src={src}
-          poster={poster ?? undefined}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          aria-hidden
-          onPlay={() => setPlaying(true)}
-          onPause={() => setPlaying(false)}
-        />
-      )}
-      {src && enabled && (
-        <button
-          type="button"
-          onClick={toggle}
-          className="absolute bottom-6 right-6 z-20 inline-flex size-10 items-center justify-center rounded-full border border-white/30 text-white hover:bg-white/10"
-        >
-          <span className="sr-only">{playing ? labels.pause : labels.play}</span>
-          <svg aria-hidden viewBox="0 0 24 24" className="size-4" fill="currentColor">
-            {playing ? <path d="M7 5h3v14H7zM14 5h3v14h-3z" /> : <path d="M8 5v14l11-7z" />}
-          </svg>
-        </button>
+        <>
+          <video
+            ref={ref}
+            className="absolute inset-0 size-full object-cover"
+            src={src}
+            poster={poster ?? undefined}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-hidden
+            onPlay={() => setPlaying(true)}
+            onPause={() => setPlaying(false)}
+          />
+          <button
+            type="button"
+            onClick={toggle}
+            className="absolute bottom-6 right-5 z-20 inline-flex items-center gap-2 text-[13px] font-medium text-white/80 hover:text-white lg:right-10"
+          >
+            <svg aria-hidden viewBox="0 0 24 24" className="size-3.5" fill="currentColor">
+              {playing ? <path d="M7 5h3v14H7zM14 5h3v14h-3z" /> : <path d="M8 5v14l11-7z" />}
+            </svg>
+            {playing ? labels.pause : labels.play}
+          </button>
+        </>
       )}
     </>
   );

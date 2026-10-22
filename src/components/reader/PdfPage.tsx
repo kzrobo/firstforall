@@ -47,7 +47,7 @@ export const PdfPage = memo(function PdfPage({ doc, pageNumber, scale, aspect, l
       data-page={pageNumber}
       role="img"
       aria-label={label}
-      className="relative mx-auto bg-white shadow-[0_1px_3px_rgba(0,0,0,0.12),0_8px_24px_-12px_rgba(0,0,0,0.18)]"
+      className="relative mx-auto bg-white shadow-[0_1px_2px_rgba(14,22,32,0.10),0_12px_32px_-18px_rgba(14,22,32,0.25)]"
       style={{ width: w, height: h }}
     >
       {visible && <canvas ref={canvas} style={{ width: w, height: h }} className="block" />}

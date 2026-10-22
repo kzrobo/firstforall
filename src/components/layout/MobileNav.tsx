@@ -19,41 +19,45 @@ export function MobileNav({ items, t, locale }: { items: { href: string; label: 
       if (e.key === "Escape") { setOpen(false); buttonRef.current?.focus(); }
     };
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
   }, [open]);
 
   return (
-    <div className="lg:hidden">
+    <>
       <button
         ref={buttonRef}
         type="button"
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex size-10 items-center justify-center rounded-md text-white hover:bg-white/10"
+        className="-mr-2 inline-flex h-11 items-center gap-2 px-2 text-[14px] font-medium text-white"
       >
-        <span className="sr-only">{open ? t.nav.close : t.nav.menu}</span>
-        <svg aria-hidden className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-          {open ? <path d="M6 6l12 12M18 6 6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+        {open ? t.nav.close : t.nav.menu}
+        <svg aria-hidden className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+          {open ? <path d="M6 6l12 12M18 6 6 18" /> : <path d="M4 8h16M4 16h16" />}
         </svg>
       </button>
       {open && (
-        <div id={panelId} className="absolute inset-x-0 top-16 border-t border-white/10 bg-navy px-5 pb-6 pt-2 shadow-xl">
+        <div id={panelId} className="fixed inset-x-0 bottom-0 top-16 overflow-y-auto bg-night px-5 pb-10">
           <nav aria-label="Mobile">
-            <ul className="divide-y divide-white/10">
+            <ul>
               {items.map((item) => (
-                <li key={item.href}>
-                  <Link href={item.href} className="block py-3.5 text-base font-medium text-white">{item.label}</Link>
+                <li key={item.href} className="border-b border-white/10">
+                  <Link href={item.href} className="flex items-center justify-between py-4 text-[22px] font-semibold tracking-[-0.01em] text-white">
+                    {item.label}<span aria-hidden className="text-white/40">→</span>
+                  </Link>
                 </li>
               ))}
             </ul>
           </nav>
-          <div className="mt-4 flex items-center gap-3">
+          <div className="mt-8 flex flex-col gap-5 text-white/80">
+            <Link href="/manuals#search" className="text-[15px]">{t.nav.search}</Link>
             <LanguageSwitcher locale={locale} label={t.nav.language} />
-            <Link href="/manuals" className="inline-flex h-9 items-center rounded-md bg-honey px-4 text-sm font-semibold text-navy">{t.nav.explore}</Link>
+            <Link href="/login" className="text-[15px] text-white/60">{t.landing.signIn}</Link>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
