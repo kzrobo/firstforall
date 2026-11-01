@@ -1,20 +1,25 @@
 import Image from "next/image";
 
 /**
- * MAVERICKS lockup: the authentic emblem (its dark field dropped with a screen
- * blend so it sits cleanly on the night header) + a typeset wordmark.
+ * FIRST FOR ALL lockup. The emblem file is the authentic MAVERICKS mark on white;
+ * multiply blending lets it sit on any light ground, screen blending on navy.
  */
-export function BrandMark({ compact = false }: { compact?: boolean }) {
+export function BrandMark({ tone = "light" }: { tone?: "light" | "dark" }) {
+  const dark = tone === "dark";
   return (
     <span className="flex items-center gap-3">
-      <Image src="/brand/mavericks-emblem.jpg" alt="" width={44} height={44} priority className="size-11 -m-1 mix-blend-screen [mask-image:radial-gradient(closest-side,#000_55%,transparent_100%)]" />
-      {!compact && (
-        <span className="flex items-center gap-3 leading-none">
-          <span className="font-display text-[14px] font-semibold tracking-[0.04em] text-white">MAVERICKS</span>
-          <span aria-hidden className="h-4 w-px bg-white/25" />
-          <span className="text-[13px] font-medium text-white/60 t-num">#24034</span>
-        </span>
-      )}
+      <Image
+        src={dark ? "/brand/mavericks-emblem.jpg" : "/brand/mavericks-emblem-light.jpg"}
+        alt=""
+        width={40}
+        height={40}
+        priority
+        className={`size-9 shrink-0 ${dark ? "mix-blend-screen [mask-image:radial-gradient(closest-side,#000_60%,transparent)]" : "mix-blend-multiply"}`}
+      />
+      <span className="leading-none">
+        <span className={`font-display block text-[14px] font-semibold tracking-[-0.01em] ${dark ? "text-white" : "text-navy"}`}>FIRST FOR ALL</span>
+        <span className={`mt-1 block text-[11.5px] font-medium tracking-[0.01em] ${dark ? "text-white/55" : "text-ink-muted"}`}>MAVERICKS · FTC #24034</span>
+      </span>
     </span>
   );
 }

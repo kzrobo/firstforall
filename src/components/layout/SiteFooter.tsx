@@ -3,40 +3,36 @@ import type { Dictionary } from "@/i18n/dictionary";
 import { BrandMark } from "./BrandMark";
 
 export function SiteFooter({ t }: { t: Dictionary }) {
-  const col = "t-label text-white/45";
-  const link = "text-[15px] text-white/80 hover:text-white";
+  const head = "text-[12px] font-medium text-white/45";
+  const link = "text-[15px] text-white/85 decoration-accent decoration-2 underline-offset-4 hover:text-white hover:underline";
   return (
-    <footer className="on-dark bg-night text-white">
-      <div className="mx-auto max-w-content px-5 pt-16 lg:px-10">
-        <div className="grid gap-12 border-b border-white/10 pb-14 md:grid-cols-12">
-          <div className="md:col-span-5">
-            <BrandMark />
-            <p className="mt-6 max-w-sm text-[15px] leading-relaxed text-white/70">
-              FIRST FOR ALL — MANUAL FOR ALL. {t.meta.tagline}
-            </p>
-          </div>
-          <nav aria-label={t.footer.documentation} className="md:col-span-3 md:col-start-7">
-            <h2 className={col}>{t.footer.documentation}</h2>
+    <footer className="bg-navy text-white [&_:focus-visible]:outline-accent">
+      <div className="mx-auto max-w-content px-5 lg:px-10">
+        <div className="grid gap-x-6 gap-y-14 border-b border-white/12 py-16 lg:grid-cols-12 lg:py-20">
+          <p className="font-display max-w-[18ch] text-[clamp(1.5rem,2.6vw,2.25rem)] font-normal leading-[1.2] tracking-[-0.03em] lg:col-span-6">
+            {t.footer.statement}
+          </p>
+          <nav aria-label={t.footer.platform} className="lg:col-span-2 lg:col-start-8">
+            <h2 className={head}>{t.footer.platform}</h2>
             <ul className="mt-5 space-y-3">
+              <li><Link className={link} href="/">{t.nav.home}</Link></li>
               <li><Link className={link} href="/manuals">{t.nav.manuals}</Link></li>
-              <li><Link className={link} href="/guides">{t.nav.guides}</Link></li>
-              <li><Link className={link} href="/ai">{t.nav.ai}</Link></li>
-              <li><Link className={link} href="/bookmarks">Bookmarks</Link></li>
+              <li><Link className={link} href="/learn">{t.nav.learn}</Link></li>
             </ul>
           </nav>
-          <nav aria-label={t.footer.project} className="md:col-span-3">
-            <h2 className={col}>{t.footer.project}</h2>
+          <nav aria-label={t.footer.team} className="lg:col-span-2">
+            <h2 className={head}>{t.footer.team}</h2>
             <ul className="mt-5 space-y-3">
               <li><Link className={link} href="/about">{t.nav.about}</Link></li>
-              <li><Link className={link} href="/about#initiative">{t.nav.initiative}</Link></li>
-              <li><Link className={link} href="/sponsors">{t.sponsors.title}</Link></li>
-              <li><Link className={link} href="/login">{t.landing.signIn}</Link></li>
+              <li><Link className={link} href="/about#gallery">{t.nav.gallery}</Link></li>
+              <li><Link className={link} href="/login">{t.nav.signIn}</Link></li>
             </ul>
           </nav>
         </div>
-        <div className="grid gap-6 py-8 text-[13px] leading-relaxed text-white/50 md:grid-cols-12">
-          <p className="md:col-span-7">{t.footer.disclaimer}</p>
-          <p className="md:col-span-4 md:col-start-9 md:text-right">© {new Date().getFullYear()} MAVERICKS FTC #24034<br />{t.footer.rights}</p>
+        <div className="grid gap-x-6 gap-y-6 py-10 text-[13px] leading-relaxed text-white/50 lg:grid-cols-12">
+          <div className="lg:col-span-3"><BrandMark tone="dark" /></div>
+          <p className="lg:col-span-6">{t.footer.disclaimer}</p>
+          <p className="lg:col-span-3 lg:text-right">© {new Date().getFullYear()} MAVERICKS FTC #24034<br />{t.footer.rights}</p>
         </div>
       </div>
     </footer>

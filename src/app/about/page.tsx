@@ -1,97 +1,120 @@
-import Image from "next/image";
+import type { Metadata } from "next";
 import Link from "next/link";
-import { Rings } from "@/components/home/Rings";
 import { MediaSlot } from "@/components/media/MediaSlot";
 import { TeamGallery } from "@/components/media/TeamGallery";
 import { getI18n } from "@/i18n/server";
 import { getSiteMedia, showEmptyMediaSlots } from "@/lib/site/repository";
 
-export const metadata = { title: "About" };
+export const metadata: Metadata = {
+  title: "About MAVERICKS",
+  description: "MAVERICKS FTC #24034 from Nazarbayev Intellectual School, Shymkent, and the FIRST FOR ALL initiative.",
+};
+
+function Index({ n, label }: { n: number; label: string }) {
+  return <p className="t-index lg:col-span-3"><span className="t-num">({String(n).padStart(2, "0")})</span> {label}</p>;
+}
 
 export default async function AboutPage() {
   const [{ t }, media] = await Promise.all([getI18n(), getSiteMedia()]);
   const showEmpty = showEmptyMediaSlots();
-  const L = t.landing;
-  const hero = media.aboutHero;
+  const A = t.about;
 
   return (
     <>
-      {/* Opening: team photograph when uploaded; otherwise the emblem on night */}
-      <header className="on-dark relative isolate overflow-hidden bg-[#0b1a2e] text-white">
-        {hero ? (
-          <>
-            <Image src={hero.url} alt={hero.alt} fill priority sizes="100vw"
-              className="-z-10 object-cover [object-position:var(--fm)] sm:[object-position:var(--f)]"
-              style={{ "--f": hero.focus, "--fm": hero.focusMobile } as React.CSSProperties} />
-            <div aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-t from-[#0b1a2e]/85 via-[#0b1a2e]/20 to-transparent" />
-          </>
-        ) : (
-          <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_75%_50%,#173352_0%,#0b1a2e_60%)]" />
-        )}
-        <div className={`mx-auto grid max-w-content items-end gap-x-8 lg:gap-x-16 gap-y-10 px-5 lg:grid-cols-12 lg:px-10 ${hero ? "min-h-[min(78svh,720px)] pb-14 pt-40 lg:pb-20" : "py-20 lg:py-28"}`}>
-          <div className="lg:col-span-7">
-            <p className="t-label text-white/60">{t.nav.about}</p>
-            <h1 className="t-display mt-5">{t.about.title}</h1>
-            <p className="t-lead mt-6 max-w-xl text-white/85">{t.about.intro}</p>
-          </div>
-          {!hero && (
-            <Image src="/brand/mavericks-emblem.jpg" alt="MAVERICKS emblem" width={480} height={480}
-              className="hidden w-full max-w-sm justify-self-center self-center mix-blend-screen [mask-image:radial-gradient(closest-side,#000_50%,transparent_96%)] lg:col-span-5 lg:block" />
-          )}
-          {hero?.caption && <p className="text-[13px] text-white/60 lg:col-span-4 lg:col-start-9 lg:text-right">{hero.caption}</p>}
+      {/* Opening */}
+      <header className="mx-auto max-w-content px-5 pt-12 lg:px-10 lg:pt-20">
+        <div className="grid gap-x-6 gap-y-8 lg:grid-cols-12">
+          <p className="t-index lg:col-span-3">{A.title}</p>
+          <h1 className="t-display text-navy lg:col-span-5">MAVERICKS<span className="block text-ink-faint">FTC #24034</span></h1>
+          <p className="t-lead max-w-md self-end text-ink-muted lg:col-span-4">{A.lead}</p>
         </div>
       </header>
 
-      {/* Story with photograph */}
-      <section aria-labelledby="story-title" className="mx-auto grid max-w-content items-center gap-x-8 lg:gap-x-20 gap-y-12 px-5 py-20 md:grid-cols-12 lg:px-10 lg:py-28">
-        <div className={media.aboutStory || showEmpty ? "md:col-span-6 lg:col-span-5" : "md:col-span-8"}>
-          <h2 id="story-title" className="t-h1 text-navy">{t.about.story}</h2>
-          <p className="t-lead mt-6 text-ink/80">{L.teamBody}</p>
-          <div className="mt-12 border-t border-line pt-8">
-            <h3 className="t-label text-ink-muted">{t.about.philosophy}</h3>
-            <p className="font-display mt-4 text-[19px] font-medium leading-[1.45] tracking-[-0.012em] text-navy">{t.about.philosophyBody}</p>
-          </div>
+      {(media.aboutHero || showEmpty) && (
+        <div className="mx-auto mt-12 max-w-content sm:px-5 lg:mt-20 lg:px-10">
+          <MediaSlot item={media.aboutHero} slot="about_hero" ratio="21 / 9" ratioMobile="4 / 5" sizes="(min-width: 1440px) 1360px, 100vw" priority showEmpty={showEmpty}
+            className="[&_figcaption]:px-5 sm:[&_figcaption]:px-0" />
         </div>
-        <MediaSlot item={media.aboutStory} slot="about_story" ratio="4 / 5" sizes="(min-width: 768px) 45vw, 100vw" showEmpty={showEmpty} className="md:col-span-6 lg:col-start-7" />
-      </section>
-
-      {/* Initiative and translation process */}
-      <section id="initiative" aria-labelledby="initiative-title" className="relative isolate overflow-hidden bg-pollen">
-        <Rings className="absolute -right-[20%] top-1/2 -z-10 h-[170%] -translate-y-1/2 text-honey-deep/20" count={6} />
-        <div className="mx-auto grid max-w-content gap-x-8 lg:gap-x-16 gap-y-12 px-5 py-20 lg:grid-cols-12 lg:px-10 lg:py-28">
-          <div className="lg:col-span-5">
-            <p className="t-label text-honey-deep">{t.home.initiativeEyebrow}</p>
-            <h2 id="initiative-title" className="t-h1 mt-4 text-navy">{t.home.initiativeTitle}</h2>
-            {(media.photoInitiative || showEmpty) && (
-              <MediaSlot item={media.photoInitiative} slot="photo_initiative" ratio="4 / 3" sizes="(min-width: 1024px) 38vw, 100vw" showEmpty={showEmpty} className="mt-10 hidden lg:block" />
-            )}
-          </div>
-          <div className="lg:col-span-6 lg:col-start-7">
-            <p className="t-lead text-ink/80">{t.home.initiativeBody}</p>
-            <h3 className="t-label mt-10 text-ink/60">{L.processLabel}</h3>
-            <ol className="mt-4 border-t border-ink/15">
-              {L.steps.map((s, i) => (
-                <li key={s.title} className="grid grid-cols-[3rem_1fr] gap-x-4 border-b border-ink/15 py-5">
-                  <span className="t-num text-[14px] font-semibold text-honey-deep">{String(i + 1).padStart(2, "0")}</span>
-                  <span><span className="font-semibold text-navy">{s.title}.</span> <span className="text-ink/75">{s.body}</span></span>
-                </li>
-              ))}
-            </ol>
-            <Link href="/manuals" className="link-arrow mt-10 text-navy">{t.nav.explore}</Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Gallery */}
-      {(media.teamGallery.length > 0 || showEmpty) && (
-        <section aria-labelledby="gallery-title" className="mx-auto max-w-content px-5 py-20 lg:px-10 lg:py-28">
-          <div className="mb-10 grid gap-6 border-b-2 border-navy pb-6 md:grid-cols-12 md:items-end">
-            <h2 id="gallery-title" className="t-h2 text-navy md:col-span-6">{t.about.gallery}</h2>
-            <p className="text-ink-muted md:col-span-5 md:col-start-8">{t.about.galleryIntro}</p>
-          </div>
-          <TeamGallery items={media.teamGallery} showEmpty={showEmpty} />
-        </section>
       )}
+
+      {/* (01) Who we are */}
+      <section aria-labelledby="who-title" className="mx-auto max-w-content px-5 pt-20 lg:px-10 lg:pt-32">
+        <div className="grid gap-x-6 gap-y-8 border-t border-navy pt-5 lg:grid-cols-12">
+          <Index n={1} label={A.whoIndex} />
+          <div className={media.aboutStory || showEmpty ? "lg:col-span-5" : "lg:col-span-6"}>
+            <h2 id="who-title" className="t-h2 max-w-[20ch] text-navy">{A.whoTitle}</h2>
+            <p className="mt-6 max-w-[60ch] text-[17px] leading-[1.7] text-ink-muted">{A.whoBody}</p>
+          </div>
+          <MediaSlot item={media.aboutStory} slot="about_story" ratio="4 / 5" sizes="(min-width: 1024px) 26vw, 100vw" showEmpty={showEmpty} className="lg:col-span-3 lg:col-start-10" />
+        </div>
+      </section>
+
+      {/* (02) The initiative */}
+      <section id="initiative" aria-labelledby="what-title" className="mx-auto max-w-content scroll-mt-24 px-5 pt-20 lg:px-10 lg:pt-32">
+        <div className="grid gap-x-6 gap-y-8 border-t border-navy pt-5 lg:grid-cols-12">
+          <Index n={2} label={A.whatIndex} />
+          <div className="lg:col-span-9">
+            <h2 id="what-title" className="t-h2 text-navy">{A.whatTitle}</h2>
+            <p className="mt-6 max-w-[46ch] text-[clamp(1.125rem,1.7vw,1.4375rem)] leading-[1.5] tracking-[-0.01em] text-navy">{A.whatBody}</p>
+            <div className="mt-14 grid gap-x-6 gap-y-10 md:grid-cols-2 lg:max-w-[56rem]">
+              <div>
+                <h3 className="t-h3 text-navy">{A.whyTitle}</h3>
+                <p className="mt-3 leading-[1.7] text-ink-muted">{A.whyBody}</p>
+              </div>
+              <div>
+                <h3 className="t-h3 text-navy">{A.howTitle}</h3>
+                <p className="mt-3 leading-[1.7] text-ink-muted">{A.howBody}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="mt-16 grid gap-x-6 lg:mt-24 lg:grid-cols-12">
+          <h3 className="t-index pb-4 lg:col-span-3">{A.processTitle}</h3>
+          <ol className="border-t border-line lg:col-span-9">
+            {A.steps.map((s, i) => (
+              <li key={s.title} className="grid grid-cols-[2.5rem_1fr] gap-x-6 border-b border-line py-6 md:grid-cols-[2.5rem_12rem_1fr]">
+                <span className="t-num pt-1 text-[13px] text-ink-faint">{String(i + 1).padStart(2, "0")}</span>
+                <span className="font-display text-[19px] font-medium tracking-[-0.02em] text-navy">{s.title}</span>
+                <span className="col-start-2 mt-2 max-w-[56ch] text-ink-muted md:col-start-3 md:mt-0">{s.body}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* (03) Education */}
+      <section aria-labelledby="edu-title" className="mx-auto max-w-content px-5 pt-20 lg:px-10 lg:pt-32">
+        <div className="grid gap-x-6 gap-y-8 border-t border-navy pt-5 lg:grid-cols-12">
+          <Index n={3} label={A.educationIndex} />
+          <div className="lg:col-span-5">
+            <h2 id="edu-title" className="t-h2 text-navy">{A.educationTitle}</h2>
+            <p className="mt-5 max-w-[56ch] leading-[1.7] text-ink-muted">{A.educationBody}</p>
+            <Link href="/learn" className="btn-primary mt-8">{A.educationLink}</Link>
+          </div>
+          <div className="lg:col-span-3 lg:col-start-10">
+            <h3 className="t-index">{t.learn.plannedTitle}</h3>
+            <ul className="mt-3 border-t border-line text-[15px]">
+              {t.learn.planned.map((p) => <li key={p} className="border-b border-line py-2.5">{p}</li>)}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* (04) Gallery */}
+      <section id="gallery" aria-labelledby="gallery-title" className="mx-auto max-w-content scroll-mt-24 px-5 pb-24 pt-20 lg:px-10 lg:pb-32 lg:pt-32">
+        <div className="grid gap-x-6 gap-y-6 border-t border-navy pt-5 lg:grid-cols-12">
+          <Index n={4} label={A.gallery} />
+          <h2 id="gallery-title" className="t-h2 text-navy lg:col-span-5">{A.gallery}</h2>
+          <p className="max-w-sm text-ink-muted lg:col-span-4">{A.galleryIntro}</p>
+        </div>
+        <div className="mt-10 lg:mt-14">
+          {media.teamGallery.length > 0 || showEmpty ? (
+            <TeamGallery items={media.teamGallery} showEmpty={showEmpty} />
+          ) : (
+            <p className="border-t border-line pt-5 text-ink-muted">{A.galleryEmpty}</p>
+          )}
+        </div>
+      </section>
     </>
   );
 }

@@ -226,7 +226,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
               type="button"
               disabled={it.page === null}
               onClick={() => { if (it.page) { goTo(it.page); if (!window.matchMedia("(min-width: 1024px)").matches) setPanelOpen(false); } }}
-              className={`flex w-full items-baseline justify-between gap-3 border-l-2 py-2 pl-3 pr-2 text-left text-[14px] leading-snug ${here ? "border-honey font-semibold text-navy" : "border-transparent text-ink hover:text-navy"}`}
+              className={`flex w-full items-baseline justify-between gap-3 border-l-2 py-2 pl-3 pr-2 text-left text-[14px] leading-snug ${here ? "border-accent font-semibold text-navy" : "border-transparent text-ink hover:text-navy"}`}
             >
               <span>{it.title}</span>{it.page && <span className="t-num text-[12px] text-ink-faint">{it.page}</span>}
             </button>
@@ -249,7 +249,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
   );
 
   return (
-    <div ref={root} className="fixed inset-x-0 bottom-0 top-16 z-30 flex flex-col bg-[#e9ebe6] lg:top-[108px]">
+    <div ref={root} className="fixed inset-x-0 bottom-0 top-[65px] z-30 flex flex-col bg-stone lg:top-[73px]">
       {/* Toolbar */}
       <div className="border-b border-line bg-paper">
         <div className="flex h-14 items-center gap-1 px-2 md:px-4">
@@ -318,7 +318,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
       </div>
 
       {notice && (
-        <div role="status" className="flex items-center justify-between gap-4 border-b border-honey/50 bg-honey-pale/70 px-4 py-2 text-[14px]">
+        <div role="status" className="flex items-center justify-between gap-4 border-b border-accent/50 bg-accent-pale/70 px-4 py-2 text-[14px]">
           {t.pageReset}
           <button type="button" onClick={() => setNotice(false)} className="text-ink-muted hover:text-ink"><span className="sr-only">{t.retry}</span><Icon name="close" className="size-4" /></button>
         </div>
@@ -326,13 +326,13 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
 
       <div className="relative flex min-h-0 flex-1">
         {/* Side panel: outline, or search results while searching */}
-        {panelOpen && <button aria-hidden tabIndex={-1} className="absolute inset-0 z-10 bg-night/30 lg:hidden" onClick={() => setPanelOpen(false)} />}
+        {panelOpen && <button aria-hidden tabIndex={-1} className="absolute inset-0 z-10 bg-navy/30 lg:hidden" onClick={() => setPanelOpen(false)} />}
         <aside
           aria-label={hits !== null ? t.search : t.toc}
           className={`${panelOpen ? "flex" : "hidden"} absolute inset-y-0 left-0 z-20 w-[19rem] max-w-[85vw] flex-col border-r border-line bg-paper lg:static lg:z-auto`}
         >
           <div className="flex items-center justify-between border-b border-line px-4 py-3">
-            <h2 className="t-label text-ink-muted">
+            <h2 className="t-index">
               {hits !== null ? (searching ? "…" : hits.length ? `${hits.reduce((s, h) => s + h.count, 0)} ${t.matches}` : t.noMatches) : t.toc}
             </h2>
             {hits !== null && <button type="button" onClick={() => { setHits(null); setQuery(""); }} className="text-[13px] text-tech hover:underline">{t.toc}</button>}
@@ -343,7 +343,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
                 {hits.map((h) => (
                   <li key={h.page}>
                     <button type="button" onClick={() => { goTo(h.page); }}
-                      className={`flex w-full justify-between border-l-2 py-2 pl-3 pr-2 text-[14px] ${h.page === page ? "border-honey font-semibold text-navy" : "border-transparent hover:text-navy"}`}>
+                      className={`flex w-full justify-between border-l-2 py-2 pl-3 pr-2 text-[14px] ${h.page === page ? "border-accent font-semibold text-navy" : "border-transparent hover:text-navy"}`}>
                       <span>{t.page} <span className="t-num">{h.page}</span></span><span className="t-num text-ink-faint">{h.count}</span>
                     </button>
                   </li>

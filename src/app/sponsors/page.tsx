@@ -7,7 +7,7 @@ export default async function SponsorsPage() {
   const [{ t }, sponsors] = await Promise.all([getI18n(), listSponsors()]);
   return (
     <div className="mx-auto max-w-content px-5 py-20 lg:px-10">
-      <p className="t-label text-ink-muted">{t.home.partnersEyebrow}</p>
+      
       <h1 className="mt-4 text-4xl font-semibold tracking-[-0.025em] text-navy">{t.sponsors.title}</h1>
       <p className="mt-5 text-lg text-ink-muted">{t.sponsors.intro}</p>
       {sponsors.length === 0 ? <p className="mt-12 text-ink-muted">{t.sponsors.empty}</p> : (

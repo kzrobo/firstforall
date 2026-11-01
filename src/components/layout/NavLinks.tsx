@@ -2,22 +2,27 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export function NavLinks({ items }: { items: { href: string; label: string }[] }) {
+export interface NavItem { href: string; label: string }
+
+export function isActive(pathname: string, href: string): boolean {
+  return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+}
+
+export function NavLinks({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
   return (
-    <ul className="flex h-full items-stretch">
+    <ul className="flex items-center gap-1">
       {items.map((item) => {
-        const base = item.href.split("#")[0];
-        const active = !item.href.includes("#") && (pathname === base || pathname.startsWith(`${base}/`));
+        const active = isActive(pathname, item.href);
         return (
-          <li key={item.href} className="flex">
+          <li key={item.href}>
             <Link
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`font-display relative flex items-center px-3.5 text-[13.5px] font-medium tracking-[-0.005em] transition-colors xl:px-5 ${active ? "text-white" : "text-white/75 hover:text-white"}`}
+              className={`font-display group relative inline-flex h-10 items-center px-3.5 text-[13px] font-medium tracking-[-0.005em] transition-colors ${active ? "text-navy" : "text-ink-muted hover:text-navy"}`}
             >
               {item.label}
-              {active && <span aria-hidden className="absolute inset-x-3.5 bottom-0 h-[2px] bg-honey xl:inset-x-5" />}
+              <span aria-hidden className={`absolute inset-x-3.5 bottom-1 h-[2px] origin-left bg-accent transition-transform duration-200 ${active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`} />
             </Link>
           </li>
         );

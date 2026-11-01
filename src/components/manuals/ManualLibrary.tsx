@@ -33,90 +33,100 @@ export function ManualLibrary({ manuals, t, locale, initial }: { manuals: Manual
   ];
   const active = groups.filter((g) => f[g.key]).length;
 
+  const languageGroup = groups.find((g) => g.key === "language")!;
+  const selectGroups = groups.filter((g) => g.key !== "language");
+  const select = (on: boolean) =>
+    `h-10 w-full appearance-none border-b bg-transparent pr-7 text-[15px] focus:border-navy focus:outline-none ${on ? "border-accent font-medium text-navy" : "border-line-strong text-ink"}`;
+
   return (
-    <>
-      {/* Search band */}
-      <div id="search" className="border-b border-line bg-paper">
-        <div className="mx-auto max-w-content px-5 pb-8 lg:px-10">
-          <label className="flex items-center gap-3 border-b-2 border-navy">
-            <svg aria-hidden className="size-5 text-navy" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="6.5" /><path d="m20 20-4.2-4.2" /></svg>
-            <span className="sr-only">{t.manuals.search}</span>
-            <input
-              type="search"
-              value={f.q}
-              onChange={(e) => set({ q: e.target.value })}
-              placeholder={t.landing.searchPlaceholder}
-              className="h-14 w-full bg-transparent text-[18px] placeholder:text-ink-faint focus:outline-none"
-            />
+    <div className="mx-auto max-w-content px-5 lg:px-10">
+      {/* Search */}
+      <label id="search" className="flex scroll-mt-24 items-center gap-4 border-b-2 border-navy">
+        <svg aria-hidden className="size-5 shrink-0 text-navy" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="6.5" /><path d="m20 20-4.2-4.2" /></svg>
+        <span className="sr-only">{t.manuals.search}</span>
+        <input
+          type="search"
+          value={f.q}
+          onChange={(e) => set({ q: e.target.value })}
+          placeholder={t.manuals.searchPlaceholder}
+          className="h-16 w-full bg-transparent text-[18px] placeholder:text-ink-faint focus:outline-none lg:text-[20px]"
+        />
+      </label>
+
+      {/* Filters: language first (it is why people come), then season, category, sort */}
+      <div className="grid gap-x-6 gap-y-6 border-b border-line py-6 lg:grid-cols-12 lg:items-end">
+        <fieldset className="lg:col-span-6">
+          <legend className="t-index mb-2">{languageGroup.label}</legend>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            {[{ value: "", label: t.manuals.all }, ...languageGroup.values].map((v) => {
+              const on = f.language === v.value;
+              return (
+                <button key={v.value || "all"} type="button" aria-pressed={on} onClick={() => set({ language: v.value })}
+                  className={`h-9 border-b-2 text-[15px] transition-colors ${on ? "border-accent font-medium text-navy" : "border-transparent text-ink-muted hover:text-navy"}`}>
+                  {v.label}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+        {selectGroups.map((g) => (
+          <label key={g.key} className="relative block lg:col-span-2">
+            <span className="t-index">{g.label}</span>
+            <select value={f[g.key]} onChange={(e) => set({ [g.key]: e.target.value })} className={`mt-1 ${select(Boolean(f[g.key]))}`}>
+              <option value="">{t.manuals.all}</option>
+              {g.values.map((v) => <option key={v.value} value={v.value}>{v.label}</option>)}
+            </select>
+            <svg aria-hidden className="pointer-events-none absolute bottom-3.5 right-1 size-3 text-ink-muted" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="m3 4.5 3 3 3-3" /></svg>
           </label>
-        </div>
+        ))}
+        <label className="relative block lg:col-span-2">
+          <span className="t-index">{t.manuals.sort}</span>
+          <select value={f.sort} onChange={(e) => set({ sort: e.target.value as LibraryFilters["sort"] })} className={`mt-1 ${select(false)}`}>
+            <option value="newest">{t.manuals.sortNewest}</option>
+            <option value="title">{t.manuals.sortTitle}</option>
+          </select>
+          <svg aria-hidden className="pointer-events-none absolute bottom-3.5 right-1 size-3 text-ink-muted" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="m3 4.5 3 3 3-3" /></svg>
+        </label>
       </div>
 
-      <div className="mx-auto max-w-content px-5 py-8 lg:px-10 lg:py-10">
-        {/* Filters — one quiet row, so results get the full width */}
-        <div className="flex flex-wrap items-end gap-x-8 gap-y-4 border-b border-line pb-5">
-          {groups.map((g) => (
-            <label key={g.key} className="flex min-w-[9.5rem] flex-1 flex-col sm:flex-none">
-              <span className="t-label text-ink-muted">{g.label}</span>
-              <select
-                value={f[g.key]}
-                onChange={(e) => set({ [g.key]: e.target.value })}
-                className={`mt-1.5 h-10 border-b bg-transparent pr-6 text-[15px] focus:outline-none ${f[g.key] ? "border-honey font-semibold text-navy" : "border-line-strong text-ink"}`}
-              >
-                <option value="">{t.manuals.all}</option>
-                {g.values.map((v) => <option key={v.value} value={v.value}>{v.label}</option>)}
-              </select>
-            </label>
-          ))}
-          {active > 0 && (
-            <button type="button" onClick={() => set({ season: "", language: "", category: "" })} className="h-10 text-[14px] text-tech hover:underline">
-              × {t.manuals.all}
-            </button>
-          )}
-          <div className="ml-auto flex items-center gap-6">
-            <p className="text-[14px] text-ink-muted" aria-live="polite"><span className="t-num font-semibold text-ink">{results.length}</span> / {manuals.length}</p>
-            <label className="flex items-center gap-2 text-[14px] text-ink-muted">
-              {t.manuals.sort}
-              <select value={f.sort} onChange={(e) => set({ sort: e.target.value as LibraryFilters["sort"] })} className="bg-transparent font-medium text-ink">
-                <option value="newest">{t.manuals.sortNewest}</option>
-                <option value="title">{t.manuals.sortTitle}</option>
-              </select>
-            </label>
-          </div>
-        </div>
-
-        {results.length === 0 ? (
-          <p className="py-16 text-ink-muted">{t.manuals.empty}</p>
-        ) : (
-          <ul className="divide-y divide-line sm:grid sm:grid-cols-2 sm:gap-x-10 sm:gap-y-16 sm:divide-y-0 sm:pt-12 lg:grid-cols-3 lg:gap-x-14">
-            {results.map((m) => (
-              <li key={m.id} className="group grid grid-cols-[104px_1fr] gap-x-5 py-7 sm:block sm:py-0">
-                <Link href={`/manuals/${m.slug}`} tabIndex={-1} aria-hidden
-                  className="block self-start shadow-[0_1px_2px_rgba(14,22,32,0.06)] transition-[transform,box-shadow] duration-200 sm:group-hover:-translate-y-1 sm:group-hover:shadow-[0_30px_50px_-30px_rgba(14,22,32,0.4)]">
-                  <DocumentThumb manual={m} />
-                </Link>
-                <div className="sm:mt-6">
-                  <p className="text-[13px] font-medium text-tech t-num">{m.season}{m.seasonName ? ` · ${m.seasonName}` : ""}</p>
-                  <h2 className="mt-1.5 text-[18px] font-semibold leading-snug tracking-[-0.01em] text-navy sm:text-[20px]">
-                    <Link href={`/manuals/${m.slug}`} className="hover:underline">{m.title}</Link>
-                  </h2>
-                  <p className="mt-2 text-[13px] text-ink-muted"><span className="capitalize">{m.category}</span> · {t.manuals.revision} {m.revision}</p>
-                  <ul className="mt-4 flex flex-wrap gap-x-4 gap-y-1.5 border-t border-line pt-3 text-[14px]" aria-label={t.manuals.translations}>
-                    {m.translations.map((tr) => (
-                      <li key={tr.id}>
-                        <Link href={readerHref(m.slug, tr.language)} title={t.manuals.read}
-                          className={`font-medium hover:underline ${f.language === tr.language ? "text-navy underline decoration-honey decoration-2 underline-offset-4" : "text-tech"}`}>
-                          {languageName(tr.language, locale)}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </li>
-            ))}
-          </ul>
+      <div className="flex items-baseline justify-between py-4 text-[14px] text-ink-muted">
+        <p aria-live="polite"><span className="t-num font-semibold text-ink">{results.length}</span> / <span className="t-num">{manuals.length}</span> {t.manuals.documents}</p>
+        {(active > 0 || f.q) && (
+          <button type="button" onClick={() => set({ q: "", season: "", language: "", category: "" })} className="link-rule text-navy">{t.manuals.clear}</button>
         )}
       </div>
-    </>
+
+      {results.length === 0 ? (
+        <p className="border-t border-line py-16 text-ink-muted">{t.manuals.empty}</p>
+      ) : (
+        <ul className="divide-y divide-line border-t border-line pb-24 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-16 sm:divide-y-0 sm:border-0 sm:pt-6 lg:grid-cols-3 lg:pb-32 xl:grid-cols-4">
+          {results.map((m) => (
+            <li key={m.id} className="group grid grid-cols-[96px_1fr] gap-x-5 py-6 sm:block sm:py-0">
+              <Link href={`/manuals/${m.slug}`} tabIndex={-1} aria-hidden
+                className="img-zoom block self-start overflow-hidden shadow-[0_1px_2px_rgba(0,16,43,0.08)] transition-shadow duration-300 sm:group-hover:shadow-[0_28px_50px_-30px_rgba(0,16,43,0.45)]">
+                <DocumentThumb manual={m} />
+              </Link>
+              <div className="sm:mt-5">
+                <p className="t-index">{m.season}{m.seasonName ? ` · ${m.seasonName}` : ""}</p>
+                <h2 className="mt-1.5 text-[17px] font-medium leading-snug tracking-[-0.01em] text-navy sm:text-[18px]">
+                  <Link href={`/manuals/${m.slug}`} className="decoration-1 underline-offset-4 group-hover:underline">{m.title}</Link>
+                </h2>
+                <p className="mt-1.5 text-[13px] text-ink-muted"><span className="capitalize">{m.category}</span> · {t.manuals.revision} {m.revision}</p>
+                <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 border-t border-line pt-3 text-[14px]" aria-label={t.manuals.translations}>
+                  {m.translations.map((tr) => (
+                    <li key={tr.id}>
+                      <Link href={readerHref(m.slug, tr.language)} title={t.manuals.read}
+                        className={`link-rule ${f.language === tr.language ? "font-medium text-navy decoration-accent decoration-2" : "text-tech decoration-line-strong"}`}>
+                        {languageName(tr.language, locale)}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }

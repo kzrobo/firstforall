@@ -8,10 +8,9 @@ import { NavLinks } from "./NavLinks";
 
 export function navItems(t: Dictionary) {
   return [
+    { href: "/", label: t.nav.home },
     { href: "/manuals", label: t.nav.manuals },
-    { href: "/guides", label: t.nav.guides },
-    { href: "/ai", label: t.nav.ai },
-    { href: "/about#initiative", label: t.nav.initiative },
+    { href: "/learn", label: t.nav.learn },
     { href: "/about", label: t.nav.about },
   ];
 }
@@ -19,37 +18,22 @@ export function navItems(t: Dictionary) {
 export function SiteHeader({ t, locale }: { t: Dictionary; locale: UiLocale }) {
   const items = navItems(t);
   return (
-    <header className="on-dark sticky top-0 z-40 text-white">
-      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:bg-honey focus:px-3 focus:py-2 focus:text-night">
+    <header className="sticky top-0 z-40 border-b border-line bg-canvas/95 backdrop-blur-[6px] supports-[backdrop-filter]:bg-canvas/85">
+      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:bg-accent focus:px-3 focus:py-2 focus:text-navy">
         {t.nav.skip}
       </a>
-      {/* Tier 1 — identity and primary navigation */}
-      <div className="bg-night">
-        <div className="mx-auto flex h-16 max-w-content items-stretch px-5 lg:px-10">
-          <Link href="/" className="flex items-center" aria-label="MAVERICKS FTC #24034 — FIRST FOR ALL, home">
-            <BrandMark />
-          </Link>
-          <nav aria-label="Primary" className="ml-auto hidden lg:block">
-            <NavLinks items={items} />
-          </nav>
-          <Link href="/login" className="ml-6 hidden items-center gap-2 text-[13px] font-medium text-white/60 hover:text-white lg:flex">
-            {t.landing.signIn}
-          </Link>
-          <div className="ml-auto flex items-center lg:hidden">
-            <MobileNav items={items} t={t} locale={locale} />
-          </div>
-        </div>
-      </div>
-      {/* Tier 2 — programme and documentation utilities */}
-      <div className="hidden border-t border-white/[0.06] bg-night-2 lg:block">
-        <div className="mx-auto flex h-11 max-w-content items-center gap-7 px-5 text-[14px] lg:px-10">
-          <span className="t-label text-white/50">{t.landing.programme} — {t.meta.tagline}</span>
-          <Link href="/manuals#search" className="ml-auto flex items-center gap-2 text-white/80 hover:text-white">
-            <svg aria-hidden className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="6.5" /><path d="m20 20-4.2-4.2" /></svg>
-            {t.nav.search}
-          </Link>
+      <div className="mx-auto grid h-16 max-w-content grid-cols-[1fr_auto] items-center gap-6 px-5 lg:h-[72px] lg:grid-cols-[1fr_auto_1fr] lg:px-10">
+        <Link href="/" className="justify-self-start" aria-label="FIRST FOR ALL — MAVERICKS FTC #24034">
+          <BrandMark />
+        </Link>
+        <nav aria-label={t.nav.primary} className="hidden lg:block">
+          <NavLinks items={items} />
+        </nav>
+        <div className="hidden items-center justify-self-end gap-5 lg:flex">
           <LanguageSwitcher locale={locale} label={t.nav.language} />
-          <Link href="/manuals" className="link-arrow text-honey hover:text-[#f3cd74]">{t.nav.explore}</Link>
+        </div>
+        <div className="justify-self-end lg:hidden">
+          <MobileNav items={items} t={t} locale={locale} />
         </div>
       </div>
     </header>

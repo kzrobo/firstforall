@@ -1,58 +1,72 @@
+import Image from "next/image";
 import Link from "next/link";
 import { FilmDialog } from "@/components/media/FilmDialog";
+import { UI_LOCALES, type UiLocale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionary";
+import { nativeLanguageName } from "@/lib/languages";
 import type { SiteMedia } from "@/lib/site/repository";
 import { HeroVideo } from "./HeroVideo";
 
 /**
- * Full-bleed, video-first hero. Media comes from site_settings (hero_video, hero_poster,
- * hero_poster_mobile). Until footage is uploaded, a designed poster field is shown.
+ * Split editorial hero. Left: type and the primary action. Right: team footage/photo from
+ * site_settings (hero_video / hero_poster / hero_poster_mobile); until it exists, a typeset
+ * index of the platform's languages fills the panel — information, not decoration.
  */
-export function Hero({ t, media, showEmpty }: { t: Dictionary; media: SiteMedia; showEmpty: boolean }) {
+export function Hero({ t, media, locale }: { t: Dictionary; media: SiteMedia; locale: UiLocale }) {
   const hasMedia = Boolean(media.heroVideo || media.heroPoster);
   return (
-    <section aria-labelledby="hero-title" className="on-dark relative isolate flex min-h-[calc(100svh-4rem)] flex-col overflow-hidden bg-[#0a1524] text-white lg:min-h-[max(640px,calc(100svh-108px))]">
-      {hasMedia ? (
-        <HeroVideo video={media.heroVideo} poster={media.heroPoster} posterMobile={media.heroPosterMobile} labels={t.hero} />
-      ) : (
-        <div aria-hidden className="absolute inset-0 -z-10">
-          {/* Poster field: low-key cinematic light, no imagery invented */}
-          <div className="absolute inset-0 bg-[radial-gradient(120%_90%_at_78%_18%,#1d3a5c_0%,#0f2238_38%,#0a1524_72%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(60%_50%_at_12%_100%,rgba(232,184,77,0.10),transparent_70%)]" />
-          <div className="film-grain absolute inset-0" />
-          {showEmpty && (
-            <p className="absolute right-5 top-5 text-[12px] font-medium tracking-[0.04em] text-white/40 lg:right-10 lg:top-8">
-              Hero film · slots <code>hero_video</code> / <code>hero_poster</code>
-            </p>
-          )}
-        </div>
-      )}
-      {/* Readability: weighted to the lower-left where the type sits */}
-      <div aria-hidden className="absolute inset-0 -z-[1] bg-gradient-to-t from-[#0a1524]/90 via-[#0a1524]/25 to-transparent" />
-      <div aria-hidden className="absolute inset-0 -z-[1] bg-gradient-to-r from-[#0a1524]/60 to-transparent" />
-
-      <div className="mx-auto mt-auto w-full max-w-content px-5 pb-10 pt-28 lg:px-10 lg:pb-14">
-        <p className="flex items-center gap-4 text-[13px] font-semibold tracking-[0.08em] text-white/75">
-          <span>MAVERICKS</span><span aria-hidden className="h-4 w-px bg-white/40" /><span className="t-num font-medium text-white/60">FTC #24034</span>
-        </p>
-        <h1 id="hero-title" className="t-campaign mt-6 text-[clamp(2.125rem,7.4vw,6.5rem)] leading-[1.02]">
-          <span className="block">{t.hero.title1}</span>
-          <span className="block">{t.hero.title2}</span>
-        </h1>
-
-        <div className="mt-10 grid gap-8 border-t border-white/20 pt-7 md:grid-cols-12 md:items-center lg:mt-14">
-          <p className="t-lead max-w-md text-white/85 md:col-span-5">{t.hero.subtitle}</p>
-          <div className="flex flex-wrap items-center gap-x-9 gap-y-5 md:col-span-7 md:justify-end">
-            {media.filmVideo && (
-              <FilmDialog src={media.filmVideo.url} poster={media.filmPoster?.url} label={t.landing.watchFilm} closeLabel={t.landing.closeFilm} className="text-white" />
-            )}
-            <Link href="/about#initiative" className="link-arrow text-[15px] text-white hover:text-honey">{t.hero.secondary}</Link>
-            <Link href="/manuals" className="font-display inline-flex h-12 items-center bg-white px-7 text-[14px] font-medium tracking-[-0.005em] text-night transition-colors hover:bg-honey-pale">
-              {t.hero.primary}
-            </Link>
+    <section aria-labelledby="hero-title" className="border-b border-line">
+      <div className="grid lg:min-h-[min(calc(100svh-72px),780px)] lg:grid-cols-12">
+        <div className="flex flex-col px-5 pb-12 pt-10 sm:pt-14 lg:col-span-6 lg:pb-14 lg:pl-[max(2.5rem,calc((100vw-90rem)/2+2.5rem))] lg:pr-12 lg:pt-16">
+          <p className="t-index flex flex-wrap gap-x-3">
+            <span>MAVERICKS · FTC #24034</span><span aria-hidden className="text-line-strong">/</span><span>{t.hero.place}</span>
+          </p>
+          <h1 id="hero-title" className="t-display mt-10 max-w-[13ch] text-navy lg:mt-[clamp(3rem,9vh,6rem)]">
+            {t.hero.title1}<br />{t.hero.title2}
+          </h1>
+          <div className="mt-10 grid max-w-[34rem] gap-8 lg:mt-auto lg:pt-14">
+            <p className="t-lead text-ink-muted">{t.hero.lead}</p>
+            <div className="flex flex-wrap items-center gap-x-8 gap-y-5">
+              <Link href="/manuals" className="btn-primary">{t.hero.primary}</Link>
+              <Link href="/learn" className="link-rule text-[15px] font-medium text-navy">{t.hero.secondary}</Link>
+              {media.filmVideo && (
+                <FilmDialog src={media.filmVideo.url} poster={media.filmPoster?.url} label={t.hero.watchFilm} closeLabel={t.hero.closeFilm} className="text-navy" />
+              )}
+            </div>
           </div>
+        </div>
+
+        <div className={`relative isolate overflow-hidden bg-navy lg:col-span-6 ${hasMedia ? "aspect-[4/5] sm:aspect-[16/10] lg:aspect-auto" : ""}`}>
+          {hasMedia ? (
+            <HeroVideo video={media.heroVideo} poster={media.heroPoster} posterMobile={media.heroPosterMobile} labels={t.hero} />
+          ) : (
+            <LanguageIndex t={t} locale={locale} />
+          )}
         </div>
       </div>
     </section>
+  );
+}
+
+function LanguageIndex({ t, locale }: { t: Dictionary; locale: UiLocale }) {
+  return (
+    <div className="flex h-full flex-col px-5 py-10 text-white sm:px-10 lg:px-12 lg:py-16">
+      <p className="max-w-[24ch] text-[13px] leading-snug text-white/60">{t.hero.panelCaption}</p>
+      <ol className="mt-8 border-t border-white/15 lg:mt-[clamp(3rem,9vh,6rem)]">
+        {UI_LOCALES.map((l) => (
+          <li key={l} className="flex items-baseline justify-between gap-6 border-b border-white/15 py-4 lg:py-5">
+            <span lang={l} className="font-display flex items-center gap-4 text-[clamp(1.625rem,3vw,2.75rem)] font-normal leading-none tracking-[-0.035em]">
+              <span aria-hidden className={`size-2.5 shrink-0 ${l === locale ? "bg-accent" : "bg-transparent"}`} />
+              {nativeLanguageName(l)}
+            </span>
+            <span className="text-[12px] font-semibold uppercase tracking-[0.08em] text-white/45">{l}</span>
+          </li>
+        ))}
+      </ol>
+      <div className="mt-10 flex items-center gap-3 text-[12px] text-white/50 lg:mt-auto lg:pt-10">
+        <Image src="/brand/mavericks-emblem.jpg" alt="" width={28} height={28} className="size-7 mix-blend-screen [mask-image:radial-gradient(closest-side,#000_60%,transparent)]" />
+        MAVERICKS · {t.hero.place}
+      </div>
+    </div>
   );
 }

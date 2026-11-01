@@ -7,13 +7,13 @@ import { publicEnv } from "@/lib/env";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"], weight: ["400", "500", "600", "700"], variable: "--font-inter", display: "swap" });
-// Unbounded (Google Fonts distribution — the same family Figma serves). Real 500/600/700 weights only.
-const unbounded = Unbounded({ subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"], weight: ["500", "600", "700"], variable: "--font-unbounded", display: "swap" });
+// Unbounded (Google Fonts distribution — the same family Figma serves). Real 400/500/600 weights only.
+const unbounded = Unbounded({ subsets: ["latin", "latin-ext", "cyrillic", "cyrillic-ext"], weight: ["400", "500", "600"], variable: "--font-unbounded", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(publicEnv.siteUrl),
   title: { default: "FIRST FOR ALL — MANUAL FOR ALL", template: "%s · FIRST FOR ALL" },
-  description: "Community translations of FIRST Tech Challenge documentation by MAVERICKS FTC #24034. Not an official FIRST product.",
+  description: "Multilingual FTC manuals and robotics lessons by MAVERICKS FTC #24034. A community initiative, not an official FIRST product.",
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

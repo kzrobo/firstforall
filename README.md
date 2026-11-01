@@ -12,6 +12,14 @@ Community platform by MAVERICKS FTC #24034 for multilingual FTC documentation. N
 5. Hero/film video: upload to `public-media`, then
    `insert into site_settings (key, value) values ('hero_video', '{"path":"hero.mp4"}');`
 
+## LEARN lessons
+Sign in at `/login`, open **Admin → Lessons → Add lesson**, paste a YouTube link (watch, youtu.be or Shorts), add a title,
+category and spoken language, then save as draft or publish (founders and editors with `can_publish`). Apply
+`supabase/migrations/20261101000000_learn.sql` first; it creates the tables, policies and the four starter categories.
+
+## Photos
+See `docs/ASSETS.md` for every photo/video slot, its shape and how to set it.
+
 ## Develop
 ```bash
 npm install

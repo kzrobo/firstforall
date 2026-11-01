@@ -3,7 +3,7 @@ import { ManualLibrary } from "@/components/manuals/ManualLibrary";
 import { getI18n } from "@/i18n/server";
 import { listPublishedManuals } from "@/lib/manuals/repository";
 
-export const metadata: Metadata = { title: "Manual library" };
+export const metadata: Metadata = { title: "Manual library", description: "FTC competition manuals in English, Kazakh, Russian and Spanish, each linked to its official English source." };
 
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
@@ -15,18 +15,16 @@ export default async function ManualsPage({ searchParams }: Props) {
 
   return (
     <>
-      <header className="bg-paper">
-        <div className="mx-auto grid max-w-content gap-x-8 lg:gap-x-16 gap-y-5 px-5 pb-10 pt-14 lg:grid-cols-12 lg:px-10 lg:pt-20">
-          <div className="lg:col-span-7">
-            <p className="t-label text-ink-muted">{t.nav.manuals}</p>
-            <h1 className="t-h1 mt-4 text-navy">{t.manuals.title}</h1>
-          </div>
-          <p className="self-end text-ink-muted lg:col-span-5">{t.manuals.intro}</p>
+      <header className="mx-auto max-w-content px-5 pb-10 pt-12 lg:px-10 lg:pb-14 lg:pt-20">
+        <div className="grid gap-x-6 gap-y-6 lg:grid-cols-12">
+          <p className="t-index lg:col-span-3">{t.home.libraryIndex}</p>
+          <h1 className="t-display text-navy lg:col-span-5">{t.manuals.title}</h1>
+          <p className="t-lead max-w-md self-end text-ink-muted lg:col-span-4">{t.manuals.intro}</p>
         </div>
       </header>
       {message ? (
-        <div className="border-t border-line">
-          <p className="mx-auto max-w-content px-5 py-16 text-ink-muted lg:px-10">{message}</p>
+        <div className="mx-auto max-w-content px-5 pb-24 lg:px-10">
+          <p className="border-t border-navy pt-6 text-ink-muted">{message}</p>
         </div>
       ) : (
         <ManualLibrary

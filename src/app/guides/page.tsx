@@ -1,8 +1,6 @@
-import { ComingSoon } from "@/components/ui/ComingSoon";
-import { getI18n } from "@/i18n/server";
+import { permanentRedirect } from "next/navigation";
 
-export const metadata = { title: "Technical guides" };
-export default async function GuidesPage() {
-  const { t } = await getI18n();
-  return <ComingSoon t={t} title={t.nav.guides} />;
+/** Technical guides are now video lessons in LEARN. */
+export default function GuidesPage() {
+  permanentRedirect("/learn");
 }

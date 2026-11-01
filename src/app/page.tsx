@@ -1,76 +1,141 @@
-import Image from "next/image";
 import Link from "next/link";
-import { AiWorkspaceShell } from "@/components/ai/AiWorkspaceShell";
 import { Hero } from "@/components/home/Hero";
+import { LessonTeaser } from "@/components/learn/LessonTeaser";
 import { DocumentThumb } from "@/components/manuals/DocumentThumb";
 import { formatBytes, readerHref } from "@/components/manuals/format";
-import { FilmDialog } from "@/components/media/FilmDialog";
 import { MediaSlot } from "@/components/media/MediaSlot";
+import { SectionHead } from "@/components/ui/SectionHead";
 import { UI_LOCALES } from "@/i18n/config";
 import { getI18n } from "@/i18n/server";
-import { nativeLanguageName } from "@/lib/languages";
+import { languageName, nativeLanguageName } from "@/lib/languages";
+import { listPublishedLessons } from "@/lib/learn/repository";
 import { listPublishedManuals } from "@/lib/manuals/repository";
-import { getSiteMedia, listSponsors, showEmptyMediaSlots } from "@/lib/site/repository";
+import { getSiteMedia, showEmptyMediaSlots } from "@/lib/site/repository";
 
 export default async function HomePage() {
-  const { t } = await getI18n();
-  const [result, media, sponsors] = await Promise.all([listPublishedManuals(), getSiteMedia(), listSponsors()]);
+  const { t, locale } = await getI18n();
+  const [manualsResult, learnResult, media] = await Promise.all([listPublishedManuals(), listPublishedLessons(locale), getSiteMedia()]);
   const showEmpty = showEmptyMediaSlots();
-  const manuals = result.ok ? result.data : [];
+  const H = t.home;
+
+  const manuals = manualsResult.ok ? manualsResult.data : [];
   const featured = manuals.find((m) => m.isFeatured) ?? manuals[0] ?? null;
-  const others = manuals.filter((m) => m.id !== featured?.id).slice(0, 3);
-  const L = t.landing;
+  const others = manuals.filter((m) => m.id !== featured?.id).slice(0, 4);
   const primary = featured ? (featured.translations.find((tr) => tr.isSource) ?? featured.translations[0]) : null;
   const missing = featured ? UI_LOCALES.filter((l) => !featured.translations.some((tr) => tr.language === l)) : [];
 
+  const lessons = learnResult.ok ? learnResult.data.lessons : [];
+  const categories = learnResult.ok ? learnResult.data.categories : [];
+  const [lead, ...rest] = lessons;
+  const teamPhotos = Boolean(media.photoFeature || media.photoPair.length) || showEmpty;
+
   return (
     <>
-      <Hero t={t} media={media} showEmpty={showEmpty} />
+      <Hero t={t} media={media} locale={locale} />
 
-      {/* Featured manual — the primary action of the site */}
-      <section aria-labelledby="featured-title" className="border-b border-line bg-paper">
-        <div className="mx-auto max-w-content px-5 py-20 lg:px-10 lg:py-28">
-          {!featured ? (
-            <div className="max-w-2xl">
-              <p className="t-label text-ink-muted">{L.featuredLabel}</p>
-              <h2 id="featured-title" className="t-h2 mt-4 text-navy">{L.libraryTitle}</h2>
-              <p className="mt-5 text-ink-muted">{result.ok ? L.libraryEmpty : t.manuals.notConfigured}</p>
+      {/* (01) Mission — one statement, two columns of reading text */}
+      <section aria-labelledby="mission-title" className="mx-auto max-w-content px-5 pb-20 pt-16 lg:px-10 lg:pb-32 lg:pt-24">
+        <div className="grid gap-x-6 gap-y-8 lg:grid-cols-12">
+          <p className="t-index lg:col-span-3"><span className="t-num">(01)</span> {H.missionIndex}</p>
+          <div className="lg:col-span-9">
+            <h2 id="mission-title" className="t-statement max-w-[30ch] text-navy">{H.missionStatement}</h2>
+            <div className="mt-10 grid gap-x-6 gap-y-6 text-[17px] leading-[1.65] text-ink-muted md:grid-cols-2 lg:mt-14 lg:max-w-[52rem]">
+              <p>{H.missionBody1}</p>
+              <p>{H.missionBody2}</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* (02) Library — featured document as an object, the rest as an index */}
+      <section aria-labelledby="library-title" className="mx-auto max-w-content px-5 pb-20 lg:px-10 lg:pb-32">
+        <SectionHead index={2} label={H.libraryIndex} title={H.libraryTitle} id="library-title" link={{ href: "/manuals", label: H.libraryLink }} />
+        {!featured ? (
+          <div className="mt-10 grid gap-x-6 lg:grid-cols-12">
+            <p className="max-w-xl text-ink-muted lg:col-span-6 lg:col-start-4">{manualsResult.ok ? H.libraryEmpty : t.manuals.notConfigured}</p>
+          </div>
+        ) : (
+          <div className="mt-12 grid gap-x-6 gap-y-12 lg:mt-16 lg:grid-cols-12">
+            <Link href={`/manuals/${featured.slug}`} className="group block max-w-[300px] sm:max-w-[360px] lg:col-span-3 lg:max-w-none">
+              <span className="img-zoom block overflow-hidden shadow-[0_1px_2px_rgba(0,16,43,0.08),0_30px_60px_-34px_rgba(0,16,43,0.45)]"><DocumentThumb manual={featured} /></span>
+            </Link>
+            <div className="lg:col-span-5 lg:col-start-4">
+              <p className="t-index"><span className="mr-2 inline-block size-2 bg-accent align-middle" aria-hidden />{H.featured} · {featured.season}{featured.seasonName ? ` · ${featured.seasonName}` : ""} · {t.manuals.revision} {featured.revision}</p>
+              <h3 className="t-h2 mt-4 text-navy"><Link href={`/manuals/${featured.slug}`} className="hover:underline hover:decoration-1 hover:underline-offset-4">{featured.title}</Link></h3>
+              {featured.description && <p className="mt-4 max-w-lg text-ink-muted">{featured.description}</p>}
+              {primary && (
+                <div className="mt-8 flex flex-wrap items-center gap-x-7 gap-y-4">
+                  <Link href={readerHref(featured.slug, primary.language)} className="btn-primary">{t.manuals.read}</Link>
+                  <a href={primary.fileUrl} download className="link-rule text-[15px] font-medium text-navy">{t.manuals.download}</a>
+                </div>
+              )}
+            </div>
+            <div className="lg:col-span-3 lg:col-start-10">
+              <h3 className="t-index">{H.readIn}</h3>
+              <ul className="mt-3 border-t border-line">
+                {featured.translations.map((tr) => (
+                  <li key={tr.id} className="border-b border-line">
+                    <Link href={readerHref(featured.slug, tr.language)} className="group flex items-baseline justify-between gap-4 py-3.5">
+                      <span lang={tr.language} className="text-[16px] font-medium text-navy group-hover:underline group-hover:underline-offset-4">{nativeLanguageName(tr.language)}</span>
+                      <span className="text-[12px] text-ink-faint">{tr.pageCount ? `${tr.pageCount} ${t.manuals.pages}` : formatBytes(tr.fileSizeBytes)}</span>
+                    </Link>
+                  </li>
+                ))}
+                {missing.map((l) => (
+                  <li key={l} className="flex items-baseline justify-between gap-4 border-b border-line py-3.5 text-ink-faint">
+                    <span lang={l} className="text-[16px]">{nativeLanguageName(l)}</span>
+                    <span className="text-[12px]">{t.manuals.unavailable}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            {others.length > 0 && (
+              <ul className="border-t border-line lg:col-span-9 lg:col-start-4">
+                {others.map((m) => (
+                  <li key={m.id} className="border-b border-line">
+                    <Link href={`/manuals/${m.slug}`} className="group grid grid-cols-[5.5rem_1fr_auto] items-baseline gap-x-6 py-4 sm:grid-cols-[7rem_1fr_auto]">
+                      <span className="t-num text-[13px] text-ink-muted">{m.season}</span>
+                      <span className="text-[16px] font-medium text-navy group-hover:underline group-hover:underline-offset-4">{m.title}</span>
+                      <span className="text-[12px] font-semibold uppercase tracking-[0.06em] text-ink-faint">{m.translations.map((tr) => tr.language).join(" ")}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+      </section>
+
+      {/* (03) Learn — lead lesson plus a short column, or the programme when nothing is published */}
+      <section aria-labelledby="learn-title" className="bg-paper">
+        <div className="mx-auto max-w-content px-5 pb-20 pt-16 lg:px-10 lg:pb-32 lg:pt-24">
+          <SectionHead index={3} label={H.learnIndex} title={H.learnTitle} id="learn-title" link={{ href: "/learn", label: H.learnLink }} />
+          {lead ? (
+            <div className="mt-12 grid gap-x-6 gap-y-12 lg:mt-16 lg:grid-cols-12">
+              <div className="lg:col-span-7"><LessonTeaser lesson={lead} variant="lead" headingLevel="h3" languageLabel={languageName(lead.language, locale)} /></div>
+              <div className="grid content-start gap-y-10 sm:grid-cols-2 sm:gap-x-6 lg:col-span-4 lg:col-start-9 lg:grid-cols-1">
+                <p className="max-w-sm text-ink-muted">{H.learnBody}</p>
+                {rest.slice(0, 2).map((l) => <LessonTeaser key={l.id} lesson={l} variant="compact" languageLabel={languageName(l.language, locale)} />)}
+              </div>
             </div>
           ) : (
-            <div className="grid gap-x-8 lg:gap-x-20 gap-y-12 md:grid-cols-12">
-              <Link href={`/manuals/${featured.slug}`} className="block max-w-[240px] sm:max-w-[420px] md:col-span-5 md:max-w-none lg:col-span-4">
-                <span className="block shadow-[0_2px_4px_rgba(14,22,32,0.06),0_40px_70px_-40px_rgba(14,22,32,0.45)]"><DocumentThumb manual={featured} /></span>
-              </Link>
-              <div className="md:col-span-7 lg:col-span-7 lg:col-start-6">
-                <p className="t-label text-ink-muted">{L.featuredLabel}</p>
-                <p className="mt-5 text-[15px] font-medium text-tech t-num">{featured.season}{featured.seasonName ? ` · ${featured.seasonName}` : ""} · {t.manuals.revision} {featured.revision}</p>
-                <h2 id="featured-title" className="t-h1 mt-2 text-navy">{featured.title}</h2>
-                {featured.description && <p className="t-lead mt-5 max-w-xl text-ink-muted">{featured.description}</p>}
-                {primary && (
-                  <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4">
-                    <Link href={readerHref(featured.slug, primary.language)} className="font-display inline-flex h-12 items-center bg-navy px-7 text-[14px] font-medium text-white hover:bg-navy-800">{t.manuals.read}</Link>
-                    <a href={primary.fileUrl} download className="link-arrow text-[15px] text-navy">{t.manuals.download}</a>
-                  </div>
-                )}
-
-                <h3 className="t-label mt-12 text-ink-muted">{L.readIn}</h3>
-                <ul className="mt-3 border-t border-line">
-                  {featured.translations.map((tr) => (
-                    <li key={tr.id} className="grid grid-cols-[1fr_auto] items-baseline gap-x-6 border-b border-line py-3.5 sm:grid-cols-[12rem_1fr_auto]">
-                      <Link href={readerHref(featured.slug, tr.language)} lang={tr.language} className="text-[17px] font-semibold text-navy hover:underline">{nativeLanguageName(tr.language)}</Link>
-                      <span className="hidden text-[14px] text-ink-muted sm:block">{tr.isSource ? t.manuals.official : t.manuals.community}{tr.pageCount ? ` · ${tr.pageCount} ${t.manuals.pages}` : ""}</span>
-                      <span className="flex gap-5 text-[14px]">
-                        <Link href={readerHref(featured.slug, tr.language)} className="font-semibold text-tech hover:underline">{t.manuals.read}</Link>
-                        <a href={tr.fileUrl} download className="text-ink-muted hover:text-navy">PDF{formatBytes(tr.fileSizeBytes) ? ` · ${formatBytes(tr.fileSizeBytes)}` : ""}</a>
-                      </span>
-                    </li>
-                  ))}
-                  {missing.map((l) => (
-                    <li key={l} className="grid grid-cols-[1fr_auto] items-baseline gap-x-6 border-b border-line py-3.5 text-ink-faint sm:grid-cols-[12rem_1fr_auto]">
-                      <span lang={l} className="text-[17px] font-medium">{nativeLanguageName(l)}</span>
-                      <span className="text-[14px] sm:col-span-2">{t.manuals.unavailable}</span>
-                    </li>
-                  ))}
+            <div className="mt-12 grid gap-x-6 gap-y-10 lg:mt-16 lg:grid-cols-12">
+              <div className="lg:col-span-3"><p className="max-w-xs text-ink-muted">{H.learnBody}</p></div>
+              <ol className="border-t border-line lg:col-span-5">
+                {categories.map((c, i) => (
+                  <li key={c.id} className="border-b border-line">
+                    <Link href={`/learn?category=${c.slug}`} className="group flex items-baseline gap-5 py-5">
+                      <span className="t-num text-[12px] text-ink-faint">{String(i + 1).padStart(2, "0")}</span>
+                      <span className="font-display text-[clamp(1.25rem,2vw,1.625rem)] font-normal tracking-[-0.03em] text-navy group-hover:underline group-hover:decoration-1 group-hover:underline-offset-[6px]">{c.name}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ol>
+              <div className="lg:col-span-3 lg:col-start-10">
+                <p className="text-[15px] text-ink-muted">{learnResult.ok ? H.learnEmpty : t.learn.notConfigured}</p>
+                <h3 className="t-index mt-8">{t.learn.plannedTitle}</h3>
+                <ul className="mt-3 space-y-1.5 text-[14px] text-ink">
+                  {t.learn.planned.map((p) => <li key={p}>{p}</li>)}
                 </ul>
               </div>
             </div>
@@ -78,128 +143,39 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Library — search and the rest of the shelf */}
-      <section aria-labelledby="library-title" className="mx-auto max-w-content px-5 py-16 lg:px-10 lg:py-20">
-        <div className="grid items-end gap-8 border-b-2 border-navy pb-6 md:grid-cols-12">
-          <h2 id="library-title" className="t-h2 text-navy md:col-span-6">{others.length ? L.moreFromLibrary : L.libraryLabel}</h2>
-          <form action="/manuals" role="search" className="flex items-center gap-3 md:col-span-5 md:col-start-8">
-            <label className="flex-1">
-              <span className="sr-only">{L.searchLabel}</span>
-              <input name="q" type="search" placeholder={L.searchPlaceholder} className="h-11 w-full border-b border-line-strong bg-transparent text-[16px] placeholder:text-ink-faint focus:border-navy focus:outline-none" />
-            </label>
-            <button className="text-navy" aria-label={t.nav.search}>
-              <svg aria-hidden className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="6.5" /><path d="m20 20-4.2-4.2" /></svg>
-            </button>
-          </form>
+      {/* (04) Team — photographic mosaic beside a short text */}
+      <section aria-labelledby="team-title" className="mx-auto max-w-content px-5 py-20 lg:px-10 lg:py-32">
+        <div className="grid gap-x-6 gap-y-4 border-t border-navy pt-5 lg:grid-cols-12">
+          <p className="t-index lg:col-span-3"><span className="t-num">(04)</span> {H.teamIndex}</p>
         </div>
-        {others.length > 0 && (
-          <ul className="grid gap-x-10 md:grid-cols-3">
-            {others.map((m) => (
-              <li key={m.id} className="border-b border-line md:border-b-0">
-                <Link href={`/manuals/${m.slug}`} className="group grid grid-cols-[88px_1fr] gap-5 py-7">
-                  <span className="block w-[88px]"><DocumentThumb manual={m} /></span>
-                  <span>
-                    <span className="block text-[13px] font-medium text-tech t-num">{m.season}</span>
-                    <span className="mt-1 block text-[17px] font-semibold leading-snug text-navy group-hover:underline">{m.title}</span>
-                    <span className="mt-2 block text-[13px] uppercase tracking-[0.06em] text-ink-muted">{m.translations.map((tr) => tr.language).join(" · ")}</span>
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-        <Link href="/manuals" className="link-arrow mt-8 text-tech hover:text-navy">{L.browseAll}</Link>
-      </section>
-
-      {/* Full-bleed team photograph */}
-      {(media.photoFeature || showEmpty) && (
-        <section aria-label={L.teamLabel}>
-          <MediaSlot item={media.photoFeature} slot="photo_feature" ratio="21 / 9" ratioMobile="4 / 3" sizes="100vw" showEmpty={showEmpty} className="[&_figcaption]:mx-auto [&_figcaption]:max-w-content [&_figcaption]:px-5 lg:[&_figcaption]:px-10" />
-        </section>
-      )}
-
-      {/* Initiative — brief; the full process lives on the Our Initiative page */}
-      <section aria-labelledby="initiative-title" className="bg-pollen">
-        <div className="mx-auto grid max-w-content items-center gap-x-8 lg:gap-x-20 gap-y-12 px-5 py-20 md:grid-cols-12 lg:px-10 lg:py-28">
-          {(media.photoInitiative || showEmpty) && (
-            <MediaSlot item={media.photoInitiative} slot="photo_initiative" ratio="4 / 5" sizes="(min-width: 768px) 40vw, 100vw" showEmpty={showEmpty} className="md:col-span-5" />
+        <div className="mt-10 grid items-end gap-x-6 gap-y-10 lg:mt-14 lg:grid-cols-12">
+          {teamPhotos && (
+            <>
+              <MediaSlot item={media.photoFeature} slot="photo_feature" ratio="4 / 5" sizes="(min-width: 1024px) 40vw, 100vw" showEmpty={showEmpty} className="lg:col-span-5" />
+              <div className="grid grid-cols-2 gap-x-3 gap-y-6 lg:col-span-3 lg:grid-cols-1">
+                <MediaSlot item={media.photoPair[0] ?? null} slot="photo_pair[0]" ratio="4 / 3" sizes="(min-width: 1024px) 24vw, 50vw" showEmpty={showEmpty} />
+                <MediaSlot item={media.photoPair[1] ?? null} slot="photo_pair[1]" ratio="4 / 3" sizes="(min-width: 1024px) 24vw, 50vw" showEmpty={showEmpty} />
+              </div>
+            </>
           )}
-          <div className={media.photoInitiative || showEmpty ? "md:col-span-6 md:col-start-7" : "md:col-span-8"}>
-            <p className="t-label text-honey-deep">{t.home.initiativeEyebrow}</p>
-            <h2 id="initiative-title" className="t-campaign mt-5 text-[clamp(1.625rem,3vw,2.625rem)] leading-[1.1] text-navy">{t.home.initiativeTitle}</h2>
-            <p className="t-lead mt-6 text-ink/80">{t.home.initiativeBody}</p>
-            <Link href="/about#initiative" className="link-arrow mt-9 text-[15px] text-navy">{L.initiativeLink}</Link>
+          <div className={teamPhotos ? "lg:col-span-4" : "lg:col-span-7 lg:col-start-4"}>
+            <h2 id="team-title" className="t-h2 max-w-[18ch] text-navy">{H.teamTitle}</h2>
+            <p className="mt-6 max-w-md text-ink-muted">{H.teamBody}</p>
+            <Link href="/about" className="link-arrow mt-8 text-[15px] text-navy">{H.teamLink}</Link>
           </div>
         </div>
       </section>
 
-      {/* Mavericks AI — the interface itself */}
-      <section aria-labelledby="ai-title" className="mx-auto grid max-w-content items-center gap-x-8 lg:gap-x-16 gap-y-12 px-5 py-20 lg:grid-cols-12 lg:px-10 lg:py-28">
-        <div className="lg:col-span-5">
-          <p className="t-label text-ink-muted">{L.aiLabel}</p>
-          <h2 id="ai-title" className="t-h2 mt-4 text-navy">{L.aiTitle}</h2>
-          <ul className="mt-8 space-y-3 text-[16px] text-ink/85">
-            {L.aiPrinciples.map((p) => (
-              <li key={p} className="grid grid-cols-[1.25rem_1fr]"><span aria-hidden className="mt-[10px] h-px w-2.5 bg-honey-deep" />{p}</li>
-            ))}
-          </ul>
-          <p className="mt-8 text-[14px] text-ink-muted">{L.aiStatus}</p>
-        </div>
-        <div className="lg:col-span-7">
-          <AiWorkspaceShell t={t} mode="preview" />
-        </div>
-      </section>
-
-      {/* Community — photographic pair */}
-      {(media.photoPair.length > 0 || showEmpty) && (
-        <section aria-labelledby="community-title" className="border-t border-line bg-paper">
-          <div className="mx-auto grid max-w-content gap-x-8 lg:gap-x-16 gap-y-10 px-5 py-20 lg:grid-cols-12 lg:px-10 lg:py-28">
-            <div className="lg:col-span-4">
-              <p className="t-label text-ink-muted">{t.home.communityEyebrow}</p>
-              <h2 id="community-title" className="t-h2 mt-4 text-navy">{t.home.communityTitle}</h2>
-              <p className="mt-5 text-ink-muted">{t.home.communityBody}</p>
-            </div>
-            <div className="grid grid-cols-12 items-start gap-5 lg:col-span-8">
-              <MediaSlot item={media.photoPair[0] ?? null} slot="photo_pair[0]" ratio="4 / 5" sizes="(min-width: 1024px) 38vw, 58vw" showEmpty={showEmpty} className="col-span-7" />
-              <MediaSlot item={media.photoPair[1] ?? null} slot="photo_pair[1]" ratio="3 / 4" sizes="(min-width: 1024px) 27vw, 42vw" showEmpty={showEmpty} className="col-span-5 mt-16" />
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* The team */}
-      <section aria-labelledby="team-title" className="on-dark bg-night text-white">
-        <div className="mx-auto grid max-w-content items-center gap-x-8 lg:gap-x-16 gap-y-12 px-5 py-20 lg:grid-cols-12 lg:px-10 lg:py-24">
-          <div className="lg:col-span-5">
-            <p className="t-label text-white/50">{L.teamLabel}</p>
-            <h2 id="team-title" className="t-h2 mt-4">{L.teamTitle}</h2>
-            <p className="mt-6 text-white/75">{L.teamBody}</p>
-            <div className="mt-9 flex flex-wrap items-center gap-x-9 gap-y-5">
-              {media.filmVideo && <FilmDialog src={media.filmVideo.url} poster={media.filmPoster?.url} label={L.watchFilm} closeLabel={L.closeFilm} className="text-white" />}
-              <Link href="/about" className="link-arrow text-honey">{L.teamLink}</Link>
-            </div>
-          </div>
-          <div className="lg:col-span-7">
-            <Image src="/brand/mavericks-wordmark.jpg" alt="MAVERICKS #24034" width={1600} height={638} className="w-full mix-blend-screen [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_60%,transparent_100%)]" />
+      {/* Closing */}
+      <section aria-labelledby="closing-title" className="border-t border-line">
+        <div className="mx-auto grid max-w-content gap-x-6 gap-y-10 px-5 py-20 lg:grid-cols-12 lg:px-10 lg:py-28">
+          <h2 id="closing-title" className="t-h1 max-w-[20ch] text-navy lg:col-span-8">{H.closingTitle}</h2>
+          <div className="flex flex-col items-start gap-5 self-end lg:col-span-4 lg:items-end">
+            <Link href="/manuals" className="btn-primary">{H.closingManuals}</Link>
+            <Link href="/learn" className="link-arrow text-[15px] text-navy">{H.closingLearn}</Link>
           </div>
         </div>
       </section>
-
-      {sponsors.length > 0 && (
-        <section aria-labelledby="partners-title" className="mx-auto max-w-content px-5 py-16 lg:px-10">
-          <h2 id="partners-title" className="t-label text-ink-muted">{L.partnersLabel}</h2>
-          <ul className="mt-8 flex flex-wrap items-center gap-x-14 gap-y-8">
-            {sponsors.map((s) => (
-              <li key={s.id}>
-                <a href={s.url ?? undefined} rel="noopener noreferrer" target="_blank" className="block opacity-80 hover:opacity-100">
-                  {/* eslint-disable-next-line @next/next/no-img-element -- storage-hosted logo */}
-                  {s.logoUrl ? <img src={s.logoUrl} alt={s.name} className="h-10 w-auto object-contain" /> : <span className="text-lg font-semibold">{s.name}</span>}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
     </>
   );
 }
