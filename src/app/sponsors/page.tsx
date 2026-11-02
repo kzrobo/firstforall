@@ -8,7 +8,7 @@ export default async function SponsorsPage() {
   return (
     <div className="mx-auto max-w-content px-5 py-20 lg:px-10">
       
-      <h1 className="mt-4 text-4xl font-semibold tracking-[-0.025em] text-navy">{t.sponsors.title}</h1>
+      <h1 className="mt-4 text-4xl font-semibold tracking-[-0.025em] text-ink">{t.sponsors.title}</h1>
       <p className="mt-5 text-lg text-ink-muted">{t.sponsors.intro}</p>
       {sponsors.length === 0 ? <p className="mt-12 text-ink-muted">{t.sponsors.empty}</p> : (
         <ul className="mt-12 divide-y divide-line border-y border-line">
@@ -18,7 +18,7 @@ export default async function SponsorsPage() {
               {s.logoUrl ? <img src={s.logoUrl} alt={s.name} className="h-14 w-auto object-contain" /> : <span />}
               <div>
                 <p className="text-xs uppercase tracking-wider text-ink-muted">{s.category}</p>
-                <h2 className="mt-1 text-xl font-semibold text-navy">{s.url ? <a href={s.url} target="_blank" rel="noopener noreferrer" className="hover:underline">{s.name}</a> : s.name}</h2>
+                <h2 className="mt-1 text-xl font-semibold text-ink">{s.url ? <a href={s.url} target="_blank" rel="noopener noreferrer" className="hover:underline">{s.name}</a> : s.name}</h2>
                 {s.description && <p className="mt-2 text-ink-muted">{s.description}</p>}
               </div>
             </li>

@@ -27,17 +27,37 @@ export default async function LearnPage({ searchParams }: Props) {
   const count = (c: LessonCategory | null) => (c ? lessons.filter((l) => l.category.id === c.id).length : lessons.length);
   const lang = (l: Lesson) => languageName(l.language, locale);
 
+  const rest = visible.filter((l) => l.id !== featured?.id);
+  const grouped = !active && lessons.length > 6;
+
   return (
     <>
-      <header className="mx-auto max-w-content px-5 pt-12 lg:px-10 lg:pt-20">
-        <div className="grid gap-x-6 gap-y-6 lg:grid-cols-12">
-          <p className="t-index lg:col-span-3">{L.kicker}</p>
-          <h1 className="t-display text-navy lg:col-span-5">{L.title}</h1>
-          <p className="t-lead max-w-md self-end text-ink-muted lg:col-span-4">{L.intro}</p>
+      {/* Header: title and intro beside the featured lesson (or the programme while nothing is published) */}
+      <header className="mx-auto max-w-content px-5 pt-12 lg:px-10 lg:pt-16">
+        <div className="grid gap-x-6 gap-y-10 lg:grid-cols-12 lg:items-end">
+          <div className={featured ? "lg:col-span-5" : "lg:col-span-7"}>
+            <p className="t-index">{L.kicker}</p>
+            <h1 className="t-display mt-4 text-ink">{L.title}</h1>
+            <p className="t-lead mt-6 max-w-md text-ink-muted">{L.intro}</p>
+            {featured && (
+              <div className="mt-10 border-t border-rule pt-5">
+                <p className="t-index"><span className="mr-2 inline-block size-2 bg-accent align-middle" aria-hidden />{L.featured}</p>
+                <h2 id="featured-lesson" className="t-h2 mt-3 text-ink"><Link href={`/learn/${featured.slug}`} className="hover:underline hover:decoration-1 hover:underline-offset-4">{featured.title}</Link></h2>
+                <p className="mt-3 text-[14px] text-ink-faint">
+                  {featured.category.name} · {lang(featured)}{featured.durationSeconds ? <> · <span className="t-num">{formatDuration(featured.durationSeconds)}</span></> : null}
+                </p>
+              </div>
+            )}
+          </div>
+          {featured && (
+            <Link href={`/learn/${featured.slug}`} className="group block lg:col-span-7" aria-labelledby="featured-lesson">
+              <LessonTeaserMedia lesson={featured} />
+            </Link>
+          )}
         </div>
 
         {/* Category filter: real links (shareable, work without JavaScript) */}
-        <nav aria-label={L.categories} className="mt-12 border-y border-line lg:mt-16">
+        <nav aria-label={L.categories} className="mt-14 border-y border-line lg:mt-20">
           <ul className="-mb-px flex gap-x-7 overflow-x-auto [scrollbar-width:none]">
             {[null, ...categories].map((c) => {
               const on = (c?.id ?? null) === (active?.id ?? null);
@@ -47,7 +67,7 @@ export default async function LearnPage({ searchParams }: Props) {
                     href={c ? `/learn?category=${c.slug}` : "/learn"}
                     aria-current={on ? "page" : undefined}
                     scroll={false}
-                    className={`flex h-14 items-center gap-2 border-b-2 text-[15px] ${on ? "border-accent font-medium text-navy" : "border-transparent text-ink-muted hover:text-navy"}`}
+                    className={`flex h-14 items-center gap-2 border-b-2 text-[15px] ${on ? "border-accent font-medium text-ink" : "border-transparent text-ink-muted hover:text-ink"}`}
                   >
                     {c ? c.name : L.all}
                     <span className="t-num text-[12px] text-ink-faint">{count(c)}</span>
@@ -59,53 +79,30 @@ export default async function LearnPage({ searchParams }: Props) {
         </nav>
       </header>
 
-      <div className="mx-auto max-w-content px-5 pb-24 pt-12 lg:px-10 lg:pb-32 lg:pt-16">
+      <div className="mx-auto max-w-content px-5 pb-24 pt-10 lg:px-10 lg:pb-32 lg:pt-12">
         {!result.ok ? (
           <p className="text-ink-muted">{L.notConfigured}</p>
         ) : lessons.length === 0 ? (
           <EmptyProgramme t={t} categories={categories} />
         ) : visible.length === 0 ? (
-          <p className="text-ink-muted">{L.emptyCategory} <Link href="/learn" className="link-rule text-navy">{L.all}</Link></p>
-        ) : (
-          <>
-            {featured && (
-              <article aria-labelledby="featured-lesson" className="grid gap-x-6 gap-y-8 border-b border-line pb-16 lg:grid-cols-12 lg:pb-20">
-                <Link href={`/learn/${featured.slug}`} className="group block lg:col-span-8" tabIndex={-1} aria-hidden>
-                  <LessonTeaserMedia lesson={featured} />
-                </Link>
-                <div className="lg:col-span-4">
-                  <p className="t-index"><span className="mr-2 inline-block size-2 bg-accent align-middle" aria-hidden />{L.featured}</p>
-                  <h2 id="featured-lesson" className="t-h2 mt-4 text-navy"><Link href={`/learn/${featured.slug}`} className="hover:underline hover:decoration-1 hover:underline-offset-4">{featured.title}</Link></h2>
-                  <dl className="mt-6 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 border-t border-line pt-4 text-[14px]">
-                    <dt className="text-ink-muted">{L.category}</dt><dd>{featured.category.name}</dd>
-                    <dt className="text-ink-muted">{L.spokenLanguage}</dt><dd>{lang(featured)}</dd>
-                    {featured.durationSeconds && <><dt className="text-ink-muted">{L.duration}</dt><dd className="t-num">{formatDuration(featured.durationSeconds)}</dd></>}
-                  </dl>
-                  {featured.description && <p className="mt-6 line-clamp-4 text-ink-muted">{featured.description}</p>}
-                  <Link href={`/learn/${featured.slug}`} className="btn-primary mt-8">{L.play}</Link>
+          <p className="text-ink-muted">{L.emptyCategory} <Link href="/learn" className="link-rule text-ink">{L.all}</Link></p>
+        ) : grouped ? (
+          categories.map((c, i) => {
+            const inCat = rest.filter((l) => l.category.id === c.id);
+            if (!inCat.length) return null;
+            return (
+              <section key={c.id} aria-labelledby={`cat-${c.slug}`} className="pt-14 first:pt-0 lg:pt-20">
+                <div className="flex items-baseline justify-between gap-6 border-t border-rule pt-4">
+                  <h2 id={`cat-${c.slug}`} className="t-h3 text-ink"><span className="t-num mr-3 text-[12px] font-normal text-ink-faint">{String(i + 1).padStart(2, "0")}</span>{c.name}</h2>
+                  <Link href={`/learn?category=${c.slug}`} className="link-arrow shrink-0 text-[14px] text-ink" scroll={false}>{inCat.length} {inCat.length === 1 ? L.lesson : L.lessons}</Link>
                 </div>
-              </article>
-            )}
-
-            {active ? (
-              <LessonGrid lessons={visible.filter((l) => l.id !== featured?.id)} lang={lang} />
-            ) : (
-              categories.map((c, i) => {
-                const inCat = visible.filter((l) => l.category.id === c.id && l.id !== featured?.id);
-                if (!inCat.length) return null;
-                return (
-                  <section key={c.id} aria-labelledby={`cat-${c.slug}`} className="pt-14 first:pt-0 lg:pt-20">
-                    <div className="flex items-baseline justify-between gap-6 border-t border-navy pt-4">
-                      <h2 id={`cat-${c.slug}`} className="t-h3 text-navy"><span className="t-num mr-3 text-[12px] font-normal text-ink-faint">{String(i + 1).padStart(2, "0")}</span>{c.name}</h2>
-                      <Link href={`/learn?category=${c.slug}`} className="link-arrow shrink-0 text-[14px] text-navy" scroll={false}>{inCat.length} {inCat.length === 1 ? L.lesson : L.lessons}</Link>
-                    </div>
-                    <LessonGrid lessons={inCat} lang={lang} />
-                  </section>
-                );
-              })
-            )}
-          </>
-        )}
+                <LessonGrid lessons={inCat} lang={lang} />
+              </section>
+            );
+          })
+        ) : rest.length > 0 ? (
+          <LessonGrid lessons={rest} lang={lang} />
+        ) : null}
       </div>
     </>
   );
@@ -118,7 +115,7 @@ function LessonTeaserMedia({ lesson }: { lesson: Lesson }) {
 
 function LessonGrid({ lessons, lang }: { lessons: Lesson[]; lang: (l: Lesson) => string }) {
   return (
-    <ul className="mt-8 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+    <ul className="grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 [&:not(:first-child)]:mt-8">
       {lessons.map((l) => <li key={l.id}><LessonTeaser lesson={l} languageLabel={lang(l)} /></li>)}
     </ul>
   );
@@ -128,11 +125,11 @@ function EmptyProgramme({ t, categories }: { t: Awaited<ReturnType<typeof getI18
   return (
     <div className="grid gap-x-6 gap-y-12 lg:grid-cols-12">
       <p className="max-w-sm text-ink-muted lg:col-span-3">{t.learn.empty}</p>
-      <ol className="border-t border-navy lg:col-span-5 lg:col-start-5">
+      <ol className="border-t border-rule lg:col-span-5 lg:col-start-5">
         {categories.map((c, i) => (
           <li key={c.id} className="flex items-baseline gap-5 border-b border-line py-5">
             <span className="t-num text-[12px] text-ink-faint">{String(i + 1).padStart(2, "0")}</span>
-            <span className="font-display text-[clamp(1.25rem,2vw,1.625rem)] font-normal tracking-[-0.03em] text-navy">{c.name}</span>
+            <span className="font-display text-[clamp(1.25rem,2vw,1.625rem)] font-normal tracking-[-0.03em] text-ink">{c.name}</span>
           </li>
         ))}
       </ol>

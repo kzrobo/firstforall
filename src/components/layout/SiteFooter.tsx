@@ -24,7 +24,7 @@ export function SiteFooter({ t }: { t: Dictionary }) {
             <h2 className={head}>{t.footer.team}</h2>
             <ul className="mt-5 space-y-3">
               <li><Link className={link} href="/about">{t.nav.about}</Link></li>
-              <li><Link className={link} href="/about#gallery">{t.nav.gallery}</Link></li>
+              <li><Link className={link} href="/about#team">{t.nav.team}</Link></li>
               <li><Link className={link} href="/login">{t.nav.signIn}</Link></li>
             </ul>
           </nav>

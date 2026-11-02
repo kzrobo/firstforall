@@ -38,3 +38,16 @@ describe("focal points and gallery layout", () => {
     expect(m.teamGallery.map((g) => g.layout)).toEqual(["wide", "standard"]);
   });
 });
+
+describe("bundled media fallback", () => {
+  const bundled = { heroPoster: { url: "/media/team/a.jpg", alt: "Team", caption: null, focus: "50% 50%", focusMobile: "50% 50%", layout: "wide" as const, aspect: 1.5 } };
+  it("fills empty slots with bundled team media", async () => {
+    const { withBundledMedia } = await import("@/lib/site/repository");
+    expect(withBundledMedia(parseSiteMedia(null), bundled).heroPoster?.url).toBe("/media/team/a.jpg");
+  });
+  it("never overrides a slot set in the database", async () => {
+    const { withBundledMedia } = await import("@/lib/site/repository");
+    const db = parseSiteMedia([{ key: "hero_poster", value: { path: "db.jpg", alt: "DB" } }]);
+    expect(withBundledMedia(db, bundled).heroPoster?.alt).toBe("DB");
+  });
+});

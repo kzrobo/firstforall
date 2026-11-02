@@ -1,7 +1,23 @@
 # Photography & media checklist
 
-No team photographs or footage have been received yet (only the MAVERICKS emblem files in `public/brand/`).
-Every slot below is wired and tested; it shows nothing to visitors until a file is set, and a labelled frame in development.
+## Integrated (2026-11-02)
+| File | Source | Used in |
+|---|---|---|
+| `public/media/team/mavericks-team-2026.jpg` (1280×960) | Team portrait supplied by MAVERICKS (also in the "Our dream team" post) | Home hero (bottom-anchored 16:9 crop), About opening (21:9) — via `src/content/media.ts` |
+| `public/media/team/members/*.jpg` (14 × 3:4, ≤ 1200×1600, EXIF stripped) | Photos extracted from the team's own Figma "Instagram post" PDFs (posts 15, 18–30) | About → team roster, via `src/content/team.ts` (names from the post artwork, roles from the posts' text) |
+| `public/brand/mavericks-emblem.jpg`, `mavericks-emblem-light.jpg` | Official emblem | Header, footer, hero caption, home closing band |
+
+## Excluded
+- `IMG_4497.MOV` — a montage of other teams at another organisation's event (not MAVERICKS footage). Treated as a visual reference only; **must not be published** without the rights holder's permission.
+- `mavericks-wordmark.jpg` — kept in the repo, not used: its metallic lettering conflicts with the site's typography.
+- The Instagram post layouts themselves (frames, ornaments, metallic names) — only the photographs were reused.
+
+## Still wanted
+- The original, full-resolution camera file of the team portrait (current copy is 1280 px wide and slightly soft full-bleed).
+- Real MAVERICKS video for `hero_video` (muted loop, 10–15 s), robot/competition/workshop/outreach photos for `team_gallery`.
+- Confirmation of name spellings and of the role "Cader" (Adem) in `src/content/team.ts`.
+
+## Slots
 
 Upload files to the `public-media` Supabase Storage bucket, then set the slot in `site_settings`:
 

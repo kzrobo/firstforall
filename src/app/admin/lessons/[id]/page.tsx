@@ -14,8 +14,8 @@ export default async function EditLessonPage({ params }: { params: Promise<{ id:
   if (!result.data) notFound();
   return (
     <div>
-      <Link href="/admin/lessons" className="text-[14px] text-ink-muted hover:text-navy">← Lessons</Link>
-      <h1 className="t-h2 mt-3 border-b border-navy pb-4 text-navy">Edit lesson</h1>
+      <Link href="/admin/lessons" className="text-[14px] text-ink-muted hover:text-ink">← Lessons</Link>
+      <h1 className="t-h2 mt-3 border-b border-rule pb-4 text-ink">Edit lesson</h1>
       <div className="mt-8">
         <LessonForm lesson={result.data} categories={result.categories} canPublish={Boolean(session?.canPublish)} />
       </div>

@@ -213,7 +213,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
     else void root.current?.requestFullscreen?.();
   };
 
-  const iconBtn = "inline-flex size-9 items-center justify-center text-ink-muted hover:bg-soft hover:text-navy disabled:pointer-events-none disabled:opacity-35";
+  const iconBtn = "inline-flex size-9 items-center justify-center text-ink-muted hover:bg-soft hover:text-ink disabled:pointer-events-none disabled:opacity-35";
   const divider = <span aria-hidden className="mx-2 hidden h-5 w-px bg-line md:block" />;
 
   const renderOutline = (items: OutlineEntry[], depth = 0) => (
@@ -226,7 +226,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
               type="button"
               disabled={it.page === null}
               onClick={() => { if (it.page) { goTo(it.page); if (!window.matchMedia("(min-width: 1024px)").matches) setPanelOpen(false); } }}
-              className={`flex w-full items-baseline justify-between gap-3 border-l-2 py-2 pl-3 pr-2 text-left text-[14px] leading-snug ${here ? "border-accent font-semibold text-navy" : "border-transparent text-ink hover:text-navy"}`}
+              className={`flex w-full items-baseline justify-between gap-3 border-l-2 py-2 pl-3 pr-2 text-left text-[14px] leading-snug ${here ? "border-accent font-semibold text-ink" : "border-transparent text-ink hover:text-ink"}`}
             >
               <span>{it.title}</span>{it.page && <span className="t-num text-[12px] text-ink-faint">{it.page}</span>}
             </button>
@@ -256,14 +256,14 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
           <button type="button" className={iconBtn} aria-expanded={panelOpen} onClick={() => setPanelOpen((v) => !v)} title={t.toc}>
             <span className="sr-only">{t.toc}</span><Icon name="toc" />
           </button>
-          <Link href={`/manuals/${manual.slug}`} className="ml-1 hidden max-w-[26ch] truncate text-[14px] font-semibold text-navy hover:underline xl:block" title={t.back}>
+          <Link href={`/manuals/${manual.slug}`} className="ml-1 hidden max-w-[26ch] truncate text-[14px] font-semibold text-ink hover:underline xl:block" title={t.back}>
             {manual.title}
           </Link>
           {divider}
           <label className="relative flex items-center">
             <span className="sr-only">{t.language}</span>
             <select value={current.language} onChange={(e) => switchLanguage(e.target.value)}
-              className="h-9 appearance-none bg-transparent pl-2 pr-6 text-[14px] font-medium text-ink hover:text-navy">
+              className="h-9 appearance-none bg-transparent pl-2 pr-6 text-[14px] font-medium text-ink hover:text-ink">
               {translations.map((tr) => <option key={tr.id} value={tr.language}>{languageName(tr.language, locale)}</option>)}
             </select>
             <svg aria-hidden className="pointer-events-none absolute right-1.5 size-3 text-ink-muted" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="m3 4.5 3 3 3-3" /></svg>
@@ -286,7 +286,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
             {divider}
             <button type="button" className={iconBtn} onClick={() => zoom(-1)} title={t.zoomOut}><span className="sr-only">{t.zoomOut}</span><Icon name="minus" /></button>
             <button type="button" onClick={() => setScale("fit")} title={t.fitWidth} aria-pressed={scale === "fit"}
-              className={`t-num h-9 w-14 text-center text-[13px] hover:bg-soft ${scale === "fit" ? "font-semibold text-navy" : "text-ink-muted"}`}>
+              className={`t-num h-9 w-14 text-center text-[13px] hover:bg-soft ${scale === "fit" ? "font-semibold text-ink" : "text-ink-muted"}`}>
               {Math.round(effectiveScale * 100)}%
             </button>
             <button type="button" className={iconBtn} onClick={() => zoom(1)} title={t.zoomIn}><span className="sr-only">{t.zoomIn}</span><Icon name="plus" /></button>
@@ -296,7 +296,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
 
           <div className="hidden items-center md:flex">
             {divider}
-            <a href={current.fileUrl} download className="inline-flex h-9 items-center gap-2 px-2.5 text-[14px] font-medium text-navy hover:bg-soft">
+            <a href={current.fileUrl} download className="inline-flex h-9 items-center gap-2 px-2.5 text-[14px] font-medium text-ink hover:bg-soft">
               <Icon name="download" />{t.download}
             </a>
             <a href={current.fileUrl} target="_blank" rel="noopener noreferrer" className={iconBtn} title={t.print}><span className="sr-only">{t.print}</span><Icon name="print" /></a>
@@ -343,7 +343,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
                 {hits.map((h) => (
                   <li key={h.page}>
                     <button type="button" onClick={() => { goTo(h.page); }}
-                      className={`flex w-full justify-between border-l-2 py-2 pl-3 pr-2 text-[14px] ${h.page === page ? "border-accent font-semibold text-navy" : "border-transparent hover:text-navy"}`}>
+                      className={`flex w-full justify-between border-l-2 py-2 pl-3 pr-2 text-[14px] ${h.page === page ? "border-accent font-semibold text-ink" : "border-transparent hover:text-ink"}`}>
                       <span>{t.page} <span className="t-num">{h.page}</span></span><span className="t-num text-ink-faint">{h.count}</span>
                     </button>
                   </li>
@@ -360,10 +360,10 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
         <div ref={scroller} className="relative min-w-0 flex-1 touch-pan-x touch-pan-y overflow-auto" tabIndex={0} aria-label={manual.title}>
           {error ? (
             <div role="alert" className="mx-auto mt-24 max-w-md px-5 text-center">
-              <p className="text-[18px] font-semibold text-navy">{t.error}</p>
+              <p className="text-[18px] font-semibold text-ink">{t.error}</p>
               <div className="mt-6 flex justify-center gap-6">
-                <button type="button" onClick={() => setAttempt((a) => a + 1)} className="inline-flex h-11 items-center bg-navy px-5 text-[14px] font-semibold text-white">{t.retry}</button>
-                <a href={current.fileUrl} download className="link-arrow text-[14px] text-navy">{t.download}</a>
+                <button type="button" onClick={() => setAttempt((a) => a + 1)} className="btn-primary">{t.retry}</button>
+                <a href={current.fileUrl} download className="link-arrow text-[14px] text-ink">{t.download}</a>
               </div>
             </div>
           ) : !doc ? (
@@ -397,7 +397,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
           <div className="flex items-center">
             <button type="button" className={`${iconBtn} size-11`} onClick={() => zoom(-1)}><span className="sr-only">{t.zoomOut}</span><Icon name="minus" className="size-5" /></button>
             <button type="button" onClick={() => setScale("fit")} aria-pressed={scale === "fit"} title={t.fitWidth}
-              className={`t-num h-11 w-14 text-center text-[14px] ${scale === "fit" ? "font-semibold text-navy" : "text-ink-muted"}`}>
+              className={`t-num h-11 w-14 text-center text-[14px] ${scale === "fit" ? "font-semibold text-ink" : "text-ink-muted"}`}>
               {Math.round(effectiveScale * 100)}%
             </button>
             <button type="button" className={`${iconBtn} size-11`} onClick={() => zoom(1)}><span className="sr-only">{t.zoomIn}</span><Icon name="plus" className="size-5" /></button>

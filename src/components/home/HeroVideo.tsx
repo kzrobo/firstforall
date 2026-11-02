@@ -5,7 +5,7 @@ import type { MediaItem } from "@/lib/site/repository";
 
 /**
  * Background media for the hero. Video autoplays muted and looped unless the user
- * prefers reduced motion or is on a small screen, where the poster is shown instead.
+ * prefers reduced motion or has asked to save data, in which case the poster is shown instead.
  */
 export function HeroVideo({ video, poster, posterMobile, labels }: {
   video: MediaItem | null; poster: MediaItem | null; posterMobile: MediaItem | null; labels: { pause: string; play: string };
@@ -17,8 +17,8 @@ export function HeroVideo({ video, poster, posterMobile, labels }: {
   useEffect(() => {
     if (!video) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const small = window.matchMedia("(max-width: 640px)").matches;
-    setEnabled(!reduce && !small);
+    const saveData = Boolean((navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData);
+    setEnabled(!reduce && !saveData);
   }, [video]);
 
   const still = poster ?? posterMobile;

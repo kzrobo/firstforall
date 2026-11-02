@@ -1,120 +1,121 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { MediaSlot } from "@/components/media/MediaSlot";
+import { TeamRoster } from "@/components/about/TeamRoster";
 import { TeamGallery } from "@/components/media/TeamGallery";
+import { TEAM } from "@/content/team";
 import { getI18n } from "@/i18n/server";
 import { getSiteMedia, showEmptyMediaSlots } from "@/lib/site/repository";
 
 export const metadata: Metadata = {
   title: "About MAVERICKS",
-  description: "MAVERICKS FTC #24034 from Nazarbayev Intellectual School, Shymkent, and the FIRST FOR ALL initiative.",
+  description: "MAVERICKS FTC #24034 from Nazarbayev Intellectual School, Shymkent — the team behind FIRST FOR ALL.",
 };
-
-function Index({ n, label }: { n: number; label: string }) {
-  return <p className="t-index lg:col-span-3"><span className="t-num">({String(n).padStart(2, "0")})</span> {label}</p>;
-}
 
 export default async function AboutPage() {
   const [{ t }, media] = await Promise.all([getI18n(), getSiteMedia()]);
   const showEmpty = showEmptyMediaSlots();
   const A = t.about;
+  const opening = media.aboutHero;
 
   return (
     <>
-      {/* Opening */}
+      {/* Opening: name, one line, then the team itself */}
       <header className="mx-auto max-w-content px-5 pt-12 lg:px-10 lg:pt-20">
-        <div className="grid gap-x-6 gap-y-8 lg:grid-cols-12">
-          <p className="t-index lg:col-span-3">{A.title}</p>
-          <h1 className="t-display text-navy lg:col-span-5">MAVERICKS<span className="block text-ink-faint">FTC #24034</span></h1>
-          <p className="t-lead max-w-md self-end text-ink-muted lg:col-span-4">{A.lead}</p>
+        <div className="grid gap-x-6 gap-y-6 lg:grid-cols-12 lg:items-end">
+          <h1 className="t-display text-ink lg:col-span-7">MAVERICKS <span className="text-ink-faint">#24034</span></h1>
+          <p className="t-lead max-w-md text-ink-muted lg:col-span-5">{A.lead}</p>
         </div>
       </header>
-
-      {(media.aboutHero || showEmpty) && (
-        <div className="mx-auto mt-12 max-w-content sm:px-5 lg:mt-20 lg:px-10">
-          <MediaSlot item={media.aboutHero} slot="about_hero" ratio="21 / 9" ratioMobile="4 / 5" sizes="(min-width: 1440px) 1360px, 100vw" priority showEmpty={showEmpty}
-            className="[&_figcaption]:px-5 sm:[&_figcaption]:px-0" />
-        </div>
+      {opening && (
+        <figure className="mx-auto mt-10 max-w-content sm:px-5 lg:mt-14 lg:px-10">
+          <div className="relative aspect-[4/3] overflow-hidden bg-soft sm:aspect-[16/9] lg:aspect-[21/9]">
+            <Image src={opening.url} alt={opening.alt} fill priority sizes="(min-width: 1440px) 1360px, 100vw"
+              className="object-cover [object-position:var(--fm)] sm:[object-position:var(--f)]"
+              style={{ "--f": opening.focus, "--fm": opening.focusMobile } as React.CSSProperties} />
+          </div>
+          <figcaption className="mt-3 px-5 text-[13px] text-ink-faint sm:px-0">{A.openingCaption}</figcaption>
+        </figure>
       )}
 
-      {/* (01) Who we are */}
-      <section aria-labelledby="who-title" className="mx-auto max-w-content px-5 pt-20 lg:px-10 lg:pt-32">
-        <div className="grid gap-x-6 gap-y-8 border-t border-navy pt-5 lg:grid-cols-12">
-          <Index n={1} label={A.whoIndex} />
-          <div className={media.aboutStory || showEmpty ? "lg:col-span-5" : "lg:col-span-6"}>
-            <h2 id="who-title" className="t-h2 max-w-[20ch] text-navy">{A.whoTitle}</h2>
-            <p className="mt-6 max-w-[60ch] text-[17px] leading-[1.7] text-ink-muted">{A.whoBody}</p>
-          </div>
-          <MediaSlot item={media.aboutStory} slot="about_story" ratio="4 / 5" sizes="(min-width: 1024px) 26vw, 100vw" showEmpty={showEmpty} className="lg:col-span-3 lg:col-start-10" />
+      {/* Who we are — set as a statement, not a numbered section */}
+      <section aria-labelledby="who-title" className="mx-auto grid max-w-content gap-x-6 gap-y-6 px-5 py-20 lg:grid-cols-12 lg:px-10 lg:py-28">
+        <h2 id="who-title" className="t-index lg:col-span-3">{A.whoIndex}</h2>
+        <div className="lg:col-span-8">
+          <p className="t-statement max-w-[32ch] text-ink">{A.whoTitle}</p>
+          <p className="mt-8 max-w-[62ch] text-[17px] leading-[1.7] text-ink-muted">{A.whoBody}</p>
         </div>
       </section>
 
-      {/* (02) The initiative */}
-      <section id="initiative" aria-labelledby="what-title" className="mx-auto max-w-content scroll-mt-24 px-5 pt-20 lg:px-10 lg:pt-32">
-        <div className="grid gap-x-6 gap-y-8 border-t border-navy pt-5 lg:grid-cols-12">
-          <Index n={2} label={A.whatIndex} />
-          <div className="lg:col-span-9">
-            <h2 id="what-title" className="t-h2 text-navy">{A.whatTitle}</h2>
-            <p className="mt-6 max-w-[46ch] text-[clamp(1.125rem,1.7vw,1.4375rem)] leading-[1.5] tracking-[-0.01em] text-navy">{A.whatBody}</p>
-            <div className="mt-14 grid gap-x-6 gap-y-10 md:grid-cols-2 lg:max-w-[56rem]">
-              <div>
-                <h3 className="t-h3 text-navy">{A.whyTitle}</h3>
-                <p className="mt-3 leading-[1.7] text-ink-muted">{A.whyBody}</p>
-              </div>
-              <div>
-                <h3 className="t-h3 text-navy">{A.howTitle}</h3>
-                <p className="mt-3 leading-[1.7] text-ink-muted">{A.howBody}</p>
-              </div>
+      {/* The team — the photographic heart of the page */}
+      <section id="team" aria-labelledby="team-title" className="scroll-mt-20 bg-paper">
+        <div className="mx-auto max-w-content px-5 py-20 lg:px-10 lg:py-28">
+          <div className="grid gap-x-6 gap-y-5 lg:grid-cols-12 lg:items-end">
+            <h2 id="team-title" className="t-h1 text-ink lg:col-span-6">{A.teamTitle}</h2>
+            <p className="max-w-md text-ink-muted lg:col-span-5 lg:col-start-8">{A.teamIntro}</p>
+          </div>
+          <div className="mt-12 lg:mt-16"><TeamRoster members={TEAM} /></div>
+          <p className="mt-10 text-[12px] text-ink-faint">{A.rolesNote}</p>
+        </div>
+      </section>
+
+      {/* The initiative */}
+      <section id="initiative" aria-labelledby="what-title" className="mx-auto max-w-content scroll-mt-20 px-5 py-20 lg:px-10 lg:py-28">
+        <div className="grid gap-x-6 gap-y-10 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <p className="t-index">{A.whatIndex}</p>
+            <h2 id="what-title" className="t-h1 mt-4 text-ink">{A.whatTitle}</h2>
+          </div>
+          <div className="lg:col-span-6 lg:col-start-7">
+            <p className="text-[clamp(1.125rem,1.6vw,1.375rem)] leading-[1.55] tracking-[-0.01em] text-ink">{A.whatBody}</p>
+            <div className="mt-10 grid gap-x-6 gap-y-8 border-t border-line pt-8 md:grid-cols-2">
+              <div><h3 className="t-h3 text-ink">{A.whyTitle}</h3><p className="mt-3 text-[15px] leading-[1.7] text-ink-muted">{A.whyBody}</p></div>
+              <div><h3 className="t-h3 text-ink">{A.howTitle}</h3><p className="mt-3 text-[15px] leading-[1.7] text-ink-muted">{A.howBody}</p></div>
             </div>
           </div>
         </div>
-        <div className="mt-16 grid gap-x-6 lg:mt-24 lg:grid-cols-12">
-          <h3 className="t-index pb-4 lg:col-span-3">{A.processTitle}</h3>
-          <ol className="border-t border-line lg:col-span-9">
+        <div className="mt-16 lg:mt-24">
+          <h3 className="t-index">{A.processTitle}</h3>
+          <ol className="mt-4 grid border-t border-rule md:grid-cols-4">
             {A.steps.map((s, i) => (
-              <li key={s.title} className="grid grid-cols-[2.5rem_1fr] gap-x-6 border-b border-line py-6 md:grid-cols-[2.5rem_12rem_1fr]">
-                <span className="t-num pt-1 text-[13px] text-ink-faint">{String(i + 1).padStart(2, "0")}</span>
-                <span className="font-display text-[19px] font-medium tracking-[-0.02em] text-navy">{s.title}</span>
-                <span className="col-start-2 mt-2 max-w-[56ch] text-ink-muted md:col-start-3 md:mt-0">{s.body}</span>
+              <li key={s.title} className="border-b border-line py-6 md:border-b-0 md:border-r md:px-6 md:first:pl-0 md:last:border-r-0">
+                <span className="t-num text-[12px] text-ink-faint">{String(i + 1).padStart(2, "0")}</span>
+                <p className="font-display mt-3 text-[19px] font-medium tracking-[-0.02em] text-ink">{s.title}</p>
+                <p className="mt-2 text-[15px] leading-relaxed text-ink-muted">{s.body}</p>
               </li>
             ))}
           </ol>
         </div>
       </section>
 
-      {/* (03) Education */}
-      <section aria-labelledby="edu-title" className="mx-auto max-w-content px-5 pt-20 lg:px-10 lg:pt-32">
-        <div className="grid gap-x-6 gap-y-8 border-t border-navy pt-5 lg:grid-cols-12">
-          <Index n={3} label={A.educationIndex} />
-          <div className="lg:col-span-5">
-            <h2 id="edu-title" className="t-h2 text-navy">{A.educationTitle}</h2>
+      {/* Education — the one indigo band on the page */}
+      <section aria-labelledby="edu-title" className="bg-indigo">
+        <div className="mx-auto grid max-w-content gap-x-6 gap-y-10 px-5 py-20 lg:grid-cols-12 lg:px-10 lg:py-24">
+          <div className="lg:col-span-6">
+            <p className="t-index">{A.educationIndex}</p>
+            <h2 id="edu-title" className="t-h1 mt-4 text-ink">{A.educationTitle}</h2>
             <p className="mt-5 max-w-[56ch] leading-[1.7] text-ink-muted">{A.educationBody}</p>
             <Link href="/learn" className="btn-primary mt-8">{A.educationLink}</Link>
           </div>
-          <div className="lg:col-span-3 lg:col-start-10">
+          <div className="lg:col-span-4 lg:col-start-9">
             <h3 className="t-index">{t.learn.plannedTitle}</h3>
-            <ul className="mt-3 border-t border-line text-[15px]">
-              {t.learn.planned.map((p) => <li key={p} className="border-b border-line py-2.5">{p}</li>)}
+            <ul className="mt-3 border-t border-rule text-[15px]">
+              {t.learn.planned.map((p) => <li key={p} className="border-b border-line py-3 text-ink">{p}</li>)}
             </ul>
           </div>
         </div>
       </section>
 
-      {/* (04) Gallery */}
-      <section id="gallery" aria-labelledby="gallery-title" className="mx-auto max-w-content scroll-mt-24 px-5 pb-24 pt-20 lg:px-10 lg:pb-32 lg:pt-32">
-        <div className="grid gap-x-6 gap-y-6 border-t border-navy pt-5 lg:grid-cols-12">
-          <Index n={4} label={A.gallery} />
-          <h2 id="gallery-title" className="t-h2 text-navy lg:col-span-5">{A.gallery}</h2>
-          <p className="max-w-sm text-ink-muted lg:col-span-4">{A.galleryIntro}</p>
-        </div>
-        <div className="mt-10 lg:mt-14">
-          {media.teamGallery.length > 0 || showEmpty ? (
-            <TeamGallery items={media.teamGallery} showEmpty={showEmpty} />
-          ) : (
-            <p className="border-t border-line pt-5 text-ink-muted">{A.galleryEmpty}</p>
-          )}
-        </div>
-      </section>
+      {/* Gallery — only real, non-duplicated photographs (site_settings team_gallery) */}
+      {(media.teamGallery.length > 0 || showEmpty) && (
+        <section id="gallery" aria-labelledby="gallery-title" className="mx-auto max-w-content scroll-mt-20 px-5 py-20 lg:px-10 lg:py-28">
+          <div className="grid gap-x-6 gap-y-4 lg:grid-cols-12 lg:items-end">
+            <h2 id="gallery-title" className="t-h1 text-ink lg:col-span-6">{A.gallery}</h2>
+            <p className="max-w-sm text-ink-muted lg:col-span-4 lg:col-start-9">{A.galleryIntro}</p>
+          </div>
+          <div className="mt-10 lg:mt-14"><TeamGallery items={media.teamGallery} showEmpty={showEmpty} /></div>
+        </section>
+      )}
     </>
   );
 }

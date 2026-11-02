@@ -12,16 +12,16 @@ export default async function AdminOverviewPage() {
   return (
     <div className="space-y-14">
       <section aria-labelledby="lessons-h">
-        <div className="flex items-baseline justify-between border-b border-navy pb-3">
-          <h1 id="lessons-h" className="t-h3 text-navy">Lessons</h1>
+        <div className="flex items-baseline justify-between border-b border-rule pb-3">
+          <h1 id="lessons-h" className="t-h3 text-ink">Lessons</h1>
           <Link href="/admin/lessons" className="link-arrow text-[14px] text-tech">Manage lessons</Link>
         </div>
         <p className="mt-4 text-[15px] text-ink-muted"><span className="t-num font-semibold text-ink">{publishedLessons ?? 0}</span> published of <span className="t-num font-semibold text-ink">{lessonCount ?? 0}</span> total.</p>
       </section>
 
       <section aria-labelledby="manuals-h">
-        <div className="flex items-baseline justify-between border-b border-navy pb-3">
-          <h2 id="manuals-h" className="t-h3 text-navy">Manuals</h2>
+        <div className="flex items-baseline justify-between border-b border-rule pb-3">
+          <h2 id="manuals-h" className="t-h3 text-ink">Manuals</h2>
         </div>
         <p className="mt-4 max-w-2xl text-[14px] text-ink-muted">
           Manual upload and publishing screens are not built yet. Until then, manage manual records in the Supabase dashboard; database policies enforce the same role rules.

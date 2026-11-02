@@ -17,7 +17,7 @@ export function BrandMark({ tone = "light" }: { tone?: "light" | "dark" }) {
         className={`size-9 shrink-0 ${dark ? "mix-blend-screen [mask-image:radial-gradient(closest-side,#000_60%,transparent)]" : "mix-blend-multiply"}`}
       />
       <span className="leading-none">
-        <span className={`font-display block text-[14px] font-semibold tracking-[-0.01em] ${dark ? "text-white" : "text-navy"}`}>FIRST FOR ALL</span>
+        <span className={`font-display block text-[14px] font-semibold tracking-[-0.01em] ${dark ? "text-white" : "text-ink"}`}>FIRST FOR ALL</span>
         <span className={`mt-1 block text-[11.5px] font-medium tracking-[0.01em] ${dark ? "text-white/55" : "text-ink-muted"}`}>MAVERICKS · FTC #24034</span>
       </span>
     </span>

@@ -15,16 +15,13 @@ export default async function ManualsPage({ searchParams }: Props) {
 
   return (
     <>
-      <header className="mx-auto max-w-content px-5 pb-10 pt-12 lg:px-10 lg:pb-14 lg:pt-20">
-        <div className="grid gap-x-6 gap-y-6 lg:grid-cols-12">
-          <p className="t-index lg:col-span-3">{t.home.libraryIndex}</p>
-          <h1 className="t-display text-navy lg:col-span-5">{t.manuals.title}</h1>
-          <p className="t-lead max-w-md self-end text-ink-muted lg:col-span-4">{t.manuals.intro}</p>
-        </div>
+      <header className="mx-auto max-w-content px-5 pb-10 pt-12 lg:px-10 lg:pb-12 lg:pt-16">
+        <h1 className="t-display max-w-[14ch] text-ink">{t.manuals.title}</h1>
+        <p className="t-lead mt-5 max-w-xl text-ink-muted">{t.manuals.intro}</p>
       </header>
       {message ? (
         <div className="mx-auto max-w-content px-5 pb-24 lg:px-10">
-          <p className="border-t border-navy pt-6 text-ink-muted">{message}</p>
+          <p className="border-t border-rule pt-6 text-ink-muted">{message}</p>
         </div>
       ) : (
         <ManualLibrary

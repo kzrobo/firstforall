@@ -16,7 +16,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <div className="mx-auto flex max-w-content flex-wrap items-end justify-between gap-x-8 px-5 pt-8 lg:px-10">
           <div>
             <p className="t-index">Team workspace</p>
-            <p className="font-display mt-1 text-[20px] font-medium tracking-[-0.02em] text-navy">Admin</p>
+            <p className="font-display mt-1 text-[20px] font-medium tracking-[-0.02em] text-ink">Admin</p>
             <AdminNav />
           </div>
           <form action={signOut} className="pb-3 text-[13px] text-ink-muted">

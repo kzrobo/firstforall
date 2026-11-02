@@ -6,6 +6,7 @@ const es: DeepPartial<Dictionary> = {
     tagline: "El conocimiento FTC, accesible en todos los idiomas.",
   },
   nav: {
+    team: "El equipo",
     home: "Inicio",
     manuals: "Manuales",
     learn: "Aprender",
@@ -89,6 +90,11 @@ const es: DeepPartial<Dictionary> = {
     ],
   },
   about: {
+    teamIndex: "El equipo",
+    teamTitle: "Las personas de MAVERICKS",
+    teamIntro: "Constructores, programadores, diseñadores y comunicadores: los estudiantes que construyen el robot cada temporada y mantienen FIRST FOR ALL en paralelo.",
+    rolesNote: "Los roles se indican tal como los nombra el equipo.",
+    openingCaption: "MAVERICKS FTC #24034 en la Nazarbayev Intellectual School.",
     title: "Nosotros",
     lead: "MAVERICKS es un equipo de FIRST Tech Challenge de la Nazarbayev Intellectual School de Shymkent, Kazajistán. FIRST FOR ALL es la iniciativa educativa que llevamos para equipos de todo el mundo.",
     whoIndex: "Quiénes somos",

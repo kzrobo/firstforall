@@ -6,6 +6,7 @@ const kk: DeepPartial<Dictionary> = {
     tagline: "FTC білімі — кез келген тілде қолжетімді.",
   },
   nav: {
+    team: "Команда",
     home: "Басты бет",
     manuals: "Нұсқаулықтар",
     learn: "Оқу",
@@ -89,6 +90,11 @@ const kk: DeepPartial<Dictionary> = {
     ],
   },
   about: {
+    teamIndex: "Команда",
+    teamTitle: "MAVERICKS адамдары",
+    teamIntro: "Құрастырушылар, бағдарламашылар, дизайнерлер және коммуникаторлар — әр маусымда робот жасап, қатар FIRST FOR ALL-ды жүргізетін оқушылар.",
+    rolesNote: "Рөлдер команда өзі атағандай берілген.",
+    openingCaption: "MAVERICKS FTC #24034 Назарбаев Зияткерлік мектебінде.",
     title: "Біз туралы",
     lead: "MAVERICKS — Шымкенттегі Назарбаев Зияткерлік мектебінің FIRST Tech Challenge командасы. FIRST FOR ALL — біз әлемнің түкпір-түкпіріндегі командалар үшін жүргізетін білім беру бастамасы.",
     whoIndex: "Біз кімбіз",

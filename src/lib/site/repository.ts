@@ -12,6 +12,9 @@ const mediaRef = z.object({
   focus: focus.optional(),
   focusMobile: focus.optional(),
   layout: z.enum(["wide", "tall", "standard"]).optional(),
+  /** Pixel size of the original; lets the gallery keep each photo's natural proportions. */
+  width: z.number().int().positive().max(20000).optional(),
+  height: z.number().int().positive().max(20000).optional(),
 });
 const mediaList = z.object({ items: z.array(mediaRef).max(24) });
 
@@ -24,7 +27,11 @@ export interface MediaItem {
   focus: string;
   focusMobile: string;
   layout: "wide" | "tall" | "standard";
+  /** width ÷ height: from the stored pixel size, else from the layout hint */
+  aspect: number;
 }
+
+const LAYOUT_ASPECT = { wide: 3 / 2, tall: 3 / 4, standard: 4 / 3 } as const;
 
 export interface SiteMedia {
   heroVideo: MediaItem | null;
@@ -43,6 +50,7 @@ export interface SiteMedia {
 const toItem = (r: z.infer<typeof mediaRef>): MediaItem => ({
   url: publicStorageUrl("public-media", r.path), alt: r.alt, caption: r.caption ?? null,
   focus: r.focus ?? "50% 50%", focusMobile: r.focusMobile ?? r.focus ?? "50% 50%", layout: r.layout ?? "standard",
+  aspect: r.width && r.height ? r.width / r.height : LAYOUT_ASPECT[r.layout ?? "standard"],
 });
 
 /** Pure parser so it can be unit-tested without a database. */
@@ -58,11 +66,21 @@ export function parseSiteMedia(rows: { key: string; value: unknown }[] | null | 
   };
 }
 
+/** Fills empty slots from the bundled authentic media; database values always take priority. */
+export function withBundledMedia(media: SiteMedia, bundled: Partial<Record<keyof SiteMedia, MediaItem>>): SiteMedia {
+  const out = { ...media };
+  for (const [key, item] of Object.entries(bundled) as [keyof SiteMedia, MediaItem][]) {
+    if (out[key] === null) (out as Record<string, unknown>)[key] = item;
+  }
+  return out;
+}
+
 export const getSiteMedia = cache(async (): Promise<SiteMedia> => {
+  const { BUNDLED_MEDIA } = await import("@/content/media");
   const supabase = await createSupabaseServerClient();
-  if (!supabase) return parseSiteMedia(null);
+  if (!supabase) return withBundledMedia(parseSiteMedia(null), BUNDLED_MEDIA);
   const { data } = await supabase.from("site_settings").select("key, value");
-  return parseSiteMedia(data);
+  return withBundledMedia(parseSiteMedia(data), BUNDLED_MEDIA);
 });
 
 /**

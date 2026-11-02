@@ -39,10 +39,10 @@ export default async function LessonPage({ params }: Props) {
     <article>
       <header className="mx-auto max-w-content px-5 pt-8 lg:px-10 lg:pt-12">
         <nav aria-label="Breadcrumb" className="t-index flex flex-wrap gap-x-2">
-          <Link href="/learn" className="hover:text-navy">{t.nav.learn}</Link><span aria-hidden>/</span>
-          <Link href={`/learn?category=${lesson.category.slug}`} className="hover:text-navy">{lesson.category.name}</Link>
+          <Link href="/learn" className="hover:text-ink">{t.nav.learn}</Link><span aria-hidden>/</span>
+          <Link href={`/learn?category=${lesson.category.slug}`} className="hover:text-ink">{lesson.category.name}</Link>
         </nav>
-        <h1 className="t-h1 mt-6 max-w-[24ch] text-navy">{lesson.title}</h1>
+        <h1 className="t-h1 mt-6 max-w-[24ch] text-ink">{lesson.title}</h1>
       </header>
 
       <div className="mx-auto mt-8 max-w-content px-0 sm:px-5 lg:mt-12 lg:px-10">
@@ -57,14 +57,14 @@ export default async function LessonPage({ params }: Props) {
           <p className="mt-8 text-[13px] text-ink-faint">{L.originalLanguage} {L.privacy}</p>
         </div>
         <aside className="lg:col-span-4 lg:col-start-9">
-          <dl className="grid grid-cols-[auto_1fr] gap-x-6 border-t border-navy text-[15px]">
+          <dl className="grid grid-cols-[auto_1fr] gap-x-6 border-t border-rule text-[15px]">
             <dt className="border-b border-line py-3 text-ink-muted">{L.category}</dt>
-            <dd className="border-b border-line py-3"><Link href={`/learn?category=${lesson.category.slug}`} className="link-rule text-navy">{lesson.category.name}</Link></dd>
+            <dd className="border-b border-line py-3"><Link href={`/learn?category=${lesson.category.slug}`} className="link-rule text-ink">{lesson.category.name}</Link></dd>
             <dt className="border-b border-line py-3 text-ink-muted">{L.spokenLanguage}</dt>
             <dd className="border-b border-line py-3">{languageName(lesson.language, locale)}</dd>
             {duration && <><dt className="border-b border-line py-3 text-ink-muted">{L.duration}</dt><dd className="t-num border-b border-line py-3">{duration}</dd></>}
           </dl>
-          <a href={youTubeWatchUrl(lesson.youtubeId)} target="_blank" rel="noopener noreferrer" className="link-arrow mt-6 text-[15px] text-navy">{L.watchOnYouTube}</a>
+          <a href={youTubeWatchUrl(lesson.youtubeId)} target="_blank" rel="noopener noreferrer" className="link-arrow mt-6 text-[15px] text-ink">{L.watchOnYouTube}</a>
         </aside>
       </div>
 
@@ -72,8 +72,8 @@ export default async function LessonPage({ params }: Props) {
         <section aria-labelledby="related-title" className="border-t border-line bg-paper">
           <div className="mx-auto max-w-content px-5 py-16 lg:px-10 lg:py-20">
             <div className="flex items-baseline justify-between gap-6">
-              <h2 id="related-title" className="t-h3 text-navy">{L.related}</h2>
-              <Link href="/learn" className="link-arrow text-[14px] text-navy">{L.back}</Link>
+              <h2 id="related-title" className="t-h3 text-ink">{L.related}</h2>
+              <Link href="/learn" className="link-arrow text-[14px] text-ink">{L.back}</Link>
             </div>
             <ul className="mt-8 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
               {related.map((l) => <li key={l.id}><LessonTeaser lesson={l} languageLabel={languageName(l.language, locale)} /></li>)}

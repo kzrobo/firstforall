@@ -5,12 +5,13 @@ Documentation-first platform for multilingual FTC manuals. Community project —
 ## Stack
 Next.js 15 App Router · TypeScript strict · Tailwind v4 (tokens in `src/app/globals.css`) · Supabase (Postgres/Auth/Storage, RLS) · PDF.js · Zod · Vitest.
 
-## Design system (Swiss editorial)
-- Tokens in `src/app/globals.css` `@theme`: navy `#00102B` (text, footer, one panel), yellow `#FEC211` (marks only — never body text), warm off-white canvas.
-- Type: Unbounded 400/500/600 for display & headings via `.t-display .t-h1 .t-h2 .t-h3 .t-statement`; Inter for reading, forms, tables, metadata and the whole PDF reader.
-- Sentence case. Sections open with `SectionHead` / `.t-index` "(02) Library" + navy hairline — no uppercase eyebrows, no cards, square corners, no gradients/glow.
-- 12-column grid, `gap-x-6`, container `max-w-content` + `px-5 lg:px-10`.
-- Photos only via `MediaSlot`/`TeamGallery` (next/image, focal points); empty slots hidden in production. See `docs/ASSETS.md`.
+## Design system (dark editorial, from the MAVERICKS emblem)
+- Tokens in `src/app/globals.css` `@theme`, sampled from the emblem: midnight `#020A1D` (page), deep navy `#071431` (`paper`: alternate sections, surfaces, inputs), indigo `#171638` (one band per page), soft white `#F5F8FF` (`ink`), cool grey-blue `#A9B4CC` / `#8893AE` (muted/faint), ice blue `#93C5FA` (`accent`/`tech`: links, active states — sparingly). All text pairs ≥ AA; input borders `line-strong` ≥ 3:1.
+- No neon, glow, glassmorphism or decorative gradients; the only gradients are tonal fades that let photos dissolve into the page. PDF pages stay white — never invert documents.
+- Type: Unbounded 400/500/600 for display & headings via `.t-display .t-h1 .t-h2 .t-h3 .t-statement`; Inter for reading, forms, tables, metadata, admin and the whole PDF reader. Sentence case.
+- Primary action = `.btn-primary` (soft-white block, midnight text). One accent mark per page at most.
+- 12-column grid, `gap-x-6`, container `max-w-content` + `px-5 lg:px-10`. Vary section openings; don't repeat one formula.
+- Real media only. Bundled team media in `src/content/media.ts` + `src/content/team.ts` (DB slots override); see `docs/ASSETS.md`. Never publish third-party footage.
 
 ## Layout
 - `src/i18n/` — UI locales en/kk/ru/es; dictionaries fall back to English. UI language ≠ document language.

@@ -9,7 +9,7 @@ export function FilmDialog({ src, poster, label, closeLabel, className = "" }: {
   return (
     <>
       <button type="button" onClick={() => { dialog.current?.showModal(); void video.current?.play(); }} className={`group inline-flex items-center gap-3 ${className}`}>
-        <span className="inline-flex size-11 items-center justify-center rounded-full ring-1 ring-current transition-colors group-hover:bg-white group-hover:text-navy">
+        <span className="inline-flex size-11 items-center justify-center rounded-full ring-1 ring-current transition-colors group-hover:bg-white group-hover:text-ink">
           <svg aria-hidden viewBox="0 0 24 24" className="ml-0.5 size-4" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
         </span>
         <span className="text-[15px] font-semibold">{label}</span>

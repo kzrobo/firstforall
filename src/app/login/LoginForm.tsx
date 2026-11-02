@@ -10,7 +10,7 @@ export function LoginForm({ t }: { t: { email: string; password: string; submit:
       <label className="block text-sm font-medium">{t.email}<input name="email" type="email" autoComplete="email" required className={input} /></label>
       <label className="block text-sm font-medium">{t.password}<input name="password" type="password" autoComplete="current-password" required minLength={8} className={input} /></label>
       {state.error && <p role="alert" className="text-sm text-red-700">{t.error}</p>}
-      <button disabled={pending} className="h-11 w-full bg-navy font-semibold text-white hover:bg-navy-800 disabled:opacity-60">{t.submit}</button>
+      <button disabled={pending} className="btn-primary w-full justify-center disabled:opacity-60">{t.submit}</button>
     </form>
   );
 }

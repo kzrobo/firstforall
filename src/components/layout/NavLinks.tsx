@@ -19,7 +19,7 @@ export function NavLinks({ items }: { items: NavItem[] }) {
             <Link
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`font-display group relative inline-flex h-10 items-center px-3.5 text-[13px] font-medium tracking-[-0.005em] transition-colors ${active ? "text-navy" : "text-ink-muted hover:text-navy"}`}
+              className={`font-display group relative inline-flex h-10 items-center px-3.5 text-[13px] font-medium tracking-[-0.005em] transition-colors ${active ? "text-ink" : "text-ink-muted hover:text-ink"}`}
             >
               {item.label}
               <span aria-hidden className={`absolute inset-x-3.5 bottom-1 h-[2px] origin-left bg-accent transition-transform duration-200 ${active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`} />

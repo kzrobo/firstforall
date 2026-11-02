@@ -34,7 +34,7 @@ export function MobileNav({ items, t, locale }: { items: NavItem[]; t: Dictionar
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((v) => !v)}
-        className="font-display -mr-2 inline-flex h-11 items-center gap-2.5 px-2 text-[13px] font-medium text-navy"
+        className="font-display -mr-2 inline-flex h-11 items-center gap-2.5 px-2 text-[13px] font-medium text-ink"
       >
         {open ? t.nav.close : t.nav.menu}
         <span aria-hidden className="relative block h-3 w-5">
@@ -52,7 +52,7 @@ export function MobileNav({ items, t, locale }: { items: NavItem[]; t: Dictionar
                   <li key={item.href} className="border-b border-line">
                     <Link href={item.href} aria-current={active ? "page" : undefined} className="flex items-baseline gap-4 py-5">
                       <span className="t-num w-6 text-[12px] text-ink-faint">{String(i + 1).padStart(2, "0")}</span>
-                      <span className={`font-display text-[26px] font-medium tracking-[-0.03em] ${active ? "text-navy underline decoration-accent decoration-[3px] underline-offset-[8px]" : "text-navy"}`}>{item.label}</span>
+                      <span className={`font-display text-[26px] font-medium tracking-[-0.03em] ${active ? "text-ink underline decoration-accent decoration-[3px] underline-offset-[8px]" : "text-ink"}`}>{item.label}</span>
                     </Link>
                   </li>
                 );

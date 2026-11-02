@@ -35,7 +35,7 @@ export default async function ManualOverviewPage({ params }: Props) {
       <header className="border-b border-line bg-paper">
         <div className="mx-auto max-w-content px-5 pt-8 lg:px-10">
           <nav aria-label="Breadcrumb" className="text-[14px] text-ink-muted">
-            <Link href="/manuals" className="hover:text-navy">{t.nav.manuals}</Link><span aria-hidden className="mx-2">/</span>{manual.season}
+            <Link href="/manuals" className="hover:text-ink">{t.nav.manuals}</Link><span aria-hidden className="mx-2">/</span>{manual.season}
           </nav>
         </div>
         <div className="mx-auto grid max-w-content gap-x-8 lg:gap-x-16 gap-y-10 px-5 pb-14 pt-10 md:grid-cols-12 lg:px-10 lg:pb-20">
@@ -44,14 +44,14 @@ export default async function ManualOverviewPage({ params }: Props) {
           </div>
           <div className="md:col-span-8 lg:col-span-8 lg:col-start-5">
             <p className="t-index">{manual.season}{manual.seasonName ? ` · ${manual.seasonName}` : ""} · <span className="capitalize">{manual.category}</span></p>
-            <h1 className="t-h1 mt-3 text-navy">{manual.title}</h1>
+            <h1 className="t-h1 mt-3 text-ink">{manual.title}</h1>
             {manual.description && <p className="t-lead mt-6 max-w-prose text-ink-muted">{manual.description}</p>}
             {primary && (
               <div className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-4">
                 <Link href={readerHref(manual.slug, primary.language)} className="btn-primary">
                   {t.manuals.read}
                 </Link>
-                <a href={primary.fileUrl} download className="link-arrow text-[15px] text-navy">{t.manuals.download}</a>
+                <a href={primary.fileUrl} download className="link-arrow text-[15px] text-ink">{t.manuals.download}</a>
               </div>
             )}
             <dl className="mt-10 grid max-w-xl grid-cols-2 gap-6 border-t border-line pt-6 text-[14px] sm:grid-cols-3">
@@ -67,11 +67,11 @@ export default async function ManualOverviewPage({ params }: Props) {
       </header>
 
       <section aria-labelledby="tr-title" className="mx-auto max-w-content px-5 py-14 lg:px-10 lg:py-20">
-        <h2 id="tr-title" className="t-h3 text-navy">{t.manuals.translations}</h2>
+        <h2 id="tr-title" className="t-h3 text-ink">{t.manuals.translations}</h2>
         <div className="mt-6 overflow-x-auto">
           <table className="w-full min-w-[560px] text-left text-[15px]">
             <thead>
-              <tr className="border-b-2 border-navy text-[13px] text-ink-muted">
+              <tr className="border-b-2 border-rule text-[13px] text-ink-muted">
                 <th className="py-3 pr-4 font-semibold">{t.manuals.language}</th>
                 <th className="py-3 pr-4 font-semibold">{t.manuals.revision}</th>
                 <th className="py-3 pr-4 font-semibold">{t.manuals.translatedBy}</th>
@@ -82,14 +82,14 @@ export default async function ManualOverviewPage({ params }: Props) {
               {manual.translations.map((tr) => (
                 <tr key={tr.id} className="border-b border-line">
                   <td className="py-4 pr-4">
-                    <span className="font-semibold text-navy">{languageName(tr.language, locale)}</span>
+                    <span className="font-semibold text-ink">{languageName(tr.language, locale)}</span>
                     <span className="mt-0.5 block text-[13px] text-ink-muted">{tr.isSource ? t.manuals.official : t.manuals.community}</span>
                   </td>
                   <td className="py-4 pr-4 t-num">{tr.revision}{tr.pageCount ? <span className="text-ink-muted"> · {tr.pageCount} {t.manuals.pages}</span> : null}</td>
                   <td className="py-4 pr-4 text-ink-muted">{tr.credit ?? "—"}</td>
                   <td className="whitespace-nowrap py-4 text-right">
                     <Link href={readerHref(manual.slug, tr.language)} className="font-semibold text-tech hover:underline">{t.manuals.read}</Link>
-                    <a href={tr.fileUrl} download className="ml-6 text-ink-muted hover:text-navy">PDF{formatBytes(tr.fileSizeBytes) ? ` · ${formatBytes(tr.fileSizeBytes)}` : ""}</a>
+                    <a href={tr.fileUrl} download className="ml-6 text-ink-muted hover:text-ink">PDF{formatBytes(tr.fileSizeBytes) ? ` · ${formatBytes(tr.fileSizeBytes)}` : ""}</a>
                   </td>
                 </tr>
               ))}

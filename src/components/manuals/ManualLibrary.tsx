@@ -36,13 +36,13 @@ export function ManualLibrary({ manuals, t, locale, initial }: { manuals: Manual
   const languageGroup = groups.find((g) => g.key === "language")!;
   const selectGroups = groups.filter((g) => g.key !== "language");
   const select = (on: boolean) =>
-    `h-10 w-full appearance-none border-b bg-transparent pr-7 text-[15px] focus:border-navy focus:outline-none ${on ? "border-accent font-medium text-navy" : "border-line-strong text-ink"}`;
+    `h-10 w-full appearance-none border-b bg-transparent pr-7 text-[15px] focus:border-rule focus:outline-none ${on ? "border-accent font-medium text-ink" : "border-line-strong text-ink"}`;
 
   return (
     <div className="mx-auto max-w-content px-5 lg:px-10">
       {/* Search */}
-      <label id="search" className="flex scroll-mt-24 items-center gap-4 border-b-2 border-navy">
-        <svg aria-hidden className="size-5 shrink-0 text-navy" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="6.5" /><path d="m20 20-4.2-4.2" /></svg>
+      <label id="search" className="flex scroll-mt-24 items-center gap-4 border-b-2 border-rule">
+        <svg aria-hidden className="size-5 shrink-0 text-ink" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="6.5" /><path d="m20 20-4.2-4.2" /></svg>
         <span className="sr-only">{t.manuals.search}</span>
         <input
           type="search"
@@ -62,7 +62,7 @@ export function ManualLibrary({ manuals, t, locale, initial }: { manuals: Manual
               const on = f.language === v.value;
               return (
                 <button key={v.value || "all"} type="button" aria-pressed={on} onClick={() => set({ language: v.value })}
-                  className={`h-9 border-b-2 text-[15px] transition-colors ${on ? "border-accent font-medium text-navy" : "border-transparent text-ink-muted hover:text-navy"}`}>
+                  className={`h-9 border-b-2 text-[15px] transition-colors ${on ? "border-accent font-medium text-ink" : "border-transparent text-ink-muted hover:text-ink"}`}>
                   {v.label}
                 </button>
               );
@@ -92,12 +92,42 @@ export function ManualLibrary({ manuals, t, locale, initial }: { manuals: Manual
       <div className="flex items-baseline justify-between py-4 text-[14px] text-ink-muted">
         <p aria-live="polite"><span className="t-num font-semibold text-ink">{results.length}</span> / <span className="t-num">{manuals.length}</span> {t.manuals.documents}</p>
         {(active > 0 || f.q) && (
-          <button type="button" onClick={() => set({ q: "", season: "", language: "", category: "" })} className="link-rule text-navy">{t.manuals.clear}</button>
+          <button type="button" onClick={() => set({ q: "", season: "", language: "", category: "" })} className="link-rule text-ink">{t.manuals.clear}</button>
         )}
       </div>
 
       {results.length === 0 ? (
         <p className="border-t border-line py-16 text-ink-muted">{t.manuals.empty}</p>
+      ) : results.length <= 3 ? (
+        /* Few documents: a publication index — one full row per manual, cover beside its details */
+        <ul className="border-t border-rule pb-24 lg:pb-32">
+          {results.map((m) => (
+            <li key={m.id} className="grid gap-x-6 gap-y-6 border-b border-line py-8 sm:grid-cols-[160px_1fr] lg:grid-cols-12 lg:py-10">
+              <Link href={`/manuals/${m.slug}`} tabIndex={-1} aria-hidden className="img-zoom block w-[132px] overflow-hidden sm:w-auto lg:col-span-2">
+                <DocumentThumb manual={m} />
+              </Link>
+              <div className="lg:col-span-5 lg:col-start-4">
+                <p className="t-index">{m.season}{m.seasonName ? ` · ${m.seasonName}` : ""} · <span className="capitalize">{m.category}</span></p>
+                <h2 className="t-h2 mt-2 text-ink"><Link href={`/manuals/${m.slug}`} className="hover:underline hover:decoration-1 hover:underline-offset-4">{m.title}</Link></h2>
+                {m.description && <p className="mt-3 max-w-lg text-[15px] text-ink-muted">{m.description}</p>}
+                <p className="mt-3 text-[13px] text-ink-faint">{t.manuals.revision} {m.revision}</p>
+              </div>
+              <ul className="self-start border-t border-line sm:col-start-2 lg:col-span-4 lg:col-start-9" aria-label={t.manuals.translations}>
+                {m.translations.map((tr) => (
+                  <li key={tr.id} className="flex items-baseline justify-between gap-4 border-b border-line py-3">
+                    <Link href={readerHref(m.slug, tr.language)} className={`text-[15px] font-medium hover:underline hover:underline-offset-4 ${f.language === tr.language ? "text-accent" : "text-ink"}`}>
+                      {languageName(tr.language, locale)}
+                    </Link>
+                    <span className="flex gap-4 text-[13px]">
+                      <Link href={readerHref(m.slug, tr.language)} className="text-tech hover:underline">{t.manuals.read}</Link>
+                      <a href={tr.fileUrl} download className="text-ink-faint hover:text-ink">PDF</a>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
       ) : (
         <ul className="divide-y divide-line border-t border-line pb-24 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:gap-y-16 sm:divide-y-0 sm:border-0 sm:pt-6 lg:grid-cols-3 lg:pb-32 xl:grid-cols-4">
           {results.map((m) => (
@@ -108,7 +138,7 @@ export function ManualLibrary({ manuals, t, locale, initial }: { manuals: Manual
               </Link>
               <div className="sm:mt-5">
                 <p className="t-index">{m.season}{m.seasonName ? ` · ${m.seasonName}` : ""}</p>
-                <h2 className="mt-1.5 text-[17px] font-medium leading-snug tracking-[-0.01em] text-navy sm:text-[18px]">
+                <h2 className="mt-1.5 text-[17px] font-medium leading-snug tracking-[-0.01em] text-ink sm:text-[18px]">
                   <Link href={`/manuals/${m.slug}`} className="decoration-1 underline-offset-4 group-hover:underline">{m.title}</Link>
                 </h2>
                 <p className="mt-1.5 text-[13px] text-ink-muted"><span className="capitalize">{m.category}</span> · {t.manuals.revision} {m.revision}</p>
@@ -116,7 +146,7 @@ export function ManualLibrary({ manuals, t, locale, initial }: { manuals: Manual
                   {m.translations.map((tr) => (
                     <li key={tr.id}>
                       <Link href={readerHref(m.slug, tr.language)} title={t.manuals.read}
-                        className={`link-rule ${f.language === tr.language ? "font-medium text-navy decoration-accent decoration-2" : "text-tech decoration-line-strong"}`}>
+                        className={`link-rule ${f.language === tr.language ? "font-medium text-ink decoration-accent decoration-2" : "text-tech decoration-line-strong"}`}>
                         {languageName(tr.language, locale)}
                       </Link>
                     </li>

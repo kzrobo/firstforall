@@ -22,9 +22,9 @@ export function LessonForm({ lesson, categories, canPublish }: { lesson?: Lesson
   const videoId = useMemo(() => parseYouTubeUrl(url), [url]);
   const fe = state.fieldErrors ?? {};
 
-  const input = "mt-1.5 block h-11 w-full border border-line-strong bg-paper px-3 text-[15px] focus:border-navy focus:outline-none aria-[invalid=true]:border-red-700";
+  const input = "mt-1.5 block h-11 w-full border border-line-strong bg-paper px-3 text-[15px] focus:border-rule focus:outline-none aria-[invalid=true]:border-red-400";
   const label = "block text-[14px] font-medium text-ink";
-  const err = (k: string) => fe[k] && <p id={`${k}-err`} className="mt-1.5 text-[13px] text-red-800">{fe[k]}</p>;
+  const err = (k: string) => fe[k] && <p id={`${k}-err`} className="mt-1.5 text-[13px] text-red-300">{fe[k]}</p>;
   const aria = (k: string) => ({ "aria-invalid": Boolean(fe[k]), "aria-describedby": fe[k] ? `${k}-err` : undefined });
 
   return (
@@ -36,7 +36,7 @@ export function LessonForm({ lesson, categories, canPublish }: { lesson?: Lesson
       noValidate
     >
       {lesson && <input type="hidden" name="id" value={lesson.id} />}
-      {state.error && <p role="alert" className="border-l-2 border-red-700 bg-red-50 px-4 py-3 text-[14px] text-red-900 lg:col-span-12">{state.error}</p>}
+      {state.error && <p role="alert" className="border-l-2 border-red-400 bg-red-950/40 px-4 py-3 text-[14px] text-red-100 lg:col-span-12">{state.error}</p>}
 
       <div className="space-y-6 lg:col-span-7">
         <div>
@@ -71,7 +71,7 @@ export function LessonForm({ lesson, categories, canPublish }: { lesson?: Lesson
 
         <div>
           <label htmlFor="slug" className={label}>Page address</label>
-          <div className="mt-1.5 flex items-center border border-line-strong bg-paper focus-within:border-navy">
+          <div className="mt-1.5 flex items-center border border-line-strong bg-paper focus-within:border-rule">
             <span className="pl-3 text-[14px] text-ink-faint">/learn/</span>
             <input id="slug" name="slug" value={slug} maxLength={80} onChange={(e) => { setSlug(e.target.value); setSlugTouched(true); }}
               className="h-11 flex-1 bg-transparent pr-3 text-[15px] focus:outline-none" {...aria("slug")} />
@@ -83,7 +83,7 @@ export function LessonForm({ lesson, categories, canPublish }: { lesson?: Lesson
         <div>
           <label htmlFor="description" className={label}>Description <span className="font-normal text-ink-muted">(optional)</span></label>
           <textarea id="description" name="description" rows={6} maxLength={4000} defaultValue={lesson?.description ?? ""}
-            className="mt-1.5 block w-full border border-line-strong bg-paper px-3 py-2.5 text-[15px] leading-relaxed focus:border-navy focus:outline-none" />
+            className="mt-1.5 block w-full border border-line-strong bg-paper px-3 py-2.5 text-[15px] leading-relaxed focus:border-rule focus:outline-none" />
           <p className="mt-1.5 text-[13px] text-ink-muted">Write it in the language of the video. Plain text; line breaks are kept.</p>
         </div>
       </div>
@@ -129,22 +129,22 @@ export function LessonForm({ lesson, categories, canPublish }: { lesson?: Lesson
         <fieldset className="border-t border-line pt-5">
           <legend className={`${label} pb-2`}>Visibility</legend>
           <label className="flex items-start gap-3 py-1.5 text-[15px]">
-            <input type="radio" name="status" value="draft" defaultChecked={lesson?.status !== "published"} className="mt-1 accent-navy" />
+            <input type="radio" name="status" value="draft" defaultChecked={lesson?.status !== "published"} className="mt-1 accent-tech" />
             <span>Draft <span className="block text-[13px] text-ink-muted">Visible only in this workspace.</span></span>
           </label>
           <label className={`flex items-start gap-3 py-1.5 text-[15px] ${canPublish ? "" : "opacity-50"}`}>
-            <input type="radio" name="status" value="published" disabled={!canPublish} defaultChecked={lesson?.status === "published"} className="mt-1 accent-navy" />
+            <input type="radio" name="status" value="published" disabled={!canPublish} defaultChecked={lesson?.status === "published"} className="mt-1 accent-tech" />
             <span>Published <span className="block text-[13px] text-ink-muted">{canPublish ? "Public on /learn." : "Your role cannot publish."}</span></span>
           </label>
           <label className="mt-3 flex items-start gap-3 border-t border-line pt-4 text-[15px]">
-            <input type="checkbox" name="is_featured" defaultChecked={lesson?.isFeatured} className="mt-1 accent-navy" />
+            <input type="checkbox" name="is_featured" defaultChecked={lesson?.isFeatured} className="mt-1 accent-tech" />
             <span>Featured lesson <span className="block text-[13px] text-ink-muted">Shown first on /learn and the homepage. Replaces the current featured lesson.</span></span>
           </label>
         </fieldset>
 
         <div className="flex items-center gap-5 border-t border-line pt-6">
           <button disabled={pending} className="btn-primary disabled:opacity-60">{pending ? "Saving…" : lesson ? "Save changes" : "Add lesson"}</button>
-          <Link href="/admin/lessons" className="text-[14px] text-ink-muted hover:text-navy">Cancel</Link>
+          <Link href="/admin/lessons" className="text-[14px] text-ink-muted hover:text-ink">Cancel</Link>
         </div>
       </div>
     </form>

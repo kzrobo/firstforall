@@ -4,6 +4,7 @@ const en = {
     tagline: "FTC knowledge, accessible in every language.",
   },
   nav: {
+    team: "The team",
     home: "Home",
     manuals: "Manuals",
     learn: "Learn",
@@ -87,6 +88,11 @@ const en = {
     ],
   },
   about: {
+    teamIndex: "The team",
+    teamTitle: "The people behind MAVERICKS",
+    teamIntro: "Builders, coders, designers and communicators — the students who build the robot each season and maintain FIRST FOR ALL alongside it.",
+    rolesNote: "Roles are given as the team names them.",
+    openingCaption: "MAVERICKS FTC #24034 at Nazarbayev Intellectual School.",
     title: "About",
     lead: "MAVERICKS is a FIRST Tech Challenge team from Nazarbayev Intellectual School in Shymkent, Kazakhstan. FIRST FOR ALL is the educational initiative we run for teams everywhere.",
     whoIndex: "Who we are",

@@ -25,7 +25,7 @@ export function LessonTeaser({ lesson, variant = "standard", languageLabel, head
         {lesson.category.name} <span aria-hidden>·</span> {languageLabel}
       </p>
       <H className={titleClass}>
-        <Link href={`/learn/${lesson.slug}`} className="text-navy decoration-1 underline-offset-4 group-hover:underline">{lesson.title}</Link>
+        <Link href={`/learn/${lesson.slug}`} className="text-ink decoration-1 underline-offset-4 group-hover:underline">{lesson.title}</Link>
       </H>
       {variant === "lead" && lesson.description && <p className="mt-3 line-clamp-3 max-w-xl text-ink-muted">{lesson.description}</p>}
     </article>

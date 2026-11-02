@@ -13,14 +13,14 @@ export function AiWorkspaceShell({ t, mode }: { t: Dictionary; mode: "preview" }
         <p className="border-b border-line bg-accent-pale/60 px-5 py-2 text-[12px] font-medium tracking-[0.02em] text-ink/70">{L.previewLabel}</p>
       )}
       <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
-        <p className="flex items-center gap-2.5 text-[14px] font-semibold text-navy">
+        <p className="flex items-center gap-2.5 text-[14px] font-semibold text-ink">
           <span aria-hidden className="inline-block size-2 bg-accent" />Mavericks AI
         </p>
         <p className="text-[12px] text-ink-faint">{t.manuals.language}: <span className="font-medium text-ink-muted">EN · KK · RU · ES</span></p>
       </div>
 
       <div className="px-5 pb-6 pt-8 sm:px-8">
-        <p className="t-h3 text-navy">{L.askTitle}</p>
+        <p className="t-h3 text-ink">{L.askTitle}</p>
         <ul className="mt-5 border-t border-line">
           {L.suggestions.map((q) => (
             <li key={q} className="flex items-center justify-between gap-4 border-b border-line py-3.5 text-[15px] text-ink">

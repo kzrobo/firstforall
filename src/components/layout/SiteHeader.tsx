@@ -19,12 +19,12 @@ export function SiteHeader({ t, locale }: { t: Dictionary; locale: UiLocale }) {
   const items = navItems(t);
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-canvas/95 backdrop-blur-[6px] supports-[backdrop-filter]:bg-canvas/85">
-      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:bg-accent focus:px-3 focus:py-2 focus:text-navy">
+      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:bg-accent focus:px-3 focus:py-2 focus:text-canvas">
         {t.nav.skip}
       </a>
       <div className="mx-auto grid h-16 max-w-content grid-cols-[1fr_auto] items-center gap-6 px-5 lg:h-[72px] lg:grid-cols-[1fr_auto_1fr] lg:px-10">
         <Link href="/" className="justify-self-start" aria-label="FIRST FOR ALL — MAVERICKS FTC #24034">
-          <BrandMark />
+          <BrandMark tone="dark" />
         </Link>
         <nav aria-label={t.nav.primary} className="hidden lg:block">
           <NavLinks items={items} />

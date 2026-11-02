@@ -34,7 +34,7 @@ export function YouTubeThumb({ id, title, priority = false, className = "" }: { 
 export function PlayMark({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
   const box = size === "lg" ? "size-16" : size === "sm" ? "size-9" : "size-12";
   return (
-    <span aria-hidden className={`${box} flex items-center justify-center rounded-full bg-paper/95 text-navy shadow-[0_6px_20px_-6px_rgba(0,16,43,0.5)] transition-transform duration-200 group-hover:scale-105`}>
+    <span aria-hidden className={`${box} flex items-center justify-center rounded-full bg-paper/95 text-ink shadow-[0_6px_20px_-6px_rgba(0,16,43,0.5)] transition-transform duration-200 group-hover:scale-105`}>
       <svg viewBox="0 0 24 24" className="ml-0.5 size-[38%]" fill="currentColor"><path d="M7 4.5v15l13-7.5z" /></svg>
     </span>
   );

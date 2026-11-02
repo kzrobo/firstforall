@@ -15,7 +15,7 @@ export function AdminNav() {
         const active = i.href === "/admin" ? path === "/admin" : path.startsWith(i.href);
         return (
           <Link key={i.href} href={i.href} aria-current={active ? "page" : undefined}
-            className={`border-b-2 py-3 ${active ? "border-accent font-semibold text-navy" : "border-transparent text-ink-muted hover:text-navy"}`}>
+            className={`border-b-2 py-3 ${active ? "border-accent font-semibold text-ink" : "border-transparent text-ink-muted hover:text-ink"}`}>
             {i.label}
           </Link>
         );
