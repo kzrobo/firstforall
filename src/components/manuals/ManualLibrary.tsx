@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import type { Dictionary } from "@/i18n/dictionary";
+import { plural } from "@/i18n/plural";
 import { languageName } from "@/lib/languages";
 import { EMPTY_FILTERS, facetValues, filterManuals, type LibraryFilters } from "@/lib/manuals/filters";
 import type { Manual } from "@/lib/manuals/types";
@@ -90,7 +91,7 @@ export function ManualLibrary({ manuals, t, locale, initial }: { manuals: Manual
       </div>
 
       <div className="flex items-baseline justify-between py-4 text-[14px] text-ink-muted">
-        <p aria-live="polite"><span className="t-num font-semibold text-ink">{results.length}</span> / <span className="t-num">{manuals.length}</span> {t.manuals.documents}</p>
+        <p aria-live="polite"><span className="t-num font-semibold text-ink">{results.length}</span> / <span className="t-num">{manuals.length}</span> {plural(locale, manuals.length, { one: t.manuals.document, few: t.manuals.documentsFew, many: t.manuals.documents })}</p>
         {(active > 0 || f.q) && (
           <button type="button" onClick={() => set({ q: "", season: "", language: "", category: "" })} className="link-rule text-ink">{t.manuals.clear}</button>
         )}

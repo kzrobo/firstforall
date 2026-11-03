@@ -12,6 +12,8 @@ const mediaRef = z.object({
   focus: focus.optional(),
   focusMobile: focus.optional(),
   layout: z.enum(["wide", "tall", "standard"]).optional(),
+  /** Optional WebM (VP9) version of a video slot, offered before the MP4 for wider codec support. */
+  webm: z.string().min(1).optional(),
   /** Pixel size of the original; lets the gallery keep each photo's natural proportions. */
   width: z.number().int().positive().max(20000).optional(),
   height: z.number().int().positive().max(20000).optional(),
@@ -29,6 +31,8 @@ export interface MediaItem {
   layout: "wide" | "tall" | "standard";
   /** width ÷ height: from the stored pixel size, else from the layout hint */
   aspect: number;
+  /** Alternative WebM source (video slots only) */
+  webmUrl?: string | null;
 }
 
 const LAYOUT_ASPECT = { wide: 3 / 2, tall: 3 / 4, standard: 4 / 3 } as const;
@@ -44,6 +48,8 @@ export interface SiteMedia {
   photoPair: MediaItem[];
   aboutHero: MediaItem | null;
   aboutStory: MediaItem | null;
+  /** Team photograph used where the homepage introduces MAVERICKS */
+  teamFeature: MediaItem | null;
   teamGallery: MediaItem[];
 }
 
@@ -51,6 +57,7 @@ const toItem = (r: z.infer<typeof mediaRef>): MediaItem => ({
   url: publicStorageUrl("public-media", r.path), alt: r.alt, caption: r.caption ?? null,
   focus: r.focus ?? "50% 50%", focusMobile: r.focusMobile ?? r.focus ?? "50% 50%", layout: r.layout ?? "standard",
   aspect: r.width && r.height ? r.width / r.height : LAYOUT_ASPECT[r.layout ?? "standard"],
+  webmUrl: r.webm ? publicStorageUrl("public-media", r.webm) : null,
 });
 
 /** Pure parser so it can be unit-tested without a database. */
@@ -63,6 +70,7 @@ export function parseSiteMedia(rows: { key: string; value: unknown }[] | null | 
     filmVideo: one("film_video"), filmPoster: one("film_poster"),
     photoFeature: one("photo_feature"), photoInitiative: one("photo_initiative"), photoPair: many("photo_pair"),
     aboutHero: one("about_hero"), aboutStory: one("about_story"), teamGallery: many("team_gallery"),
+    teamFeature: null,
   };
 }
 

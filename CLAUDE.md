@@ -18,6 +18,8 @@ Next.js 15 App Router · TypeScript strict · Tailwind v4 (tokens in `src/app/gl
 - `src/lib/manuals/` — Zod types, server repository (published only), pure filter + reader-nav logic.
 - `src/components/reader/` — PDF.js reader (lazy page rendering, outline, search, zoom).
 - `src/lib/learn/` + `src/app/learn`, `src/app/admin/lessons` — LEARN (YouTube lessons). Only validated 11-char video ids are stored; embeds are click-to-play youtube-nocookie.
+- `src/lib/hub/` + `src/app/mavericks`, `src/app/admin/hub` — MAVERICKS hub (7 editorial categories, not FIRST award titles). `hub_entries` table; per-category sections in `categories.ts`. Connects globe = `src/components/hub/globe/` (react-globe.gl, client-only; origin Shymkent; city coords only when entered, else country centroid labelled as such; the archive list is the keyboard path).
+- Home hero is full-viewport and video-ready (`hero_video` slot, MP4 + optional WebM). Without licensed footage it shows the emblem — never the team group photo. Third-party footage stays out until permission is confirmed.
 - `supabase/migrations/` — schema + RLS. Security lives in DB + server, never client-side hiding.
 
 ## Commands

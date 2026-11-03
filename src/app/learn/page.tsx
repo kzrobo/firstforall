@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LessonTeaser } from "@/components/learn/LessonTeaser";
 import { getI18n } from "@/i18n/server";
+import { plural } from "@/i18n/plural";
 import { languageName } from "@/lib/languages";
 import { listPublishedLessons } from "@/lib/learn/repository";
 import type { Lesson, LessonCategory } from "@/lib/learn/types";
@@ -94,7 +95,7 @@ export default async function LearnPage({ searchParams }: Props) {
               <section key={c.id} aria-labelledby={`cat-${c.slug}`} className="pt-14 first:pt-0 lg:pt-20">
                 <div className="flex items-baseline justify-between gap-6 border-t border-rule pt-4">
                   <h2 id={`cat-${c.slug}`} className="t-h3 text-ink"><span className="t-num mr-3 text-[12px] font-normal text-ink-faint">{String(i + 1).padStart(2, "0")}</span>{c.name}</h2>
-                  <Link href={`/learn?category=${c.slug}`} className="link-arrow shrink-0 text-[14px] text-ink" scroll={false}>{inCat.length} {inCat.length === 1 ? L.lesson : L.lessons}</Link>
+                  <Link href={`/learn?category=${c.slug}`} className="link-arrow shrink-0 text-[14px] text-ink" scroll={false}>{inCat.length} {plural(locale, inCat.length, { one: L.lesson, few: L.lessonsFew, many: L.lessons })}</Link>
                 </div>
                 <LessonGrid lessons={inCat} lang={lang} />
               </section>

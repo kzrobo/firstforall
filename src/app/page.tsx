@@ -1,12 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Hero } from "@/components/home/Hero";
+import { CategoryIndex } from "@/components/hub/CategoryIndex";
 import { LessonTeaser } from "@/components/learn/LessonTeaser";
 import { DocumentThumb } from "@/components/manuals/DocumentThumb";
 import { formatBytes, readerHref } from "@/components/manuals/format";
 import { SectionHead } from "@/components/ui/SectionHead";
 import { UI_LOCALES } from "@/i18n/config";
 import { getI18n } from "@/i18n/server";
+import { plural } from "@/i18n/plural";
 import { languageName, nativeLanguageName } from "@/lib/languages";
 import { listPublishedLessons } from "@/lib/learn/repository";
 import { listPublishedManuals } from "@/lib/manuals/repository";
@@ -29,20 +31,20 @@ export default async function HomePage() {
   
   return (
     <>
-      <Hero t={t} media={media} locale={locale} />
+      <Hero t={t} media={media} />
 
-      {/* (01) Mission — statement and reading text, with the four languages as real entry points */}
-      <section aria-labelledby="mission-title" className="mx-auto max-w-content px-5 pb-20 pt-16 lg:px-10 lg:pb-32 lg:pt-24">
-        <p className="t-index"><span className="t-num">(01)</span> {H.missionIndex}</p>
-        <div className="mt-8 grid gap-x-6 gap-y-14 lg:grid-cols-12">
+      {/* FIRST FOR ALL — the platform, introduced right after the opening */}
+      <section id="first-for-all" aria-labelledby="ffa-title" className="mx-auto max-w-content scroll-mt-16 px-5 pb-20 pt-20 lg:px-10 lg:pb-32 lg:pt-28">
+        <div className="grid gap-x-6 gap-y-14 lg:grid-cols-12">
           <div className="lg:col-span-7">
-            <h2 id="mission-title" className="t-statement max-w-[26ch] text-ink">{H.missionStatement}</h2>
-            <div className="mt-10 grid gap-x-6 gap-y-6 text-[17px] leading-[1.65] text-ink-muted md:grid-cols-2 lg:mt-12">
-              <p>{H.missionBody1}</p>
-              <p>{H.missionBody2}</p>
+            <h2 id="ffa-title" className="t-display text-ink">{t.hero.title1}<br />{t.hero.title2}</h2>
+            <p className="t-lead mt-8 max-w-[38rem] text-ink-muted">{H.missionBody1}</p>
+            <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
+              <Link href="/manuals" className="btn-primary">{H.introLinksManuals}</Link>
+              <Link href="/learn" className="link-arrow text-[15px] text-ink">{H.introLinksLearn}</Link>
             </div>
           </div>
-          <nav aria-label={t.manuals.languages} className="lg:col-span-4 lg:col-start-9">
+          <nav aria-label={t.manuals.languages} className="lg:col-span-4 lg:col-start-9 lg:pt-3">
             <h3 className="t-index">{t.manuals.languages}</h3>
             <ul className="mt-3 border-t border-rule">
               {UI_LOCALES.map((l) => {
@@ -50,8 +52,8 @@ export default async function HomePage() {
                 return (
                   <li key={l} className="border-b border-line">
                     <Link href={`/manuals?lang=${l}`} className="group flex items-baseline justify-between gap-4 py-4">
-                      <span lang={l} className="font-display text-[22px] font-normal tracking-[-0.03em] text-ink decoration-accent decoration-2 underline-offset-[6px] group-hover:underline">{nativeLanguageName(l)}</span>
-                      <span className="text-[13px] text-ink-faint">{n ? <><span className="t-num font-medium text-ink">{n}</span> {t.manuals.documents}</> : t.manuals.unavailable}</span>
+                      <span lang={l} className="font-display text-[22px] font-normal tracking-[-0.03em] text-ink decoration-accent decoration-1 underline-offset-[6px] group-hover:underline">{nativeLanguageName(l)}</span>
+                      <span className="text-[13px] text-ink-faint">{n ? <><span className="t-num font-medium text-ink">{n}</span> {plural(locale, n, { one: t.manuals.document, few: t.manuals.documentsFew, many: t.manuals.documents })}</> : t.manuals.unavailable}</span>
                     </Link>
                   </li>
                 );
@@ -61,9 +63,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* (02) Library — featured document as an object, the rest as an index */}
+      {/* Library — featured document as an object, the rest as an index */}
       <section aria-labelledby="library-title" className="mx-auto max-w-content px-5 pb-20 lg:px-10 lg:pb-32">
-        <SectionHead index={2} label={H.libraryIndex} title={H.libraryTitle} id="library-title" link={{ href: "/manuals", label: H.libraryLink }} />
+        <SectionHead label={H.libraryIndex} title={H.libraryTitle} id="library-title" link={{ href: "/manuals", label: H.libraryLink }} />
         {!featured ? (
           <div className="mt-10 grid gap-x-6 lg:grid-cols-12">
             <p className="max-w-xl text-ink-muted lg:col-span-6 lg:col-start-4">{manualsResult.ok ? H.libraryEmpty : t.manuals.notConfigured}</p>
@@ -120,10 +122,10 @@ export default async function HomePage() {
         )}
       </section>
 
-      {/* (03) Learn — lead lesson plus a short column, or the programme when nothing is published */}
+      {/* Learn — lead lesson plus a short column, or the programme when nothing is published */}
       <section aria-labelledby="learn-title" className="bg-paper">
         <div className="mx-auto max-w-content px-5 pb-20 pt-16 lg:px-10 lg:pb-32 lg:pt-24">
-          <SectionHead index={3} label={H.learnIndex} title={H.learnTitle} id="learn-title" link={{ href: "/learn", label: H.learnLink }} />
+          <SectionHead label={H.learnIndex} title={H.learnTitle} id="learn-title" link={{ href: "/learn", label: H.learnLink }} />
           {lead ? (
             <div className="mt-12 grid gap-x-6 gap-y-12 lg:mt-16 lg:grid-cols-12">
               <div className="lg:col-span-7"><LessonTeaser lesson={lead} variant="lead" headingLevel="h3" languageLabel={languageName(lead.language, locale)} /></div>
@@ -157,6 +159,31 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* MAVERICKS — the team behind it, and the seven directions of its work */}
+      <section aria-labelledby="mav-title" className="mx-auto max-w-content px-5 py-20 lg:px-10 lg:py-28">
+        <div className="grid gap-x-6 gap-y-12 lg:grid-cols-12">
+          {media.teamFeature && (
+            <figure className="lg:col-span-6">
+              <div className="relative aspect-[4/3] overflow-hidden bg-soft">
+                <Image src={media.teamFeature.url} alt={media.teamFeature.alt} fill sizes="(min-width: 1024px) 45vw, 100vw"
+                  className="object-cover" style={{ objectPosition: media.teamFeature.focus }} />
+              </div>
+              <figcaption className="mt-3 text-[12px] text-ink-faint">{media.teamFeature.caption}</figcaption>
+            </figure>
+          )}
+          <div className={media.teamFeature ? "lg:col-span-5 lg:col-start-8" : "lg:col-span-8"}>
+            <p className="t-index">{t.hub.kicker}</p>
+            <h2 id="mav-title" className="t-h1 mt-4 text-ink">{H.hubTitle}</h2>
+            <p className="mt-5 text-[16px] leading-relaxed text-ink-muted">{H.hubBody}</p>
+            <div className="mt-8"><CategoryIndex t={t} counts={null} variant="compact" /></div>
+            <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4">
+              <Link href="/mavericks" className="btn-primary">{t.hub.title}</Link>
+              <Link href="/mavericks/connects" className="link-arrow text-[15px] text-ink">{H.globeTeaser}</Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Closing — indigo band, signed with the emblem */}
       <section aria-labelledby="closing-title" className="relative isolate overflow-hidden bg-indigo">
         <Image src="/brand/mavericks-emblem.jpg" alt="" width={640} height={640} aria-hidden
@@ -167,11 +194,6 @@ export default async function HomePage() {
             <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
               <Link href="/manuals" className="btn-primary">{H.closingManuals}</Link>
               <Link href="/learn" className="link-arrow text-[15px] text-ink">{H.closingLearn}</Link>
-            </div>
-            <div className="mt-16 max-w-md border-t border-rule pt-5">
-              <h3 className="t-h3 text-ink">{H.teamTitle}</h3>
-              <p className="mt-3 text-[15px] leading-relaxed text-ink-muted">{H.teamBody}</p>
-              <Link href="/about#team" className="link-arrow mt-5 text-[15px] text-ink">{H.teamLink}</Link>
             </div>
           </div>
         </div>

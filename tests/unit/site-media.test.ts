@@ -51,3 +51,12 @@ describe("bundled media fallback", () => {
     expect(withBundledMedia(db, bundled).heroPoster?.alt).toBe("DB");
   });
 });
+
+describe("video slots", () => {
+  it("exposes an optional WebM source next to the MP4", () => {
+    const m = parseSiteMedia([{ key: "hero_video", value: { path: "hero/a.mp4", webm: "hero/a.webm", alt: "" } }]);
+    expect(m.heroVideo?.url).toMatch(/hero\/a\.mp4$/);
+    expect(m.heroVideo?.webmUrl).toMatch(/hero\/a\.webm$/);
+    expect(parseSiteMedia([{ key: "hero_video", value: { path: "hero/a.mp4" } }]).heroVideo?.webmUrl).toBeNull();
+  });
+});

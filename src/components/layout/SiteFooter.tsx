@@ -18,6 +18,7 @@ export function SiteFooter({ t }: { t: Dictionary }) {
               <li><Link className={link} href="/">{t.nav.home}</Link></li>
               <li><Link className={link} href="/manuals">{t.nav.manuals}</Link></li>
               <li><Link className={link} href="/learn">{t.nav.learn}</Link></li>
+              <li><Link className={link} href="/mavericks">{t.nav.mavericks}</Link></li>
             </ul>
           </nav>
           <nav aria-label={t.footer.team} className="lg:col-span-2">

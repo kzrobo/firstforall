@@ -8,7 +8,7 @@
 | `public/brand/mavericks-emblem.jpg`, `mavericks-emblem-light.jpg` | Official emblem | Header, footer, hero caption, home closing band |
 
 ## Excluded
-- `IMG_4497.MOV` — a montage of other teams at another organisation's event (not MAVERICKS footage). Treated as a visual reference only; **must not be published** without the rights holder's permission.
+- `IMG_4497.MOV` — a montage of other teams at another organisation's event (not MAVERICKS footage). Treated as a visual reference only; **must not be published** without the rights holder's permission. It is not in the repo. If written permission arrives: encode a ≤ 15 s muted loop (H.264 MP4 + VP9 WebM, ~1–2 MB each), upload to `public-media/hero/`, set `hero_video` `{"path","webm","alt"}` and `hero_poster`. Until then the full-screen hero renders the emblem composition (never the team photo).
 - `mavericks-wordmark.jpg` — kept in the repo, not used: its metallic lettering conflicts with the site's typography.
 - The Instagram post layouts themselves (frames, ornaments, metallic names) — only the photographs were reused.
 
@@ -31,8 +31,8 @@ on conflict (key) do update set value = excluded.value;
 
 | Slot (key) | Where | Shape | Recommended file | What to photograph |
 |---|---|---|---|---|
-| `hero_video` | Home hero, right panel | fills panel (≈ 4:5 desktop, 16:10 tablet, 4:5 phone) | MP4 H.264, 1920×1080+, ≤ 15 s loop, muted, ≤ 8 MB | Real team footage: building, testing, a match |
-| `hero_poster` | Home hero (shown until/without video, and on phones) | as above | JPG/WebP ≥ 2000 px long edge | Strongest single team photo; subject off-centre |
+| `hero_video` (`path` MP4, optional `webm`) | Home hero, full viewport behind the nav | 16:9 source, cropped to any screen (use `focus`/`focusMobile`) | MP4 H.264 + WebM VP9, 1920×1080, ≤ 15 s loop, no audio, ≤ 4 MB | Footage you own or are licensed to use: building, testing, a match |
+| `hero_poster` | Home hero — first frame, reduced-motion and data-saver fallback | 16:9 | JPG ≥ 1920 px, a frame of the video | Same moment as the video's first frame |
 | `hero_poster_mobile` | Home hero on phones (optional) | 4:5 | ≥ 1200×1500 | Tighter crop of the same moment |
 | `film_video` + `film_poster` | "Watch the film" dialog in the hero | 16:9 | MP4, poster 1920×1080 | Season film / promo video |
 | `photo_feature` | Home (04) Team, large image | 4:5 | ≥ 1600×2000 | Team portrait or robot work, vertical |

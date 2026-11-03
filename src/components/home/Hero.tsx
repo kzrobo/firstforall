@@ -1,53 +1,38 @@
 import Image from "next/image";
-import Link from "next/link";
-import { FilmDialog } from "@/components/media/FilmDialog";
-import type { UiLocale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionary";
 import type { SiteMedia } from "@/lib/site/repository";
 import { HeroVideo } from "./HeroVideo";
 
 /**
- * Cinematic hero. Team footage (hero_video) or the team photograph runs full-bleed and
- * dissolves into the midnight page at its lower edge; the type sits in that dark band,
- * so it never covers faces. Phones stack image above type.
+ * Full-viewport opening. Atmosphere and identity only: a background video from site_settings
+ * (hero_video + hero_poster), a short headline, a small attribution and a scroll cue. Without a
+ * licensed video it shows a still emblem composition — never the team photo.
  */
-export function Hero({ t, media }: { t: Dictionary; media: SiteMedia; locale: UiLocale }) {
-  const hasMedia = Boolean(media.heroVideo || media.heroPoster);
-  const caption = media.heroVideo?.caption ?? media.heroPoster?.caption;
+export function Hero({ t, media }: { t: Dictionary; media: SiteMedia }) {
   return (
-    <section aria-labelledby="hero-title" className="relative isolate overflow-hidden bg-canvas">
-      {/* Fixed 16:9 frame cropped from the bottom: keeps both rows of faces, drops most of the
-          banner above them. Only the lowest band (hands, laps) fades into the page under the type. */}
-      <div className="relative aspect-[5/4] w-full sm:aspect-[16/10] lg:aspect-[16/9] lg:max-h-[880px]">
-        {hasMedia && <HeroVideo video={media.heroVideo} poster={media.heroPoster} posterMobile={media.heroPosterMobile} labels={t.hero} />}
-        <div aria-hidden className="absolute inset-0 bg-[linear-gradient(90deg,rgba(2,10,29,0.5)_0%,rgba(2,10,29,0)_22%,rgba(2,10,29,0)_78%,rgba(2,10,29,0.5)_100%)]" />
-        <div aria-hidden className="absolute inset-x-0 bottom-0 h-[30%] bg-gradient-to-t from-canvas via-canvas/70 to-transparent lg:h-[26%]" />
-      </div>
-
-      <div className="relative mx-auto -mt-8 max-w-content px-5 pb-14 sm:-mt-14 lg:-mt-36 lg:px-10 lg:pb-20">
-        <div className="grid gap-x-6 gap-y-8 lg:grid-cols-12 lg:items-end">
-          <div className="lg:col-span-8">
-            <p className="text-[13px] font-medium text-ink-muted">MAVERICKS · FTC #24034 <span aria-hidden className="mx-2 text-ink-faint">/</span>{t.hero.place}</p>
-            <h1 id="hero-title" className="font-display mt-4 text-[clamp(2.25rem,5.6vw,5.25rem)] font-medium leading-[1] tracking-[-0.04em] text-ink">
-              {t.hero.title1}<br />{t.hero.title2}
-            </h1>
-          </div>
-          <div className="lg:col-span-4 lg:pb-1.5">
-            <p className="max-w-sm text-[16px] leading-relaxed text-ink-muted">{t.hero.lead}</p>
-            <div className="mt-6 flex flex-wrap items-center gap-x-7 gap-y-4">
-              <Link href="/manuals" className="btn-primary">{t.hero.primary}</Link>
-              <Link href="/learn" className="link-rule text-[15px] font-medium text-ink">{t.hero.secondary}</Link>
-              {media.filmVideo && <FilmDialog src={media.filmVideo.url} poster={media.filmPoster?.url} label={t.hero.watchFilm} closeLabel={t.hero.closeFilm} className="text-ink" />}
-            </div>
-          </div>
+    <section aria-labelledby="hero-title" className="relative isolate flex h-[100svh] min-h-[560px] flex-col overflow-hidden bg-canvas">
+      {media.heroVideo ? (
+        <HeroVideo video={media.heroVideo} poster={media.heroPoster} labels={t.hero} />
+      ) : (
+        <div aria-hidden className="absolute inset-0 -z-10">
+          <Image src="/brand/mavericks-emblem.jpg" alt="" width={1254} height={1254} priority
+            className="absolute right-[-12vw] top-1/2 w-[min(110vw,1100px)] -translate-y-1/2 opacity-70 mix-blend-screen [mask-image:radial-gradient(closest-side,#000_42%,transparent_88%)] lg:right-[-4vw] lg:w-[min(64vw,1000px)]" />
         </div>
-        {caption && (
-          <p className="mt-10 flex items-center gap-3 border-t border-line pt-4 text-[12px] text-ink-faint">
-            <Image src="/brand/mavericks-emblem.jpg" alt="" width={24} height={24} className="size-6 mix-blend-screen [mask-image:radial-gradient(closest-side,#000_60%,transparent)]" />
-            {caption}
-          </p>
-        )}
+      )}
+      {/* Contrast only where needed: under the navigation and under the headline */}
+      <div aria-hidden className="absolute inset-x-0 top-0 -z-[1] h-40 bg-gradient-to-b from-canvas/70 to-transparent" />
+      <div aria-hidden className="absolute inset-x-0 bottom-0 -z-[1] h-[55%] bg-gradient-to-t from-canvas via-canvas/55 to-transparent" />
+
+      <div className="mx-auto mt-auto w-full max-w-content px-5 pb-16 lg:px-10 lg:pb-20">
+        <p className="text-[13px] font-medium tracking-[0.01em] text-ink/80">{t.hero.byline}</p>
+        <h1 id="hero-title" className="font-display mt-5 max-w-[15ch] text-[clamp(2.5rem,6.4vw,6.25rem)] font-medium leading-[0.98] tracking-[-0.045em] text-ink">
+          {t.hero.headline}
+        </h1>
       </div>
+      <a href="#first-for-all" className="absolute bottom-7 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 text-[11px] font-medium uppercase tracking-[0.16em] text-ink/70 hover:text-ink sm:flex">
+        {t.hero.scroll}
+        <span aria-hidden className="h-8 w-px bg-ink/50" />
+      </a>
     </section>
   );
 }

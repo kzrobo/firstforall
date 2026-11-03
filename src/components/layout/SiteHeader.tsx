@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { UiLocale } from "@/i18n/config";
 import type { Dictionary } from "@/i18n/dictionary";
 import { BrandMark } from "./BrandMark";
+import { HeaderShell } from "./HeaderShell";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { MobileNav } from "./MobileNav";
 import { NavLinks } from "./NavLinks";
@@ -11,6 +12,7 @@ export function navItems(t: Dictionary) {
     { href: "/", label: t.nav.home },
     { href: "/manuals", label: t.nav.manuals },
     { href: "/learn", label: t.nav.learn },
+    { href: "/mavericks", label: t.nav.mavericks },
     { href: "/about", label: t.nav.about },
   ];
 }
@@ -18,7 +20,7 @@ export function navItems(t: Dictionary) {
 export function SiteHeader({ t, locale }: { t: Dictionary; locale: UiLocale }) {
   const items = navItems(t);
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-canvas/95 backdrop-blur-[6px] supports-[backdrop-filter]:bg-canvas/85">
+    <HeaderShell>
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:bg-accent focus:px-3 focus:py-2 focus:text-canvas">
         {t.nav.skip}
       </a>
@@ -36,6 +38,6 @@ export function SiteHeader({ t, locale }: { t: Dictionary; locale: UiLocale }) {
           <MobileNav items={items} t={t} locale={locale} />
         </div>
       </div>
-    </header>
+    </HeaderShell>
   );
 }

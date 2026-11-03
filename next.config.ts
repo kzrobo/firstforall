@@ -4,6 +4,8 @@ import type { NextConfig } from "next";
 const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL) : null;
 
 const nextConfig: NextConfig = {
+  // Admin forms upload images through server actions (validated: ≤ 8 MB each, ≤ 12 per save).
+  experimental: { serverActions: { bodySizeLimit: "100mb" } },
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: supabase

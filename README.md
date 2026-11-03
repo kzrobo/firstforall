@@ -9,8 +9,18 @@ Community platform by MAVERICKS FTC #24034 for multilingual FTC documentation. N
    `insert into team_members (user_id, role) values ('<auth-user-uuid>', 'super_admin');`
 4. Until the admin upload UI lands (Milestone C): upload the PDF to bucket `manuals-public`, insert rows into
    `manuals` and `manual_translations` (`status='published'`, `page_count` set; master first).
-5. Hero/film video: upload to `public-media`, then
-   `insert into site_settings (key, value) values ('hero_video', '{"path":"hero.mp4"}');`
+5. Hero video (optional, only footage you have the rights to): upload to `public-media`, then
+   `insert into site_settings (key, value) values ('hero_video', '{"path":"hero/hero.mp4","webm":"hero/hero.webm","alt":"…"}');`
+   plus a `hero_poster` frame. Without it the full-screen hero shows the emblem composition. See `docs/ASSETS.md`.
+
+## MAVERICKS hub (`/mavericks`)
+Apply `supabase/migrations/20261103000000_mavericks_hub.sql`. Then **Admin → MAVERICKS hub → New entry**:
+- pick a category (Inspires, Connects, Builds, Teaches, Reaches, Achieves, Sustains) — the form shows only that category's fields;
+- **Connects** (globe): partner team name, FTC number, logo, country, city and — for a city-accurate marker — latitude/longitude
+  (e.g. Berlin `52.52`, `13.405`). No city → the marker sits at the country centre and is labelled "country-level";
+- add screenshots/photos (JPEG/PNG/WebP ≤ 8 MB, alt text), milestones as `2026-03 | Prototype tested` lines, topics/outcomes in the sections;
+- save as **Draft**, then **Published** (founders/editors with `can_publish`). Drafts and archived entries never reach public pages or the globe.
+Only enter facts you can document — leave unknown fields empty.
 
 ## LEARN lessons
 Sign in at `/login`, open **Admin → Lessons → Add lesson**, paste a YouTube link (watch, youtu.be or Shorts), add a title,

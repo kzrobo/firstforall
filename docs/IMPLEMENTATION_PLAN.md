@@ -7,4 +7,5 @@
 - [ ] **E** Guides (sanitized Markdown, code copy, attachments, STL viewer), gallery, sponsors admin, media library.
 - [ ] **F** Playwright E2E, axe a11y audit, security review, perf.
 - [x] **Editorial redesign + LEARN (2026-11-01)**: light Swiss-editorial system, new IA (Home / Manuals / Learn / About), LEARN archive + lesson pages, secure lesson admin (create/edit/publish/unpublish/feature/order/delete), migration `20261101000000_learn.sql`. Verified against a local Postgres + PostgREST + GoTrue stack with real RLS.
+- [x] **MAVERICKS hub (2026-11-03)**: full-viewport video-ready hero, `/mavericks` + seven category pages + entry pages, Connects 3D globe (arcs from Shymkent, clustering, panel, keyboard archive, WebGL fallback), hub admin with image uploads, migration `20261103000000_mavericks_hub.sql`. Storage uploads were verified against an RLS-enforcing emulation (the real storage-api image was not pullable here) — re-check uploads once on the real Supabase project.
 

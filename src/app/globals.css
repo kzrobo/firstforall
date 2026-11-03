@@ -94,3 +94,14 @@ body {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
+
+/* MAVERICKS Connects globe markers (DOM overlays positioned by three-globe) */
+.ffa-marker { position: relative; display: flex; flex-direction: column; align-items: center; transform: translate(-50%, -50%); cursor: pointer; background: none; border: 0; padding: 0; }
+.ffa-marker .ffa-logo { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 9999px; background: var(--color-ink); object-fit: contain; padding: 3px; box-shadow: 0 0 0 1.5px var(--color-accent), 0 6px 18px -6px rgba(0,0,0,0.8); transition: transform 160ms ease; }
+.ffa-marker .ffa-initials, .ffa-marker .ffa-count { background: var(--color-paper); color: var(--color-ink); font: 600 11px/1 var(--font-sans); }
+.ffa-marker:hover .ffa-logo, .ffa-marker:focus-visible .ffa-logo { transform: scale(1.15); }
+.ffa-marker .ffa-tip { position: absolute; top: calc(100% + 8px); white-space: nowrap; padding: 4px 8px; background: var(--color-paper); color: var(--color-ink); font: 500 12px/1.3 var(--font-sans); border: 1px solid var(--color-rule); opacity: 0; pointer-events: none; transition: opacity 120ms ease; }
+.ffa-marker:hover .ffa-tip, .ffa-marker:focus-visible .ffa-tip { opacity: 1; }
+.ffa-origin { cursor: default; }
+.ffa-origin .ffa-dot { width: 9px; height: 9px; border-radius: 9999px; background: var(--color-ink); box-shadow: 0 0 0 4px rgba(147,197,250,0.25); }
+.ffa-origin .ffa-label { margin-top: 8px; white-space: nowrap; font: 500 11px/1 var(--font-sans); letter-spacing: 0.04em; color: var(--color-ink); text-shadow: 0 1px 6px rgba(2,10,29,0.9); }
