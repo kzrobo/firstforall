@@ -12,7 +12,7 @@ export function Hero({ t, media }: { t: Dictionary; media: SiteMedia }) {
   return (
     <section aria-labelledby="hero-title" className="relative isolate flex h-[100svh] min-h-[560px] flex-col overflow-hidden bg-canvas">
       {media.heroVideo ? (
-        <HeroVideo video={media.heroVideo} poster={media.heroPoster} labels={t.hero} />
+        <HeroVideo video={media.heroVideo} poster={media.heroPoster} posterMobile={media.heroPosterMobile} labels={t.hero} />
       ) : (
         <div aria-hidden className="absolute inset-0 -z-10">
           <Image src="/brand/mavericks-emblem.jpg" alt="" width={1254} height={1254} priority

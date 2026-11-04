@@ -58,5 +58,9 @@ describe("video slots", () => {
     expect(m.heroVideo?.url).toMatch(/hero\/a\.mp4$/);
     expect(m.heroVideo?.webmUrl).toMatch(/hero\/a\.webm$/);
     expect(parseSiteMedia([{ key: "hero_video", value: { path: "hero/a.mp4" } }]).heroVideo?.webmUrl).toBeNull();
+    const phone = parseSiteMedia([{ key: "hero_video", value: { path: "hero/a.mp4", mobile: "hero/a-m.mp4", mobileWebm: "hero/a-m.webm" } }]).heroVideo;
+    expect(phone?.mobileUrl).toMatch(/hero\/a-m\.mp4$/);
+    expect(phone?.mobileWebmUrl).toMatch(/hero\/a-m\.webm$/);
+    expect(parseSiteMedia([{ key: "hero_video", value: { path: "hero/a.mp4" } }]).heroVideo?.mobileUrl).toBeNull();
   });
 });

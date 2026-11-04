@@ -14,6 +14,9 @@ const mediaRef = z.object({
   layout: z.enum(["wide", "tall", "standard"]).optional(),
   /** Optional WebM (VP9) version of a video slot, offered before the MP4 for wider codec support. */
   webm: z.string().min(1).optional(),
+  /** Optional lighter portrait versions of a video slot for phones (MP4 + WebM). */
+  mobile: z.string().min(1).optional(),
+  mobileWebm: z.string().min(1).optional(),
   /** Pixel size of the original; lets the gallery keep each photo's natural proportions. */
   width: z.number().int().positive().max(20000).optional(),
   height: z.number().int().positive().max(20000).optional(),
@@ -33,6 +36,9 @@ export interface MediaItem {
   aspect: number;
   /** Alternative WebM source (video slots only) */
   webmUrl?: string | null;
+  /** Portrait phone sources (video slots only) */
+  mobileUrl?: string | null;
+  mobileWebmUrl?: string | null;
 }
 
 const LAYOUT_ASPECT = { wide: 3 / 2, tall: 3 / 4, standard: 4 / 3 } as const;
@@ -58,6 +64,8 @@ const toItem = (r: z.infer<typeof mediaRef>): MediaItem => ({
   focus: r.focus ?? "50% 50%", focusMobile: r.focusMobile ?? r.focus ?? "50% 50%", layout: r.layout ?? "standard",
   aspect: r.width && r.height ? r.width / r.height : LAYOUT_ASPECT[r.layout ?? "standard"],
   webmUrl: r.webm ? publicStorageUrl("public-media", r.webm) : null,
+  mobileUrl: r.mobile ? publicStorageUrl("public-media", r.mobile) : null,
+  mobileWebmUrl: r.mobileWebm ? publicStorageUrl("public-media", r.mobileWebm) : null,
 });
 
 /** Pure parser so it can be unit-tested without a database. */

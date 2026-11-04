@@ -19,7 +19,7 @@ Next.js 15 App Router · TypeScript strict · Tailwind v4 (tokens in `src/app/gl
 - `src/components/reader/` — PDF.js reader (lazy page rendering, outline, search, zoom).
 - `src/lib/learn/` + `src/app/learn`, `src/app/admin/lessons` — LEARN (YouTube lessons). Only validated 11-char video ids are stored; embeds are click-to-play youtube-nocookie.
 - `src/lib/hub/` + `src/app/mavericks`, `src/app/admin/hub` — MAVERICKS hub (7 editorial categories, not FIRST award titles). `hub_entries` table; per-category sections in `categories.ts`. Connects globe = `src/components/hub/globe/` (react-globe.gl, client-only; origin Shymkent; city coords only when entered, else country centroid labelled as such; the archive list is the keyboard path).
-- Home hero is full-viewport and video-ready (`hero_video` slot, MP4 + optional WebM). Without licensed footage it shows the emblem — never the team group photo. Third-party footage stays out until permission is confirmed.
+- Home hero is a full-viewport background video (`hero_video` slot: MP4 + WebM, optional portrait `mobile`/`mobileWebm`; `hero_poster` + `hero_poster_mobile`), with a subtle midnight overlay under white type. The current clip is third-party event footage used with the rights holder's permission for website use (confirmed by the team 2026-11-04) — website only. Upload/verify with `scripts/hero-video.mjs`. The emblem is branding; it only fills the hero if no video is configured — never the team group photo.
 - `supabase/migrations/` — schema + RLS. Security lives in DB + server, never client-side hiding.
 
 ## Commands

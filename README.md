@@ -9,9 +9,12 @@ Community platform by MAVERICKS FTC #24034 for multilingual FTC documentation. N
    `insert into team_members (user_id, role) values ('<auth-user-uuid>', 'super_admin');`
 4. Until the admin upload UI lands (Milestone C): upload the PDF to bucket `manuals-public`, insert rows into
    `manuals` and `manual_translations` (`status='published'`, `page_count` set; master first).
-5. Hero video (optional, only footage you have the rights to): upload to `public-media`, then
-   `insert into site_settings (key, value) values ('hero_video', '{"path":"hero/hero.mp4","webm":"hero/hero.webm","alt":"…"}');`
-   plus a `hero_poster` frame. Without it the full-screen hero shows the emblem composition. See `docs/ASSETS.md`.
+5. Hero video (only footage you have the rights to): apply the migrations, then on a trusted machine
+   ```bash
+   NEXT_PUBLIC_SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… node scripts/hero-video.mjs verify          # checks bucket + slots
+   NEXT_PUBLIC_SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… node scripts/hero-video.mjs upload <dir> --set  # uploads 6 files, switches the homepage
+   ```
+   Without `--set` it only uploads and prints the SQL. File list and encoding settings: `docs/ASSETS.md`.
 
 ## MAVERICKS hub (`/mavericks`)
 Apply `supabase/migrations/20261103000000_mavericks_hub.sql`. Then **Admin → MAVERICKS hub → New entry**:
