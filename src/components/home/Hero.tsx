@@ -19,6 +19,8 @@ export function Hero({ t, media }: { t: Dictionary; media: SiteMedia }) {
             className="absolute right-[-12vw] top-1/2 w-[min(110vw,1100px)] -translate-y-1/2 opacity-70 mix-blend-screen [mask-image:radial-gradient(closest-side,#000_42%,transparent_88%)] lg:right-[-4vw] lg:w-[min(64vw,1000px)]" />
         </div>
       )}
+      {/* Video only: a subtle, even dim so white type stays readable over bright footage */}
+      {media.heroVideo && <div aria-hidden className="absolute inset-0 -z-[2] bg-canvas/35" />}
       {/* Contrast only where needed: under the navigation and under the headline */}
       <div aria-hidden className="absolute inset-x-0 top-0 -z-[1] h-40 bg-gradient-to-b from-canvas/70 to-transparent" />
       <div aria-hidden className="absolute inset-x-0 bottom-0 -z-[1] h-[55%] bg-gradient-to-t from-canvas via-canvas/55 to-transparent" />
