@@ -1,14 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Hero } from "@/components/home/Hero";
-import { CategoryIndex } from "@/components/hub/CategoryIndex";
 import { LessonTeaser } from "@/components/learn/LessonTeaser";
 import { DocumentThumb } from "@/components/manuals/DocumentThumb";
 import { formatBytes, readerHref } from "@/components/manuals/format";
-import { SectionHead } from "@/components/ui/SectionHead";
 import { UI_LOCALES } from "@/i18n/config";
 import { getI18n } from "@/i18n/server";
 import { plural } from "@/i18n/plural";
+import { HUB_CATEGORIES, categoryTitle } from "@/lib/hub/categories";
+import { listPublishedEntries } from "@/lib/hub/repository";
+import { sortEntries } from "@/lib/hub/types";
 import { languageName, nativeLanguageName } from "@/lib/languages";
 import { listPublishedLessons } from "@/lib/learn/repository";
 import { listPublishedManuals } from "@/lib/manuals/repository";
@@ -16,7 +17,9 @@ import { getSiteMedia } from "@/lib/site/repository";
 
 export default async function HomePage() {
   const { t, locale } = await getI18n();
-  const [manualsResult, learnResult, media] = await Promise.all([listPublishedManuals(), listPublishedLessons(locale), getSiteMedia()]);
+  const [manualsResult, learnResult, media, hubResult] = await Promise.all([
+    listPublishedManuals(), listPublishedLessons(locale), getSiteMedia(), listPublishedEntries(),
+  ]);
   const H = t.home;
 
   const manuals = manualsResult.ok ? manualsResult.data : [];
@@ -26,175 +29,211 @@ export default async function HomePage() {
   const missing = featured ? UI_LOCALES.filter((l) => !featured.translations.some((tr) => tr.language === l)) : [];
 
   const lessons = learnResult.ok ? learnResult.data.lessons : [];
-  const categories = learnResult.ok ? learnResult.data.categories : [];
   const [lead, ...rest] = lessons;
-  
+
+  const work = sortEntries(hubResult.ok ? hubResult.data : []).slice(0, 3);
+  const workImage = (e: (typeof work)[number]) => e.coverUrl ?? e.media[0]?.url ?? null;
+
   return (
     <>
       <Hero t={t} media={media} />
 
-      {/* FIRST FOR ALL — the platform, introduced right after the opening */}
-      <section id="first-for-all" aria-labelledby="ffa-title" className="mx-auto max-w-content scroll-mt-16 px-5 pb-20 pt-20 lg:px-10 lg:pb-32 lg:pt-28">
-        <div className="grid gap-x-6 gap-y-14 lg:grid-cols-12">
-          <div className="lg:col-span-7">
-            <h2 id="ffa-title" className="t-display text-ink">{t.hero.title1}<br />{t.hero.title2}</h2>
-            <p className="t-lead mt-8 max-w-[38rem] text-ink-muted">{H.missionBody1}</p>
-            <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
+      {/* 1 · Mission: one statement, two ways in, and the four reading languages as a strip */}
+      <section id="first-for-all" aria-labelledby="ffa-title" className="mx-auto max-w-content scroll-mt-20 px-5 pt-20 lg:px-10 lg:pt-32">
+        <div className="grid gap-x-6 gap-y-10 lg:grid-cols-12">
+          <h2 id="ffa-title" className="t-display text-ink lg:col-span-7">{t.hero.title1} {t.hero.title2}</h2>
+          <div className="lg:col-span-4 lg:col-start-9 lg:pt-3">
+            <p className="t-lead text-ink">{H.missionBody1}</p>
+            <div className="mt-8 flex flex-wrap items-center gap-x-7 gap-y-4">
               <Link href="/manuals" className="btn-primary">{H.introLinksManuals}</Link>
-              <Link href="/learn" className="link-arrow text-[15px] text-ink">{H.introLinksLearn}</Link>
+              <Link href="/learn" className="link-arrow text-[16px] text-ink">{H.introLinksLearn}</Link>
             </div>
           </div>
-          <nav aria-label={t.manuals.languages} className="lg:col-span-4 lg:col-start-9 lg:pt-3">
-            <h3 className="t-index">{t.manuals.languages}</h3>
-            <ul className="mt-3 border-t border-rule">
-              {UI_LOCALES.map((l) => {
-                const n = manuals.filter((m) => m.translations.some((tr) => tr.language === l)).length;
+        </div>
+        <nav aria-label={t.manuals.languages} className="mt-16 lg:mt-24">
+          <ul className="grid grid-cols-2 border-y border-rule lg:grid-cols-4">
+            {UI_LOCALES.map((l, i) => {
+              const n = manuals.filter((m) => m.translations.some((tr) => tr.language === l)).length;
+              return (
+                <li key={l} className={`${i % 2 ? "border-l border-line" : ""} ${i >= 2 ? "border-t border-line lg:border-t-0" : ""} ${i === 2 ? "lg:border-l" : ""}`}>
+                  <Link href={`/manuals?lang=${l}`} className="group flex h-full flex-col gap-2 px-0 py-6 pl-4 first:pl-0 sm:py-8 lg:pl-6">
+                    <span lang={l} className="text-[clamp(1.25rem,2vw,1.625rem)] font-semibold tracking-[-0.025em] text-ink group-hover:underline group-hover:decoration-1 group-hover:underline-offset-[6px]">{nativeLanguageName(l)}</span>
+                    <span className="text-[15px] text-ink-muted">{n ? `${n} ${plural(locale, n, { one: t.manuals.document, few: t.manuals.documentsFew, many: t.manuals.documents })}` : t.manuals.unavailable}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+      </section>
+
+      {/* 2 · Library: the featured publication as an object, its translations beside it */}
+      <section aria-labelledby="library-title" className="mx-auto max-w-content px-5 py-24 lg:px-10 lg:py-36">
+        <div className="grid gap-x-6 gap-y-12 lg:grid-cols-12">
+          <div className="lg:col-span-4">
+            <h2 id="library-title" className="t-h2 text-ink">{H.libraryTitle}</h2>
+            <p className="mt-5 max-w-sm text-[17px] leading-relaxed text-ink-muted">{H.libraryLead}</p>
+            <Link href="/manuals" className="link-arrow mt-7 text-[16px] text-ink">{H.libraryLink}</Link>
+          </div>
+          {!featured ? (
+            <p className="max-w-xl text-[17px] text-ink-muted lg:col-span-6 lg:col-start-7">{manualsResult.ok ? H.libraryEmpty : t.manuals.notConfigured}</p>
+          ) : (
+            <>
+              <Link href={`/manuals/${featured.slug}`} className="group block max-w-[320px] sm:max-w-[380px] lg:col-span-3 lg:col-start-6 lg:max-w-none">
+                <span className="img-zoom block overflow-hidden rounded-[3px] shadow-[0_1px_2px_rgba(0,0,0,0.06),0_24px_48px_-28px_rgba(0,16,43,0.35)]"><DocumentThumb manual={featured} /></span>
+              </Link>
+              <div className="lg:col-span-4 lg:col-start-9">
+                <p className="t-meta">{featured.season}{featured.seasonName ? ` · ${featured.seasonName}` : ""} · {t.manuals.revision} {featured.revision}</p>
+                <h3 className="mt-3 text-[22px] font-semibold leading-snug tracking-[-0.02em] text-ink">
+                  <Link href={`/manuals/${featured.slug}`} className="hover:underline hover:decoration-1 hover:underline-offset-4">{featured.title}</Link>
+                </h3>
+                {featured.description && <p className="mt-3 text-ink-muted">{featured.description}</p>}
+                <ul className="mt-7 border-t border-line">
+                  {featured.translations.map((tr) => (
+                    <li key={tr.id} className="border-b border-line">
+                      <Link href={readerHref(featured.slug, tr.language)} className="group flex items-baseline justify-between gap-4 py-3.5">
+                        <span lang={tr.language} className="text-[16px] font-medium text-ink group-hover:underline group-hover:underline-offset-4">{nativeLanguageName(tr.language)}</span>
+                        <span className="text-[14px] text-ink-muted">{tr.pageCount ? `${tr.pageCount} ${t.manuals.pages}` : formatBytes(tr.fileSizeBytes)}</span>
+                      </Link>
+                    </li>
+                  ))}
+                  {missing.map((l) => (
+                    <li key={l} className="flex items-baseline justify-between gap-4 border-b border-line py-3.5 text-ink-faint">
+                      <span lang={l} className="text-[16px]">{nativeLanguageName(l)}</span>
+                      <span className="text-[14px]">{t.manuals.unavailable}</span>
+                    </li>
+                  ))}
+                </ul>
+                {primary && (
+                  <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3">
+                    <Link href={readerHref(featured.slug, primary.language)} className="btn-primary">{t.manuals.read}</Link>
+                    <a href={primary.fileUrl} download className="link-rule text-[15px] font-medium text-ink">{t.manuals.download}</a>
+                  </div>
+                )}
+              </div>
+              {others.length > 0 && (
+                <ul className="border-t border-line lg:col-span-8 lg:col-start-5">
+                  {others.map((m) => (
+                    <li key={m.id} className="border-b border-line">
+                      <Link href={`/manuals/${m.slug}`} className="group grid grid-cols-[6rem_1fr] items-baseline gap-x-6 py-4 sm:grid-cols-[7rem_1fr_auto]">
+                        <span className="t-num text-[15px] text-ink-muted">{m.season}</span>
+                        <span className="text-[16px] font-medium text-ink group-hover:underline group-hover:underline-offset-4">{m.title}</span>
+                        <span className="hidden text-[14px] text-ink-muted sm:block">{m.translations.map((tr) => nativeLanguageName(tr.language)).join(", ")}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
+          )}
+        </div>
+      </section>
+
+      {/* 3 · LEARN: academy layout — intro left, the lead lesson large, a short row underneath */}
+      <section aria-labelledby="learn-title" className="bg-paper">
+        <div className="mx-auto max-w-content px-5 py-20 lg:px-10 lg:py-28">
+          <div className="grid items-center gap-x-6 gap-y-10 lg:grid-cols-12">
+            <div className="lg:col-span-5">
+              <p className="t-index">{t.learn.kicker}</p>
+              <h2 id="learn-title" className="t-h2 mt-3 text-ink">{H.learnTitle}</h2>
+              <p className="mt-5 max-w-md text-[17px] leading-relaxed text-ink-muted">{H.learnBody}</p>
+              <Link href="/learn" className="btn-primary mt-8">{H.learnLink}</Link>
+            </div>
+            {lead ? (
+              <Link href={`/learn/${lead.slug}`} aria-label={lead.title} className="group hidden lg:col-span-7 lg:block"><LessonTeaser lesson={lead} variant="lead" headingLevel="h3" mediaOnly languageLabel={languageName(lead.language, locale)} /></Link>
+            ) : (
+              <p className="text-[17px] text-ink-muted lg:col-span-6 lg:col-start-7">{learnResult.ok ? H.learnEmpty : t.learn.notConfigured}</p>
+            )}
+          </div>
+          {lead && (
+            <div className="mt-14 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+              {[lead, ...rest].slice(0, 3).map((l) => <LessonTeaser key={l.id} lesson={l} variant="standard" languageLabel={languageName(l.language, locale)} />)}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 4 · MAVERICKS: a wide team photograph and a narrow column of text */}
+      <section aria-labelledby="mav-title" className="mx-auto max-w-content px-5 py-24 lg:px-10 lg:py-36">
+        <div className="grid items-end gap-x-6 gap-y-10 lg:grid-cols-12">
+          {media.teamFeature && (
+            <figure className="lg:col-span-8">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-[3px] bg-soft">
+                <Image src={media.teamFeature.url} alt={media.teamFeature.alt} fill sizes="(min-width: 1024px) 60vw, 100vw"
+                  className="object-cover" style={{ objectPosition: media.teamFeature.focus }} />
+              </div>
+              {media.teamFeature.caption && <figcaption className="t-meta mt-3">{media.teamFeature.caption}</figcaption>}
+            </figure>
+          )}
+          <div className={media.teamFeature ? "lg:col-span-4 lg:pb-10" : "lg:col-span-7"}>
+            <h2 id="mav-title" className="t-h2 text-ink">{H.teamTitle}</h2>
+            <p className="mt-5 text-[17px] leading-relaxed text-ink-muted">{H.teamBody}</p>
+            <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+              <Link href="/mavericks/team" className="btn-primary">{H.meetTeam}</Link>
+              <Link href="/about" className="link-arrow text-[16px] text-ink">{H.teamLink}</Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 5 · Work: published stories as editorial rows, then the seven directions as a directory */}
+      <section aria-labelledby="work-title" className="border-t border-rule">
+        <div className="mx-auto max-w-content px-5 py-20 lg:px-10 lg:py-28">
+          <div className="grid gap-x-6 gap-y-4 lg:grid-cols-12">
+            <h2 id="work-title" className="t-h2 text-ink lg:col-span-6">{H.workTitle}</h2>
+            <p className="text-[17px] text-ink-muted lg:col-span-4 lg:col-start-9 lg:pt-2">{work.length ? H.workBody : H.workEmpty}</p>
+          </div>
+          {work.length > 0 && (
+            <ul className="mt-12 grid gap-x-6 gap-y-12 md:grid-cols-3">
+              {work.map((e) => {
+                const img = workImage(e);
                 return (
-                  <li key={l} className="border-b border-line">
-                    <Link href={`/manuals?lang=${l}`} className="group flex items-baseline justify-between gap-4 py-4">
-                      <span lang={l} className="font-display text-[22px] font-normal tracking-[-0.03em] text-ink decoration-accent decoration-1 underline-offset-[6px] group-hover:underline">{nativeLanguageName(l)}</span>
-                      <span className="text-[13px] text-ink-faint">{n ? <><span className="t-num font-medium text-ink">{n}</span> {plural(locale, n, { one: t.manuals.document, few: t.manuals.documentsFew, many: t.manuals.documents })}</> : t.manuals.unavailable}</span>
+                  <li key={e.id}>
+                    <Link href={`/mavericks/${e.category}/${e.slug}`} className="group block">
+                      <span className="img-zoom relative block aspect-[4/3] overflow-hidden rounded-[3px] bg-paper">
+                        {img ? <Image src={img} alt="" fill sizes="(min-width: 768px) 30vw, 100vw" className="object-cover" />
+                          : e.logoUrl ? (
+                            // eslint-disable-next-line @next/next/no-img-element -- storage-hosted team logo
+                            <img src={e.logoUrl} alt="" className="absolute left-1/2 top-1/2 size-24 -translate-x-1/2 -translate-y-1/2 rounded-full object-contain" />
+                          ) : <span aria-hidden className="absolute inset-x-6 bottom-6 text-[15px] font-medium text-ink-muted">{t.hub.categories[e.category].tagline}</span>}
+                      </span>
+                      <span className="t-meta mt-4 block">{categoryTitle(e.category)}</span>
+                      <span className="mt-1.5 block text-[19px] font-semibold leading-snug tracking-[-0.015em] text-ink group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">{e.title}</span>
                     </Link>
                   </li>
                 );
               })}
             </ul>
-          </nav>
-        </div>
-      </section>
-
-      {/* Library — featured document as an object, the rest as an index */}
-      <section aria-labelledby="library-title" className="mx-auto max-w-content px-5 pb-20 lg:px-10 lg:pb-32">
-        <SectionHead label={H.libraryIndex} title={H.libraryTitle} id="library-title" link={{ href: "/manuals", label: H.libraryLink }} />
-        {!featured ? (
-          <div className="mt-10 grid gap-x-6 lg:grid-cols-12">
-            <p className="max-w-xl text-ink-muted lg:col-span-6 lg:col-start-4">{manualsResult.ok ? H.libraryEmpty : t.manuals.notConfigured}</p>
-          </div>
-        ) : (
-          <div className="mt-12 grid gap-x-6 gap-y-12 lg:mt-16 lg:grid-cols-12">
-            <Link href={`/manuals/${featured.slug}`} className="group block max-w-[300px] sm:max-w-[360px] lg:col-span-3 lg:max-w-none">
-              <span className="img-zoom block overflow-hidden shadow-[0_1px_2px_rgba(0,16,43,0.08),0_30px_60px_-34px_rgba(0,16,43,0.45)]"><DocumentThumb manual={featured} /></span>
-            </Link>
-            <div className="lg:col-span-5 lg:col-start-4">
-              <p className="t-index"><span className="mr-2 inline-block size-2 bg-accent align-middle" aria-hidden />{H.featured} · {featured.season}{featured.seasonName ? ` · ${featured.seasonName}` : ""} · {t.manuals.revision} {featured.revision}</p>
-              <h3 className="t-h2 mt-4 text-ink"><Link href={`/manuals/${featured.slug}`} className="hover:underline hover:decoration-1 hover:underline-offset-4">{featured.title}</Link></h3>
-              {featured.description && <p className="mt-4 max-w-lg text-ink-muted">{featured.description}</p>}
-              {primary && (
-                <div className="mt-8 flex flex-wrap items-center gap-x-7 gap-y-4">
-                  <Link href={readerHref(featured.slug, primary.language)} className="btn-primary">{t.manuals.read}</Link>
-                  <a href={primary.fileUrl} download className="link-rule text-[15px] font-medium text-ink">{t.manuals.download}</a>
-                </div>
-              )}
-            </div>
-            <div className="lg:col-span-3 lg:col-start-10">
-              <h3 className="t-index">{H.readIn}</h3>
-              <ul className="mt-3 border-t border-line">
-                {featured.translations.map((tr) => (
-                  <li key={tr.id} className="border-b border-line">
-                    <Link href={readerHref(featured.slug, tr.language)} className="group flex items-baseline justify-between gap-4 py-3.5">
-                      <span lang={tr.language} className="text-[16px] font-medium text-ink group-hover:underline group-hover:underline-offset-4">{nativeLanguageName(tr.language)}</span>
-                      <span className="text-[12px] text-ink-faint">{tr.pageCount ? `${tr.pageCount} ${t.manuals.pages}` : formatBytes(tr.fileSizeBytes)}</span>
-                    </Link>
-                  </li>
-                ))}
-                {missing.map((l) => (
-                  <li key={l} className="flex items-baseline justify-between gap-4 border-b border-line py-3.5 text-ink-faint">
-                    <span lang={l} className="text-[16px]">{nativeLanguageName(l)}</span>
-                    <span className="text-[12px]">{t.manuals.unavailable}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            {others.length > 0 && (
-              <ul className="border-t border-line lg:col-span-9 lg:col-start-4">
-                {others.map((m) => (
-                  <li key={m.id} className="border-b border-line">
-                    <Link href={`/manuals/${m.slug}`} className="group grid grid-cols-[5.5rem_1fr_auto] items-baseline gap-x-6 py-4 sm:grid-cols-[7rem_1fr_auto]">
-                      <span className="t-num text-[13px] text-ink-muted">{m.season}</span>
-                      <span className="text-[16px] font-medium text-ink group-hover:underline group-hover:underline-offset-4">{m.title}</span>
-                      <span className="text-[12px] font-semibold uppercase tracking-[0.06em] text-ink-faint">{m.translations.map((tr) => tr.language).join(" ")}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        )}
-      </section>
-
-      {/* Learn — lead lesson plus a short column, or the programme when nothing is published */}
-      <section aria-labelledby="learn-title" className="bg-paper">
-        <div className="mx-auto max-w-content px-5 pb-20 pt-16 lg:px-10 lg:pb-32 lg:pt-24">
-          <SectionHead label={H.learnIndex} title={H.learnTitle} id="learn-title" link={{ href: "/learn", label: H.learnLink }} />
-          {lead ? (
-            <div className="mt-12 grid gap-x-6 gap-y-12 lg:mt-16 lg:grid-cols-12">
-              <div className="lg:col-span-7"><LessonTeaser lesson={lead} variant="lead" headingLevel="h3" languageLabel={languageName(lead.language, locale)} /></div>
-              <div className="grid content-start gap-y-10 sm:grid-cols-2 sm:gap-x-6 lg:col-span-4 lg:col-start-9 lg:grid-cols-1">
-                <p className="max-w-sm text-ink-muted">{H.learnBody}</p>
-                {rest.slice(0, 2).map((l) => <LessonTeaser key={l.id} lesson={l} variant="compact" languageLabel={languageName(l.language, locale)} />)}
-              </div>
-            </div>
-          ) : (
-            <div className="mt-12 grid gap-x-6 gap-y-10 lg:mt-16 lg:grid-cols-12">
-              <div className="lg:col-span-3"><p className="max-w-xs text-ink-muted">{H.learnBody}</p></div>
-              <ol className="border-t border-line lg:col-span-5">
-                {categories.map((c, i) => (
-                  <li key={c.id} className="border-b border-line">
-                    <Link href={`/learn?category=${c.slug}`} className="group flex items-baseline gap-5 py-5">
-                      <span className="t-num text-[12px] text-ink-faint">{String(i + 1).padStart(2, "0")}</span>
-                      <span className="font-display text-[clamp(1.25rem,2vw,1.625rem)] font-normal tracking-[-0.03em] text-ink group-hover:underline group-hover:decoration-1 group-hover:underline-offset-[6px]">{c.name}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ol>
-              <div className="lg:col-span-3 lg:col-start-10">
-                <p className="text-[15px] text-ink-muted">{learnResult.ok ? H.learnEmpty : t.learn.notConfigured}</p>
-                <h3 className="t-index mt-8">{t.learn.plannedTitle}</h3>
-                <ul className="mt-3 space-y-1.5 text-[14px] text-ink">
-                  {t.learn.planned.map((p) => <li key={p}>{p}</li>)}
-                </ul>
-              </div>
-            </div>
           )}
-        </div>
-      </section>
-
-      {/* MAVERICKS — the team behind it, and the seven directions of its work */}
-      <section aria-labelledby="mav-title" className="mx-auto max-w-content px-5 py-20 lg:px-10 lg:py-28">
-        <div className="grid gap-x-6 gap-y-12 lg:grid-cols-12">
-          {media.teamFeature && (
-            <figure className="lg:col-span-6">
-              <div className="relative aspect-[4/3] overflow-hidden bg-soft">
-                <Image src={media.teamFeature.url} alt={media.teamFeature.alt} fill sizes="(min-width: 1024px) 45vw, 100vw"
-                  className="object-cover" style={{ objectPosition: media.teamFeature.focus }} />
-              </div>
-              <figcaption className="mt-3 text-[12px] text-ink-faint">{media.teamFeature.caption}</figcaption>
-            </figure>
-          )}
-          <div className={media.teamFeature ? "lg:col-span-5 lg:col-start-8" : "lg:col-span-8"}>
-            <p className="t-index">{t.hub.kicker}</p>
-            <h2 id="mav-title" className="t-h1 mt-4 text-ink">{H.hubTitle}</h2>
-            <p className="mt-5 text-[16px] leading-relaxed text-ink-muted">{H.hubBody}</p>
-            <div className="mt-8"><CategoryIndex t={t} counts={null} variant="compact" /></div>
-            <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4">
-              <Link href="/mavericks" className="btn-primary">{t.hub.title}</Link>
-              <Link href="/mavericks/connects" className="link-arrow text-[15px] text-ink">{H.globeTeaser}</Link>
-            </div>
+          <div className="mt-16 grid gap-x-6 gap-y-6 lg:mt-24 lg:grid-cols-12">
+            <h3 className="t-label text-ink lg:col-span-3">{H.directions}</h3>
+            <ul className="grid gap-x-6 sm:grid-cols-2 lg:col-span-9">
+              {HUB_CATEGORIES.map((c) => (
+                <li key={c} className="border-b border-line">
+                  <Link href={`/mavericks/${c}`} className="group flex items-baseline justify-between gap-4 py-4">
+                    <span className="text-[18px] font-semibold tracking-[-0.015em] text-ink group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">{categoryTitle(c)}</span>
+                    <span className="text-right text-[15px] text-ink-muted">{t.hub.categories[c].tagline}</span>
+                  </Link>
+                </li>
+              ))}
+              <li className="border-b border-line">
+                <Link href="/mavericks/team" className="group flex items-baseline justify-between gap-4 py-4">
+                  <span className="text-[18px] font-semibold tracking-[-0.015em] text-ink group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">{t.nav.team}</span>
+                  <span className="text-[15px] text-ink-muted" aria-hidden>→</span>
+                </Link>
+              </li>
+            </ul>
           </div>
         </div>
       </section>
 
-      {/* Closing — indigo band, signed with the emblem */}
-      <section aria-labelledby="closing-title" className="relative isolate overflow-hidden bg-indigo">
-        <Image src="/brand/mavericks-emblem.jpg" alt="" width={640} height={640} aria-hidden
-          className="pointer-events-none absolute -right-24 top-1/2 -z-10 hidden w-[min(44vw,620px)] -translate-y-1/2 opacity-60 mix-blend-screen [mask-image:radial-gradient(closest-side,#000_45%,transparent_92%)] lg:block" />
-        <div className="mx-auto grid max-w-content gap-x-6 gap-y-12 px-5 py-20 lg:grid-cols-12 lg:px-10 lg:py-28">
-          <div className="lg:col-span-7">
-            <h2 id="closing-title" className="t-h1 max-w-[18ch] text-ink">{H.closingTitle}</h2>
-            <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
-              <Link href="/manuals" className="btn-primary">{H.closingManuals}</Link>
-              <Link href="/learn" className="link-arrow text-[15px] text-ink">{H.closingLearn}</Link>
-            </div>
+      {/* 6 · Closing: a plain statement on white */}
+      <section aria-labelledby="closing-title" className="border-t border-rule">
+        <div className="mx-auto max-w-content px-5 py-24 lg:px-10 lg:py-32">
+          <h2 id="closing-title" className="t-h1 max-w-[18ch] text-ink">{H.closingTitle}</h2>
+          <div className="mt-10 flex flex-wrap items-center gap-x-7 gap-y-4">
+            <Link href="/manuals" className="btn-primary">{H.closingManuals}</Link>
+            <Link href="/learn" className="link-arrow text-[16px] text-ink">{H.closingLearn}</Link>
           </div>
         </div>
       </section>

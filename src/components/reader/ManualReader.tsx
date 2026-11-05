@@ -10,7 +10,7 @@ import type { ManualTranslation } from "@/lib/manuals/types";
 import { readerHref } from "@/components/manuals/format";
 import { Icon } from "./icons";
 import { PdfPage } from "./PdfPage";
-import { loadPdfJs, readOutline, searchDocument, type OutlineEntry } from "./pdf";
+import { PDF_OPTIONS, loadPdfJs, readOutline, searchDocument, type OutlineEntry } from "./pdf";
 
 const ZOOM_STEPS = [0.5, 0.67, 0.8, 0.9, 1, 1.1, 1.25, 1.5, 1.75, 2, 2.5, 3];
 
@@ -70,7 +70,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
     (async () => {
       try {
         const pdfjs = await loadPdfJs();
-        loaded = await pdfjs.getDocument({ url: current.fileUrl, isEvalSupported: false }).promise;
+        loaded = await pdfjs.getDocument({ url: current.fileUrl, ...PDF_OPTIONS }).promise;
         if (cancelled) return void loaded.destroy();
         const first = (await loaded.getPage(1)).getViewport({ scale: 1 });
         setAspect(first.height / first.width);
@@ -228,7 +228,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
               onClick={() => { if (it.page) { goTo(it.page); if (!window.matchMedia("(min-width: 1024px)").matches) setPanelOpen(false); } }}
               className={`flex w-full items-baseline justify-between gap-3 border-l-2 py-2 pl-3 pr-2 text-left text-[14px] leading-snug ${here ? "border-accent font-semibold text-ink" : "border-transparent text-ink hover:text-ink"}`}
             >
-              <span>{it.title}</span>{it.page && <span className="t-num text-[12px] text-ink-faint">{it.page}</span>}
+              <span>{it.title}</span>{it.page && <span className="t-num text-[13px] text-ink-faint">{it.page}</span>}
             </button>
             {it.children.length > 0 && renderOutline(it.children, depth + 1)}
           </li>
@@ -238,7 +238,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
   );
 
   const searchForm = (
-    <form role="search" onSubmit={runSearch} className="flex h-9 items-center gap-2 border border-line bg-paper px-2.5 focus-within:border-tech">
+    <form role="search" onSubmit={runSearch} className="flex h-9 items-center gap-2 rounded-md border border-line-strong bg-canvas px-2.5 focus-within:border-ink">
       <Icon name="search" className="size-4 text-ink-faint" />
       <label className="flex-1"><span className="sr-only">{t.search}</span>
         <input ref={searchInput} type="search" value={query} placeholder={t.searchPlaceholder}
@@ -249,9 +249,9 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
   );
 
   return (
-    <div ref={root} className="fixed inset-x-0 bottom-0 top-[65px] z-30 flex flex-col bg-stone lg:top-[73px]">
+    <div ref={root} className="fixed inset-x-0 bottom-0 top-[65px] z-30 flex flex-col bg-stone lg:top-[77px]">
       {/* Toolbar */}
-      <div className="border-b border-line bg-paper">
+      <div className="border-b border-line bg-canvas">
         <div className="flex h-14 items-center gap-1 px-2 md:px-4">
           <button type="button" className={iconBtn} aria-expanded={panelOpen} onClick={() => setPanelOpen((v) => !v)} title={t.toc}>
             <span className="sr-only">{t.toc}</span><Icon name="toc" />
@@ -275,7 +275,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
             <form onSubmit={(e) => { e.preventDefault(); goTo(Number(pageInput) || 1); }} className="flex items-center gap-1.5 text-[14px]">
               <label><span className="sr-only">{t.page}</span>
                 <input value={pageInput} onChange={(e) => setPageInput(e.target.value.replace(/\D/g, ""))} inputMode="numeric"
-                  className="t-num h-8 w-11 border border-line bg-paper text-center focus:border-tech focus:outline-none" />
+                  className="t-num h-8 w-11 rounded border border-line-strong bg-canvas text-center focus:border-ink focus:outline-none" />
               </label>
               <span className="t-num text-ink-muted">/ {doc?.numPages ?? "–"}</span>
             </form>
@@ -326,7 +326,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
 
       <div className="relative flex min-h-0 flex-1">
         {/* Side panel: outline, or search results while searching */}
-        {panelOpen && <button aria-hidden tabIndex={-1} className="absolute inset-0 z-10 bg-navy/30 lg:hidden" onClick={() => setPanelOpen(false)} />}
+        {panelOpen && <button aria-hidden tabIndex={-1} className="absolute inset-0 z-10 bg-black/25 lg:hidden" onClick={() => setPanelOpen(false)} />}
         <aside
           aria-label={hits !== null ? t.search : t.toc}
           className={`${panelOpen ? "flex" : "hidden"} absolute inset-y-0 left-0 z-20 w-[19rem] max-w-[85vw] flex-col border-r border-line bg-paper lg:static lg:z-auto`}
@@ -381,14 +381,14 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
         </div>
       </div>
       {/* Mobile: thumb-reachable page navigation and zoom */}
-      <nav aria-label={t.page} className="absolute inset-x-0 bottom-0 z-20 border-t border-line bg-paper/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
+      <nav aria-label={t.page} className="absolute inset-x-0 bottom-0 z-20 border-t border-line bg-canvas/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
         <div className="flex h-14 items-center justify-between px-2">
           <div className="flex items-center">
             <button type="button" className={`${iconBtn} size-11`} onClick={() => goTo(page - 1)} disabled={!doc || page <= 1}><span className="sr-only">{t.prev}</span><Icon name="prev" className="size-5" /></button>
             <form onSubmit={(e) => { e.preventDefault(); goTo(Number(pageInput) || 1); (document.activeElement as HTMLElement)?.blur(); }} className="flex items-center gap-1.5 text-[15px]">
               <label><span className="sr-only">{t.page}</span>
                 <input value={pageInput} onChange={(e) => setPageInput(e.target.value.replace(/\D/g, ""))} inputMode="numeric" enterKeyHint="go"
-                  className="t-num h-9 w-12 border border-line bg-paper text-center text-[16px] focus:border-tech focus:outline-none" />
+                  className="t-num h-9 w-12 rounded border border-line-strong bg-canvas text-center text-[16px] focus:border-ink focus:outline-none" />
               </label>
               <span className="t-num text-ink-muted">/ {doc?.numPages ?? "–"}</span>
             </form>

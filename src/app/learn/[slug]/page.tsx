@@ -54,7 +54,7 @@ export default async function LessonPage({ params }: Props) {
           {lesson.description ? (
             <div lang={lesson.language} className="max-w-[65ch] whitespace-pre-line text-[17px] leading-[1.7] text-ink">{lesson.description}</div>
           ) : null}
-          <p className="mt-8 text-[13px] text-ink-faint">{L.originalLanguage} {L.privacy}</p>
+          <p className="mt-8 text-[14px] text-ink-muted">{L.originalLanguage} {L.privacy}</p>
         </div>
         <aside className="lg:col-span-4 lg:col-start-9">
           <dl className="grid grid-cols-[auto_1fr] gap-x-6 border-t border-rule text-[15px]">

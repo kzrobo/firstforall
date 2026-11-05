@@ -27,6 +27,11 @@ Re-encode (ffmpeg): `trim=end_frame=205`, desktop `scale=1920:1080`, phone `crop
 - `mavericks-wordmark.jpg` — kept in the repo, not used: its metallic lettering conflicts with the site's typography.
 - The Instagram post layouts themselves (frames, ornaments, metallic names) — only the photographs were reused.
 
+## Team roster checks (2026-11-05)
+Re-read against posts 20, 23, 24, 28: the artwork reads KAUSSAR, ASQAR, ERDAULET, ADEM and the text layer of post 28 says "cader".
+Kept exactly as written and flagged `verify` in `src/content/team.ts` until the team confirms. No other photos exist in the
+supplied materials beyond the group portrait and the 14 member portraits, so the gallery stays empty (hidden) for now.
+
 ## Still wanted
 - The original, full-resolution camera file of the team portrait (current copy is 1280 px wide and slightly soft full-bleed).
 - Real MAVERICKS video for `hero_video` (muted loop, 10–15 s), robot/competition/workshop/outreach photos for `team_gallery`.

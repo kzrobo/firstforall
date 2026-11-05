@@ -12,6 +12,18 @@ export function loadPdfJs() {
   return lib;
 }
 
+/**
+ * Options for every getDocument call. The character maps and standard fonts (copied from the
+ * installed pdfjs-dist into /public/pdfjs) let PDF.js show text in fonts that are not embedded —
+ * notably Chinese, Japanese and Korean CID fonts, which it otherwise drops silently.
+ */
+export const PDF_OPTIONS = {
+  isEvalSupported: false,
+  cMapUrl: "/pdfjs/cmaps/",
+  cMapPacked: true,
+  standardFontDataUrl: "/pdfjs/standard_fonts/",
+} as const;
+
 export interface OutlineEntry { title: string; page: number | null; children: OutlineEntry[] }
 
 export async function readOutline(doc: PDFDocumentProxy): Promise<OutlineEntry[]> {

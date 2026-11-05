@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { TeamRoster } from "@/components/about/TeamRoster";
+import { TeamPreview } from "@/components/about/TeamRoster";
 import { TeamGallery } from "@/components/media/TeamGallery";
 import { TEAM } from "@/content/team";
 import { getI18n } from "@/i18n/server";
@@ -21,42 +21,42 @@ export default async function AboutPage() {
   return (
     <>
       {/* Opening: name, one line, then the team itself */}
-      <header className="mx-auto max-w-content px-5 pt-12 lg:px-10 lg:pt-20">
+      <header className="mx-auto max-w-content px-5 pt-14 lg:px-10 lg:pt-24">
         <div className="grid gap-x-6 gap-y-6 lg:grid-cols-12 lg:items-end">
-          <h1 className="t-display text-ink lg:col-span-7">MAVERICKS <span className="text-ink-faint">#24034</span></h1>
-          <p className="t-lead max-w-md text-ink-muted lg:col-span-5">{A.lead}</p>
+          <h1 className="t-display text-ink lg:col-span-7">MAVERICKS <span className="text-ink-muted">#24034</span></h1>
+          <p className="t-lead max-w-md text-ink lg:col-span-4 lg:col-start-9">{A.lead}</p>
         </div>
       </header>
       {opening && (
         <figure className="mx-auto mt-10 max-w-content sm:px-5 lg:mt-14 lg:px-10">
-          <div className="relative aspect-[4/3] overflow-hidden bg-soft sm:aspect-[16/9] lg:aspect-[21/9]">
+          <div className="relative aspect-[4/3] overflow-hidden bg-soft sm:aspect-[16/9] sm:rounded-[3px] lg:aspect-[21/9]">
             <Image src={opening.url} alt={opening.alt} fill priority sizes="(min-width: 1440px) 1360px, 100vw"
               className="object-cover [object-position:var(--fm)] sm:[object-position:var(--f)]"
               style={{ "--f": opening.focus, "--fm": opening.focusMobile } as React.CSSProperties} />
           </div>
-          <figcaption className="mt-3 px-5 text-[13px] text-ink-faint sm:px-0">{A.openingCaption}</figcaption>
+          <figcaption className="t-meta mt-3 px-5 sm:px-0">{A.openingCaption}</figcaption>
         </figure>
       )}
 
       {/* Who we are — set as a statement, not a numbered section */}
       <section aria-labelledby="who-title" className="mx-auto grid max-w-content gap-x-6 gap-y-6 px-5 py-20 lg:grid-cols-12 lg:px-10 lg:py-28">
-        <h2 id="who-title" className="t-index lg:col-span-3">{A.whoIndex}</h2>
+        <h2 id="who-title" className="t-label text-ink lg:col-span-3 lg:pt-2">{A.whoIndex}</h2>
         <div className="lg:col-span-8">
           <p className="t-statement max-w-[32ch] text-ink">{A.whoTitle}</p>
           <p className="mt-8 max-w-[62ch] text-[17px] leading-[1.7] text-ink-muted">{A.whoBody}</p>
         </div>
       </section>
 
-      {/* The team — the photographic heart of the page */}
-      <section id="team" aria-labelledby="team-title" className="scroll-mt-20 bg-paper">
-        <div className="mx-auto max-w-content px-5 py-20 lg:px-10 lg:py-28">
-          <div className="grid gap-x-6 gap-y-5 lg:grid-cols-12 lg:items-end">
-            <h2 id="team-title" className="t-h1 text-ink lg:col-span-6">{A.teamTitle}</h2>
-            <p className="max-w-md text-ink-muted lg:col-span-5 lg:col-start-8">{A.teamIntro}</p>
+      {/* The team — a short line of portraits; the full roster lives on /mavericks/team */}
+      <section id="team" aria-labelledby="team-title" className="mx-auto max-w-content scroll-mt-20 border-t border-line px-5 py-20 lg:px-10 lg:py-28">
+        <div className="grid gap-x-6 gap-y-6 lg:grid-cols-12 lg:items-end">
+          <h2 id="team-title" className="t-h2 text-ink lg:col-span-5">{A.teamTitle}</h2>
+          <div className="lg:col-span-5 lg:col-start-8">
+            <p className="text-[17px] leading-relaxed text-ink-muted">{A.teamIntro}</p>
+            <Link href="/mavericks/team" className="btn-primary mt-6">{t.home.meetTeam} · {TEAM.length}</Link>
           </div>
-          <div className="mt-12 lg:mt-16"><TeamRoster members={TEAM} /></div>
-          <p className="mt-10 text-[12px] text-ink-faint">{A.rolesNote}</p>
         </div>
+        <div className="mt-12"><TeamPreview members={TEAM} label={t.home.meetTeam} /></div>
       </section>
 
       {/* The initiative */}
@@ -64,43 +64,42 @@ export default async function AboutPage() {
         <div className="grid gap-x-6 gap-y-10 lg:grid-cols-12">
           <div className="lg:col-span-5">
             <p className="t-index">{A.whatIndex}</p>
-            <h2 id="what-title" className="t-h1 mt-4 text-ink">{A.whatTitle}</h2>
+            <h2 id="what-title" className="t-h2 mt-3 text-ink">{A.whatTitle}</h2>
           </div>
           <div className="lg:col-span-6 lg:col-start-7">
             <p className="text-[clamp(1.125rem,1.6vw,1.375rem)] leading-[1.55] tracking-[-0.01em] text-ink">{A.whatBody}</p>
             <div className="mt-10 grid gap-x-6 gap-y-8 border-t border-line pt-8 md:grid-cols-2">
-              <div><h3 className="t-h3 text-ink">{A.whyTitle}</h3><p className="mt-3 text-[15px] leading-[1.7] text-ink-muted">{A.whyBody}</p></div>
-              <div><h3 className="t-h3 text-ink">{A.howTitle}</h3><p className="mt-3 text-[15px] leading-[1.7] text-ink-muted">{A.howBody}</p></div>
+              <div><h3 className="t-h3 text-ink">{A.whyTitle}</h3><p className="mt-3 text-[16px] leading-[1.65] text-ink-muted">{A.whyBody}</p></div>
+              <div><h3 className="t-h3 text-ink">{A.howTitle}</h3><p className="mt-3 text-[16px] leading-[1.65] text-ink-muted">{A.howBody}</p></div>
             </div>
           </div>
         </div>
         <div className="mt-16 lg:mt-24">
-          <h3 className="t-index">{A.processTitle}</h3>
-          <ol className="mt-4 grid border-t border-rule md:grid-cols-4">
+          <h3 className="t-label text-ink">{A.processTitle}</h3>
+          <ol className="mt-4 grid border-t border-ink md:grid-cols-4">
             {A.steps.map((s, i) => (
               <li key={s.title} className="border-b border-line py-6 md:border-b-0 md:border-r md:px-6 md:first:pl-0 md:last:border-r-0">
-                <span className="t-num text-[12px] text-ink-faint">{String(i + 1).padStart(2, "0")}</span>
-                <p className="font-display mt-3 text-[19px] font-medium tracking-[-0.02em] text-ink">{s.title}</p>
-                <p className="mt-2 text-[15px] leading-relaxed text-ink-muted">{s.body}</p>
+                <p className="text-[19px] font-semibold tracking-[-0.02em] text-ink"><span className="t-num mr-2 text-ink-muted">{i + 1}.</span>{s.title}</p>
+                <p className="mt-2 text-[16px] leading-relaxed text-ink-muted">{s.body}</p>
               </li>
             ))}
           </ol>
         </div>
       </section>
 
-      {/* Education — the one indigo band on the page */}
-      <section aria-labelledby="edu-title" className="bg-indigo">
+      {/* Education — the one neutral section on the page */}
+      <section aria-labelledby="edu-title" className="bg-paper">
         <div className="mx-auto grid max-w-content gap-x-6 gap-y-10 px-5 py-20 lg:grid-cols-12 lg:px-10 lg:py-24">
           <div className="lg:col-span-6">
             <p className="t-index">{A.educationIndex}</p>
-            <h2 id="edu-title" className="t-h1 mt-4 text-ink">{A.educationTitle}</h2>
-            <p className="mt-5 max-w-[56ch] leading-[1.7] text-ink-muted">{A.educationBody}</p>
+            <h2 id="edu-title" className="t-h2 mt-3 text-ink">{A.educationTitle}</h2>
+            <p className="mt-5 max-w-[56ch] text-[17px] leading-[1.65] text-ink-muted">{A.educationBody}</p>
             <Link href="/learn" className="btn-primary mt-8">{A.educationLink}</Link>
           </div>
           <div className="lg:col-span-4 lg:col-start-9">
-            <h3 className="t-index">{t.learn.plannedTitle}</h3>
-            <ul className="mt-3 border-t border-rule text-[15px]">
-              {t.learn.planned.map((p) => <li key={p} className="border-b border-line py-3 text-ink">{p}</li>)}
+            <h3 className="t-label text-ink">{t.learn.plannedTitle}</h3>
+            <ul className="mt-3 border-t border-ink text-[16px]">
+              {t.learn.planned.map((p) => <li key={p} className="border-b border-line py-3.5 text-ink">{p}</li>)}
             </ul>
           </div>
         </div>
@@ -110,8 +109,8 @@ export default async function AboutPage() {
       {(media.teamGallery.length > 0 || showEmpty) && (
         <section id="gallery" aria-labelledby="gallery-title" className="mx-auto max-w-content scroll-mt-20 px-5 py-20 lg:px-10 lg:py-28">
           <div className="grid gap-x-6 gap-y-4 lg:grid-cols-12 lg:items-end">
-            <h2 id="gallery-title" className="t-h1 text-ink lg:col-span-6">{A.gallery}</h2>
-            <p className="max-w-sm text-ink-muted lg:col-span-4 lg:col-start-9">{A.galleryIntro}</p>
+            <h2 id="gallery-title" className="t-h2 text-ink lg:col-span-6">{A.gallery}</h2>
+            <p className="max-w-sm text-[17px] text-ink-muted lg:col-span-4 lg:col-start-9">{A.galleryIntro}</p>
           </div>
           <div className="mt-10 lg:mt-14"><TeamGallery items={media.teamGallery} showEmpty={showEmpty} /></div>
         </section>

@@ -1,26 +1,25 @@
 @import "tailwindcss";
 
-/* Design tokens — see docs/ARCHITECTURE.md#design-system */
+/* Design tokens — light editorial system (2026-11-05). See CLAUDE.md "Design system". */
 @theme {
-  /* FIRST FOR ALL — dark identity sampled from the MAVERICKS emblem
-     (emblem field #01071D–#000E29, metal ramp #355681 → #66A1E3 → #96CAFC → #CEE4F9). */
-  --color-canvas: #020a1d;      /* midnight: main page background */
-  --color-paper: #071431;       /* deep navy: alternating sections, structural surfaces, inputs */
-  --color-indigo: #171638;      /* dark blue-indigo: selected areas for depth */
-  --color-soft: #0d1b3d;        /* raised panels, image placeholders, hover */
-  --color-stone: #040d22;       /* reader backdrop behind white PDF pages */
-  --color-ink: #f5f8ff;         /* soft white: headings and primary text (18.6:1) */
-  --color-ink-muted: #a9b4cc;   /* cool grey-blue: body and secondary text (≥ 8.3:1) */
-  --color-ink-faint: #8893ae;   /* metadata (≥ 5.6:1) */
-  --color-navy: #071431;        /* legacy alias = deep navy surface */
-  --color-navy-800: #0d1b3d;
-  --color-tech: #93c5fa;        /* ice blue: links (≥ 9.6:1) */
-  --color-accent: #93c5fa;      /* ice blue: active states and the one mark per page */
-  --color-accent-ink: #93c5fa;
-  --color-accent-pale: #13234a; /* notice surfaces */
-  --color-line: #1b2647;        /* hairlines */
-  --color-line-strong: #64729a; /* input borders: ≥ 3:1 against every surface */
-  --color-rule: #3a4770;        /* section rules */
+  --color-canvas: #ffffff;      /* page: white, ~85% of the site */
+  --color-paper: #f7f7f5;       /* subtle neutral: the occasional section, reader chrome */
+  --color-soft: #efefec;        /* image placeholders, hover fills */
+  --color-stone: #e8e8e4;       /* reader backdrop behind white PDF pages */
+  --color-indigo: #dce8f5;      /* legacy name → very light cool blue, used sparingly */
+  --color-mist: #dce8f5;        /* very light cool blue: selected highlights only */
+  --color-navy: #00102b;        /* MAVERICKS navy: primary action, brand type, active marks */
+  --color-navy-800: #0b2550;    /* navy hover */
+  --color-ink: #111111;         /* primary text (18.9:1) */
+  --color-ink-muted: #555555;   /* secondary text (7.5:1) */
+  --color-ink-faint: #6b6b6b;   /* metadata (5.3:1 on white, 5.0:1 on paper) */
+  --color-tech: #00102b;        /* links */
+  --color-accent: #00102b;      /* active states: navy */
+  --color-accent-ink: #00102b;
+  --color-accent-pale: #dce8f5; /* notice surfaces */
+  --color-line: #e4e4e0;        /* hairlines */
+  --color-line-strong: #8a8a85; /* input borders (3.4:1) */
+  --color-rule: #cfcfca;        /* section rules */
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, "Segoe UI", Roboto, Arial, sans-serif;
   /* Unbounded falls back to Inter (same Cyrillic coverage) before system fonts */
@@ -30,11 +29,8 @@
   --container-prose: 40rem;
 }
 
-html { -webkit-text-size-adjust: 100%; color-scheme: dark; background: var(--color-canvas); }
-
-/* Native dropdown lists follow the dark surfaces */
-option, optgroup { background: var(--color-paper); color: var(--color-ink); }
-::selection { background: #2b4f86; color: #fff; }
+html { -webkit-text-size-adjust: 100%; color-scheme: light; background: var(--color-canvas); }
+::selection { background: var(--color-mist); color: var(--color-navy); }
 
 body {
   background: var(--color-canvas);
@@ -44,27 +40,40 @@ body {
   line-height: 1.6;
   font-feature-settings: "cv05", "cv11", "ss03";
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Type scale — Unbounded (wide) for display and headings, Inter for reading and operating.
-   Sentence case throughout; sizes stay modest because Unbounded runs ~20% wider than a grotesk.
-   Line-height leaves room for Cyrillic diacritics (Қ Ғ Ұ Й). */
-.t-display  { font-family: var(--font-display); font-weight: 500; font-size: clamp(2.25rem, 4.6vw, 4.25rem); line-height: 1.04; letter-spacing: -0.035em; word-spacing: 0.04em; }
-.t-h1       { font-family: var(--font-display); font-weight: 500; font-size: clamp(1.875rem, 3.4vw, 3rem); line-height: 1.08; letter-spacing: -0.03em; }
-.t-h2       { font-family: var(--font-display); font-weight: 500; font-size: clamp(1.5rem, 2.3vw, 2.125rem); line-height: 1.14; letter-spacing: -0.025em; }
-.t-h3       { font-family: var(--font-display); font-weight: 500; font-size: 1.0625rem; line-height: 1.35; letter-spacing: -0.015em; }
-.t-statement{ font-family: var(--font-display); font-weight: 400; font-size: clamp(1.25rem, 2.2vw, 2rem); line-height: 1.3; letter-spacing: -0.025em; }
+/* Over photography / video: the same token names, inverted. Use on the hero and the header above it. */
+.on-media {
+  --color-ink: #ffffff;
+  --color-ink-muted: rgb(255 255 255 / 0.86);
+  --color-ink-faint: rgb(255 255 255 / 0.74);
+  --color-accent: #ffffff;
+  --color-tech: #ffffff;
+  --color-line: rgb(255 255 255 / 0.28);
+  --color-rule: rgb(255 255 255 / 0.4);
+  color: var(--color-ink);
+}
+
+/* Type scale. Unbounded (wide) only for display lines and page titles; Inter for everything else,
+   set tight like a contemporary grotesk. Line-heights leave room for Cyrillic diacritics (Қ Ғ Ұ Й). */
+.t-display  { font-family: var(--font-display); font-weight: 500; font-size: clamp(2.375rem, 5.4vw, 4.75rem); line-height: 1.03; letter-spacing: -0.04em; }
+.t-h1       { font-family: var(--font-display); font-weight: 500; font-size: clamp(2rem, 3.7vw, 3.25rem); line-height: 1.07; letter-spacing: -0.035em; }
+.t-h2       { font-family: var(--font-sans); font-weight: 600; font-size: clamp(1.625rem, 2.5vw, 2.375rem); line-height: 1.12; letter-spacing: -0.03em; }
+.t-h3       { font-family: var(--font-sans); font-weight: 600; font-size: 1.1875rem; line-height: 1.3; letter-spacing: -0.015em; }
+.t-statement{ font-family: var(--font-sans); font-weight: 500; font-size: clamp(1.375rem, 2.3vw, 2rem); line-height: 1.28; letter-spacing: -0.024em; }
 .font-display { font-family: var(--font-display); }
-.t-lead     { font-size: clamp(1.0625rem, 1.25vw, 1.1875rem); line-height: 1.6; }
+.t-lead     { font-size: clamp(1.0625rem, 1.3vw, 1.25rem); line-height: 1.55; }
 .t-h1, .t-h2, .t-h3, .t-display, .t-statement { overflow-wrap: break-word; text-wrap: balance; }
-/* Section index — "(01) Library": the publication-style marker that replaces uppercase eyebrows */
-.t-index    { font-size: 0.8125rem; line-height: 1.3; font-weight: 500; color: var(--color-ink-muted); font-variant-numeric: tabular-nums; }
-.t-label   { font-size: 0.75rem; line-height: 1.2; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
-.t-num     { font-variant-numeric: tabular-nums; }
+/* Small heading above a block: readable, sentence case, no tracking games */
+.t-index    { font-size: 0.9375rem; line-height: 1.4; font-weight: 500; color: var(--color-ink-muted); font-variant-numeric: tabular-nums; }
+.t-label    { font-size: 0.875rem; line-height: 1.3; font-weight: 600; }
+.t-meta     { font-size: 0.875rem; line-height: 1.45; color: var(--color-ink-muted); }
+.t-num      { font-variant-numeric: tabular-nums; }
 
-:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; border-radius: 2px; }
 
-/* Text link with arrow, the primary secondary-action style (no pills) */
+/* Text link with arrow, the secondary action */
 .link-arrow { display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 500; }
 .link-arrow::after { content: "→"; transition: transform 160ms ease; }
 .link-arrow:hover::after { transform: translateX(3px); }
@@ -78,18 +87,22 @@ body {
 }
 .link-rule:hover { text-decoration-thickness: 2px; text-underline-offset: 0.22em; }
 
-/* Primary action: square navy block, Unbounded label */
-.btn-primary {
-  display: inline-flex; align-items: center; gap: 0.75rem; height: 3rem; padding: 0 1.5rem;
-  background: var(--color-ink); color: var(--color-canvas);
-  font-family: var(--font-display); font-weight: 500; font-size: 0.8125rem; letter-spacing: -0.005em;
-  transition: background-color 150ms ease;
+/* Primary action: navy block, Inter label, a slight radius */
+.btn-primary, .btn-secondary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.625rem; min-height: 3rem; padding: 0 1.375rem;
+  border-radius: 6px; font-family: var(--font-sans); font-weight: 600; font-size: 0.9375rem; letter-spacing: -0.01em;
+  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
 }
-.btn-primary:hover { background: var(--color-accent); }
+.btn-primary { background: var(--color-navy); color: #fff; }
+.btn-primary:hover { background: var(--color-navy-800); }
+.btn-secondary { border: 1px solid var(--color-ink); color: var(--color-ink); }
+.btn-secondary:hover { background: var(--color-ink); color: var(--color-canvas); }
+.on-media .btn-primary { background: #fff; color: var(--color-navy); }
+.on-media .btn-primary:hover { background: var(--color-mist); }
 
 /* Image hover: a calm scale inside a fixed frame */
-.img-zoom img { transition: transform 600ms cubic-bezier(.2,.7,.2,1); }
-.group:hover .img-zoom img, .img-zoom:hover img { transform: scale(1.025); }
+.img-zoom img { transition: transform 700ms cubic-bezier(.2,.7,.2,1); }
+.group:hover .img-zoom img, .img-zoom:hover img { transform: scale(1.02); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
@@ -97,11 +110,19 @@ body {
 
 /* MAVERICKS Connects globe markers (DOM overlays positioned by three-globe) */
 .ffa-marker { position: relative; display: flex; flex-direction: column; align-items: center; transform: translate(-50%, -50%); cursor: pointer; background: none; border: 0; padding: 0; }
-.ffa-marker .ffa-logo { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 9999px; background: var(--color-ink); object-fit: contain; padding: 3px; box-shadow: 0 0 0 1.5px var(--color-accent), 0 6px 18px -6px rgba(0,0,0,0.8); transition: transform 160ms ease; }
-.ffa-marker .ffa-initials, .ffa-marker .ffa-count { background: var(--color-paper); color: var(--color-ink); font: 600 11px/1 var(--font-sans); }
-.ffa-marker:hover .ffa-logo, .ffa-marker:focus-visible .ffa-logo { transform: scale(1.15); }
-.ffa-marker .ffa-tip { position: absolute; top: calc(100% + 8px); white-space: nowrap; padding: 4px 8px; background: var(--color-paper); color: var(--color-ink); font: 500 12px/1.3 var(--font-sans); border: 1px solid var(--color-rule); opacity: 0; pointer-events: none; transition: opacity 120ms ease; }
+.ffa-marker .ffa-logo { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 9999px; background: #fff; object-fit: contain; padding: 2px; box-shadow: 0 0 0 1px rgba(0,16,43,0.35), 0 4px 12px -4px rgba(0,16,43,0.35); transition: transform 160ms ease, box-shadow 160ms ease; }
+.ffa-marker .ffa-initials, .ffa-marker .ffa-count { background: var(--color-navy); color: #fff; font: 600 11px/1 var(--font-sans); }
+.ffa-marker:hover .ffa-logo, .ffa-marker:focus-visible .ffa-logo { transform: scale(1.12); box-shadow: 0 0 0 1.5px var(--color-navy), 0 6px 16px -6px rgba(0,16,43,0.45); }
+.ffa-marker .ffa-tip { position: absolute; top: calc(100% + 8px); white-space: nowrap; padding: 5px 9px; background: #fff; color: var(--color-ink); font: 500 13px/1.3 var(--font-sans); border-radius: 4px; box-shadow: 0 0 0 1px var(--color-line), 0 6px 18px -8px rgba(0,0,0,0.25); opacity: 0; pointer-events: none; transition: opacity 120ms ease; }
 .ffa-marker:hover .ffa-tip, .ffa-marker:focus-visible .ffa-tip { opacity: 1; }
+.ffa-globe[data-selected] .ffa-tip { opacity: 0 !important; }
 .ffa-origin { cursor: default; }
-.ffa-origin .ffa-dot { width: 9px; height: 9px; border-radius: 9999px; background: var(--color-ink); box-shadow: 0 0 0 4px rgba(147,197,250,0.25); }
-.ffa-origin .ffa-label { margin-top: 8px; white-space: nowrap; font: 500 11px/1 var(--font-sans); letter-spacing: 0.04em; color: var(--color-ink); text-shadow: 0 1px 6px rgba(2,10,29,0.9); }
+.ffa-origin .ffa-dot { width: 9px; height: 9px; border-radius: 9999px; background: var(--color-navy); box-shadow: 0 0 0 4px rgba(0,16,43,0.12); }
+.ffa-origin .ffa-label { margin-top: 7px; white-space: nowrap; font: 600 12px/1 var(--font-sans); color: var(--color-navy); text-shadow: 0 0 4px #fff, 0 0 8px #fff; }
+
+/* Back to the page tokens inside an .on-media area (e.g. the mobile menu panel under a transparent header) */
+.on-canvas {
+  --color-ink: #111111; --color-ink-muted: #555555; --color-ink-faint: #6b6b6b;
+  --color-accent: #00102b; --color-tech: #00102b; --color-line: #e4e4e0; --color-rule: #cfcfca;
+  color: var(--color-ink);
+}

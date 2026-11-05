@@ -10,7 +10,7 @@ export function LanguageSwitcher({ locale, label, variant = "inline" }: { locale
   const [pending, start] = useTransition();
   const choose = (l: UiLocale) => start(async () => { await setUiLocale(l); router.refresh(); });
   return (
-    <div role="group" aria-label={label} className={variant === "stacked" ? "grid grid-cols-4 border border-line" : "flex items-center"}>
+    <div role="group" aria-label={label} className={variant === "stacked" ? "grid grid-cols-4 overflow-hidden rounded-md border border-line" : "flex items-center gap-0.5"}>
       {UI_LOCALES.map((l, i) => {
         const on = l === locale;
         return (
@@ -24,8 +24,8 @@ export function LanguageSwitcher({ locale, label, variant = "inline" }: { locale
             onClick={() => !on && choose(l)}
             className={
               variant === "stacked"
-                ? `h-12 text-[14px] font-medium ${i ? "border-l border-line" : ""} ${on ? "bg-ink text-canvas" : "text-ink hover:bg-soft"}`
-                : `h-8 min-w-8 px-1.5 text-[12px] font-semibold uppercase tracking-[0.04em] transition-colors ${on ? "text-ink underline decoration-accent decoration-2 underline-offset-[6px]" : "text-ink-faint hover:text-ink"}`
+                ? `h-12 text-[15px] font-medium ${i ? "border-l border-line" : ""} ${on ? "bg-navy text-white" : "text-ink hover:bg-soft"}`
+                : `h-9 min-w-9 px-1.5 text-[13px] font-semibold uppercase tracking-[0.02em] transition-colors ${on ? "text-ink underline decoration-[1.5px] underline-offset-[7px]" : "text-ink-muted hover:text-ink"}`
             }
           >
             <span aria-hidden={variant === "inline"}>{variant === "stacked" ? LOCALE_LABELS[l] : l}</span>

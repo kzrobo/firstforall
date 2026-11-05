@@ -30,7 +30,7 @@ export default async function AdminLessonsPage({ searchParams }: Props) {
       </div>
 
       {notice && <p role="status" className="mt-6 border-l-2 border-accent bg-accent-pale/50 px-4 py-3 text-[14px]">{notice}</p>}
-      {error && <p role="alert" className="mt-6 border-l-2 border-red-400 bg-red-950/40 px-4 py-3 text-[14px] text-red-100">{error}</p>}
+      {error && <p role="alert" className="mt-6 border-l-2 border-red-700 bg-red-950/40 px-4 py-3 text-[14px] text-red-100">{error}</p>}
 
       {!result.ok ? (
         <p className="mt-8 text-ink-muted">Could not load lessons: {result.reason === "not_configured" ? "database not configured." : result.message}</p>
@@ -39,7 +39,7 @@ export default async function AdminLessonsPage({ searchParams }: Props) {
       ) : (
         <div className="mt-6 overflow-x-auto">
           <table className="w-full min-w-[760px] text-left text-[14px]">
-            <thead className="border-b border-line text-[12px] text-ink-muted">
+            <thead className="border-b border-line text-[13px] text-ink-muted">
               <tr>
                 <th className="py-2 pr-4 font-medium">Order</th><th className="pr-4 font-medium">Lesson</th><th className="pr-4 font-medium">Category</th>
                 <th className="pr-4 font-medium">Language</th><th className="pr-4 font-medium">Status</th><th className="font-medium"><span className="sr-only">Actions</span></th>
@@ -51,13 +51,13 @@ export default async function AdminLessonsPage({ searchParams }: Props) {
                   <td className="t-num py-4 pr-4 text-ink-muted">{l.order}</td>
                   <td className="py-4 pr-4">
                     <Link href={`/admin/lessons/${l.id}`} className="font-medium text-ink hover:underline">{l.title}</Link>
-                    <span className="mt-0.5 block text-[12px] text-ink-muted">/learn/{l.slug} · {l.youtubeId}{formatDuration(l.durationSeconds) ? ` · ${formatDuration(l.durationSeconds)}` : ""}</span>
+                    <span className="mt-0.5 block text-[13px] text-ink-muted">/learn/{l.slug} · {l.youtubeId}{formatDuration(l.durationSeconds) ? ` · ${formatDuration(l.durationSeconds)}` : ""}</span>
                   </td>
                   <td className="py-4 pr-4">{l.category.name}</td>
                   <td className="py-4 pr-4 uppercase">{l.language}</td>
                   <td className="py-4 pr-4">
                     <span className={l.status === "published" ? "font-medium text-ink" : "text-ink-muted"}>{l.status === "published" ? "Published" : "Draft"}</span>
-                    {l.isFeatured && <span className="ml-2 bg-accent px-1.5 py-0.5 text-[11px] font-semibold text-canvas">Featured</span>}
+                    {l.isFeatured && <span className="ml-2 rounded bg-mist px-1.5 py-0.5 text-[13px] font-semibold text-navy">Featured</span>}
                   </td>
                   <td className="whitespace-nowrap py-3 text-right">
                     <Link href={`/admin/lessons/${l.id}`} className="link-rule mr-4 text-tech">Edit</Link>

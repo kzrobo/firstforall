@@ -6,8 +6,8 @@ export function HubDeleteButton({ id, title, action }: { id: string; title: stri
   const dialog = useRef<HTMLDialogElement>(null);
   return (
     <>
-      <button type="button" onClick={() => dialog.current?.showModal()} className="link-rule text-red-300">Delete</button>
-      <dialog ref={dialog} aria-labelledby={`del-${id}`} className="m-auto w-[min(92vw,440px)] bg-paper p-0 text-left backdrop:bg-navy/50">
+      <button type="button" onClick={() => dialog.current?.showModal()} className="link-rule text-red-700">Delete</button>
+      <dialog ref={dialog} aria-labelledby={`del-${id}`} className="m-auto w-[min(92vw,440px)] rounded-md bg-canvas p-0 text-left shadow-xl backdrop:bg-black/40">
         <form action={action} className="p-6">
           <input type="hidden" name="id" value={id} />
           <input type="hidden" name="confirm" value="delete" />

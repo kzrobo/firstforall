@@ -12,10 +12,10 @@ import type { ConnectionView, GlobeLabels } from "./types";
 // WebGL code must never run on the server.
 const Globe = dynamic(() => import("react-globe.gl"), { ssr: false });
 
-const HOME_VIEW = { lat: 38, lng: 55, altitude: 2.35 };
+const HOME_VIEW = { lat: 38, lng: 50, altitude: 1.95 };
 /** Phones see more of the sphere so Europe and Shymkent both fit on screen. */
 const homeView = (width: number) => (width > 0 && width < 640 ? { lat: 40, lng: 36, altitude: 3.1 } : HOME_VIEW);
-const ICE = "#93c5fa";
+const HALO = "#b9c8dc";
 
 function hasWebGL(): boolean {
   try {
@@ -45,6 +45,7 @@ export function ConnectsGlobe({ connections, labels }: { connections: Connection
   const [selected, setSelected] = useState<Cluster | null>(null);
   const [hover, setHover] = useState<string | null>(null);
   const [material, setMaterial] = useState<Material | undefined>(undefined);
+  const [landMaterial, setLandMaterial] = useState<Material | undefined>(undefined);
 
   const clusters = useMemo(() => clusterPoints(connections), [connections]);
   const byId = useMemo(() => new Map(connections.map((c) => [c.id, c])), [connections]);
@@ -53,7 +54,11 @@ export function ConnectsGlobe({ connections, labels }: { connections: Connection
     setWebgl(hasWebGL());
     setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
     // three is already part of the globe's lazy chunk; importing it here keeps it out of the page bundle.
-    import("three").then(({ MeshPhongMaterial }) => setMaterial(new MeshPhongMaterial({ color: "#071431", emissive: "#020a1d", shininess: 6 })));
+    // Light editorial globe, printed-map style: flat pale-blue ocean, flat white land, navy outlines.
+    import("three").then(({ MeshBasicMaterial }) => {
+      setMaterial(new MeshBasicMaterial({ color: "#d6e2ef" }));
+      setLandMaterial(new MeshBasicMaterial({ color: "#ffffff" }));
+    });
     import("world-atlas/countries-110m.json").then((m) => {
       const topo = (m.default ?? m) as unknown as Topology<{ countries: GeometryCollection }>;
       setLand(feature(topo, topo.objects.countries).features);
@@ -184,12 +189,12 @@ export function ConnectsGlobe({ connections, labels }: { connections: Connection
 
   return (
     <div className="relative">
-      <div ref={wrap} onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave} className="relative h-[64svh] min-h-[420px] sm:h-[min(78svh,760px)] w-full touch-none overflow-hidden" aria-describedby="globe-hint">
+      <div ref={wrap} onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave} data-selected={selected ? "" : undefined} className="ffa-globe relative h-[64svh] min-h-[420px] w-full touch-none overflow-hidden bg-paper sm:rounded-[3px] sm:h-[min(78svh,760px)]" aria-describedby="globe-hint">
         {webgl === false ? (
           <div role="note" className="flex h-full items-center justify-center px-6 text-center text-ink-muted">{labels.noWebgl}</div>
         ) : (
           <>
-            {size.w > 0 && webgl && material && (
+            {size.w > 0 && webgl && material && landMaterial && (
               <Globe
                 ref={globe}
                 width={size.w}
@@ -197,16 +202,16 @@ export function ConnectsGlobe({ connections, labels }: { connections: Connection
                 backgroundColor="rgba(0,0,0,0)"
                 globeMaterial={material}
                 showAtmosphere
-                atmosphereColor={ICE}
-                atmosphereAltitude={0.11}
+                atmosphereColor={HALO}
+                atmosphereAltitude={0.06}
                 polygonsData={land}
-                polygonCapColor={() => "#10204a"}
+                polygonCapMaterial={landMaterial}
                 polygonSideColor={() => "rgba(0,0,0,0)"}
-                polygonStrokeColor={() => "rgba(147,197,250,0.22)"}
+                polygonStrokeColor={() => "rgba(0,16,43,0.28)"}
                 polygonAltitude={0.004}
                 arcsData={arcs}
-                arcColor={(a: object) => ((a as { id: string }).id === selected?.id || (a as { id: string }).id === hover ? ["rgba(147,197,250,0.35)", "rgba(245,248,255,1)"] : ["rgba(147,197,250,0.12)", "rgba(147,197,250,0.75)"])}
-                arcStroke={0.45}
+                arcColor={(a: object) => ((a as { id: string }).id === selected?.id || (a as { id: string }).id === hover ? ["rgba(0,16,43,0.35)", "rgba(0,16,43,1)"] : ["rgba(0,16,43,0.2)", "rgba(0,16,43,0.75)"])}
+                arcStroke={0.35}
                 arcAltitudeAutoScale={0.42}
                 arcDashLength={reduced ? 1 : 0.45}
                 arcDashGap={reduced ? 0 : 0.25}
@@ -219,15 +224,15 @@ export function ConnectsGlobe({ connections, labels }: { connections: Connection
                 onGlobeReady={onReady}
               />
             )}
-            {!ready && <p role="status" className="absolute inset-0 flex items-center justify-center text-[14px] text-ink-faint">{labels.loading}</p>}
+            {!ready && <p role="status" className="absolute inset-0 flex items-center justify-center text-[15px] text-ink-muted">{labels.loading}</p>}
           </>
         )}
         {connections.length === 0 && webgl !== false && (
-          <p className="pointer-events-none absolute inset-x-0 bottom-6 mx-auto max-w-md px-6 text-center text-[14px] text-ink-muted">{labels.empty}</p>
+          <p className="pointer-events-none absolute inset-x-0 bottom-6 mx-auto max-w-md px-6 text-center text-[15px] text-ink-muted">{labels.empty}</p>
         )}
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-4 px-5 text-[13px] text-ink-faint sm:px-0">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-4 px-5 text-[15px] text-ink-muted sm:px-0">
         <p id="globe-hint">{labels.hint}</p>
         <button type="button" onClick={reset} className="link-rule font-medium text-ink">{labels.reset}</button>
       </div>

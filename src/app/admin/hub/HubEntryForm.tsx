@@ -24,11 +24,11 @@ export function HubEntryForm({ entry, initialCategory, countries, others, canPub
   const [slugTouched, setSlugTouched] = useState(Boolean(entry));
   const f = CATEGORY_FIELDS[category];
   const fe = state.fieldErrors ?? {};
-  const input = "mt-1.5 block h-11 w-full border border-line-strong bg-paper px-3 text-[15px] focus:border-ink focus:outline-none aria-[invalid=true]:border-red-400";
-  const area = "mt-1.5 block w-full border border-line-strong bg-paper px-3 py-2.5 text-[15px] leading-relaxed focus:border-ink focus:outline-none";
+  const input = "mt-1.5 block h-11 w-full rounded-md border border-line-strong bg-canvas px-3 text-[15px] focus:border-ink focus:outline-none aria-[invalid=true]:border-red-700";
+  const area = "mt-1.5 block w-full rounded-md border border-line-strong bg-canvas px-3 py-2.5 text-[15px] leading-relaxed focus:border-ink focus:outline-none";
   const label = "block text-[14px] font-medium text-ink";
-  const hint = "mt-1.5 text-[12px] text-ink-faint";
-  const err = (k: string) => fe[k] && <p id={`${k}-err`} role="alert" className="mt-1.5 text-[13px] text-red-300">{fe[k]}</p>;
+  const hint = "mt-1.5 text-[13px] text-ink-faint";
+  const err = (k: string) => fe[k] && <p id={`${k}-err`} role="alert" className="mt-1.5 text-[13px] text-red-700">{fe[k]}</p>;
   const aria = (k: string) => ({ "aria-invalid": Boolean(fe[k]), "aria-describedby": fe[k] ? `${k}-err` : undefined });
 
   return (
@@ -39,7 +39,7 @@ export function HubEntryForm({ entry, initialCategory, countries, others, canPub
       noValidate
     >
       {entry && <input type="hidden" name="id" value={entry.id} />}
-      {state.error && <p role="alert" className="border-l-2 border-red-400 bg-red-950/40 px-4 py-3 text-[14px] text-red-100 lg:col-span-12">{state.error}</p>}
+      {state.error && <p role="alert" className="border-l-2 border-red-700 bg-red-950/40 px-4 py-3 text-[14px] text-red-100 lg:col-span-12">{state.error}</p>}
 
       <div className="space-y-6 lg:col-span-7">
         <div>
@@ -56,7 +56,7 @@ export function HubEntryForm({ entry, initialCategory, countries, others, canPub
         </div>
         <div>
           <label htmlFor="slug" className={label}>Page address</label>
-          <div className="mt-1.5 flex items-center border border-line-strong bg-paper focus-within:border-ink">
+          <div className="mt-1.5 flex items-center rounded-md border border-line-strong bg-canvas focus-within:border-ink">
             <span className="pl-3 text-[14px] text-ink-faint">/mavericks/{category}/</span>
             <input id="slug" name="slug" value={slug} maxLength={80} onChange={(e) => { setSlug(e.target.value); setSlugTouched(true); }} className="h-11 flex-1 bg-transparent pr-3 text-[15px] focus:outline-none" {...aria("slug")} />
           </div>
@@ -146,11 +146,11 @@ export function HubEntryForm({ entry, initialCategory, countries, others, canPub
               <img src={m.url} alt="" className="aspect-square w-[72px] bg-soft object-cover" />
               <div className="space-y-2">
                 <input type="hidden" name={`media_${i}_path`} value={m.path} />
-                <input name={`media_${i}_alt`} defaultValue={m.alt} aria-label="Alt text" placeholder="Alt text (required)" className="h-9 w-full border border-line-strong bg-paper px-2 text-[14px]" />
-                <input name={`media_${i}_caption`} defaultValue={m.caption ?? ""} aria-label="Caption" placeholder="Caption (optional)" className="h-9 w-full border border-line-strong bg-paper px-2 text-[14px]" />
+                <input name={`media_${i}_alt`} defaultValue={m.alt} aria-label="Alt text" placeholder="Alt text (required)" className="h-9 w-full rounded-md border border-line-strong bg-canvas px-2 text-[14px]" />
+                <input name={`media_${i}_caption`} defaultValue={m.caption ?? ""} aria-label="Caption" placeholder="Caption (optional)" className="h-9 w-full rounded-md border border-line-strong bg-canvas px-2 text-[14px]" />
                 <div className="flex items-center gap-4 text-[13px]">
-                  <select name={`media_${i}_kind`} defaultValue={m.kind} aria-label="Image type" className="h-8 border border-line-strong bg-paper px-2"><option value="photo">Photo</option><option value="screenshot">Call screenshot</option></select>
-                  <label className="flex items-center gap-2 text-red-300"><input type="checkbox" name={`media_${i}_remove`} className="accent-tech" />Remove</label>
+                  <select name={`media_${i}_kind`} defaultValue={m.kind} aria-label="Image type" className="h-8 rounded-md border border-line-strong bg-canvas px-2"><option value="photo">Photo</option><option value="screenshot">Call screenshot</option></select>
+                  <label className="flex items-center gap-2 text-red-700"><input type="checkbox" name={`media_${i}_remove`} className="accent-tech" />Remove</label>
                 </div>
               </div>
             </div>
@@ -159,8 +159,8 @@ export function HubEntryForm({ entry, initialCategory, countries, others, canPub
             <label htmlFor="new_media" className={label}>Add photographs or screenshots</label>
             <input id="new_media" name="new_media" type="file" multiple accept="image/jpeg,image/png,image/webp" className="mt-2 block w-full text-[14px] file:mr-4 file:h-10 file:border-0 file:bg-ink file:px-4 file:font-medium file:text-canvas" />
             <div className="mt-3 grid grid-cols-[1fr_auto] gap-3">
-              <input name="new_media_alt" placeholder="Describe these images (alt text)" aria-label="Alt text for new images" className="h-10 border border-line-strong bg-paper px-3 text-[14px]" />
-              <select name="new_media_kind" aria-label="Type of new images" className="h-10 border border-line-strong bg-paper px-2 text-[14px]"><option value="photo">Photos</option><option value="screenshot">Call screenshots</option></select>
+              <input name="new_media_alt" placeholder="Describe these images (alt text)" aria-label="Alt text for new images" className="h-10 rounded-md border border-line-strong bg-canvas px-3 text-[14px]" />
+              <select name="new_media_kind" aria-label="Type of new images" className="h-10 rounded-md border border-line-strong bg-canvas px-2 text-[14px]"><option value="photo">Photos</option><option value="screenshot">Call screenshots</option></select>
             </div>
             <p className={hint}>JPEG, PNG or WebP · up to 8 MB each · only genuine team media.</p>
             {err("media")}
@@ -210,7 +210,7 @@ function ImageField({ name, label, current, currentPath, removeName, pathName }:
           {/* eslint-disable-next-line @next/next/no-img-element -- admin preview */}
           <img src={current} alt="" className="size-14 bg-soft object-cover" />
           <input type="hidden" name={pathName} value={currentPath} />
-          <label className="flex items-center gap-2 text-[13px] text-red-300"><input type="checkbox" name={removeName} className="accent-tech" />Remove</label>
+          <label className="flex items-center gap-2 text-[13px] text-red-700"><input type="checkbox" name={removeName} className="accent-tech" />Remove</label>
         </div>
       )}
       <input id={name} name={name} type="file" accept="image/jpeg,image/png,image/webp" className="mt-2 block w-full text-[14px] file:mr-4 file:h-10 file:border-0 file:bg-ink file:px-4 file:font-medium file:text-canvas" />

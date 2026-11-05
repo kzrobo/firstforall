@@ -10,13 +10,13 @@ export function AiWorkspaceShell({ t, mode }: { t: Dictionary; mode: "preview" }
   return (
     <div className="bg-paper shadow-[0_1px_2px_rgba(14,22,32,0.08),0_30px_60px_-30px_rgba(14,22,32,0.30)] ring-1 ring-line">
       {disabled && (
-        <p className="border-b border-line bg-accent-pale/60 px-5 py-2 text-[12px] font-medium tracking-[0.02em] text-ink/70">{L.previewLabel}</p>
+        <p className="border-b border-line bg-accent-pale/60 px-5 py-2 text-[13px] font-medium tracking-[0.02em] text-ink/70">{L.previewLabel}</p>
       )}
       <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
         <p className="flex items-center gap-2.5 text-[14px] font-semibold text-ink">
           <span aria-hidden className="inline-block size-2 bg-accent" />Mavericks AI
         </p>
-        <p className="text-[12px] text-ink-faint">{t.manuals.language}: <span className="font-medium text-ink-muted">EN · KK · RU · ES</span></p>
+        <p className="text-[13px] text-ink-faint">{t.manuals.language}: <span className="font-medium text-ink-muted">EN · KK · RU · ES</span></p>
       </div>
 
       <div className="px-5 pb-6 pt-8 sm:px-8">
@@ -44,7 +44,7 @@ export function AiWorkspaceShell({ t, mode }: { t: Dictionary; mode: "preview" }
             <svg aria-hidden viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
           </button>
         </div>
-        <p className="mt-3 text-[12px] text-ink-faint">{L.disclaimer}</p>
+        <p className="mt-3 text-[13px] text-ink-faint">{L.disclaimer}</p>
       </div>
     </div>
   );

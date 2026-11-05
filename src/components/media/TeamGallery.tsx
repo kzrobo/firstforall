@@ -16,7 +16,7 @@ export function TeamGallery({ items, showEmpty }: { items: MediaItem[]; showEmpt
       {cells.map(({ item, aspect }, i) => (
         <li key={`${i}-${item?.url ?? "slot"}`} className="relative" style={{ flexGrow: aspect, flexBasis: `calc(var(--row) * ${aspect})` }}>
           <figure>
-            <div className="relative w-full overflow-hidden bg-soft" style={{ paddingBottom: `${100 / aspect}%` }}>
+            <div className="relative w-full overflow-hidden rounded-[3px] bg-soft" style={{ paddingBottom: `${100 / aspect}%` }}>
               {item ? (
                 <Image
                   src={item.url}
@@ -27,10 +27,10 @@ export function TeamGallery({ items, showEmpty }: { items: MediaItem[]; showEmpt
                   style={{ "--f": item.focus, "--fm": item.focusMobile } as React.CSSProperties}
                 />
               ) : (
-                <span aria-hidden className="absolute inset-0 flex items-end p-3 text-[11px] text-ink-faint ring-1 ring-inset ring-line">team_gallery[{i}]</span>
+                <span aria-hidden className="absolute inset-0 flex items-end p-3 text-[13px] text-ink-faint ring-1 ring-inset ring-line">team_gallery[{i}]</span>
               )}
             </div>
-            {item?.caption && <figcaption className="mt-2 text-[12px] leading-snug text-ink-muted">{item.caption}</figcaption>}
+            {item?.caption && <figcaption className="mt-2 text-[14px] leading-snug text-ink-muted">{item.caption}</figcaption>}
           </figure>
         </li>
       ))}

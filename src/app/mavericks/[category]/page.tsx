@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ConnectionsSection } from "@/components/hub/ConnectionsSection";
 import { AchievementsTimeline } from "@/components/hub/AchievementsTimeline";
+import { HubNav } from "@/components/hub/HubNav";
 import { EntryList } from "@/components/hub/parts";
 import { getI18n } from "@/i18n/server";
 import { HUB_CATEGORIES, categoryTitle, isHubCategory } from "@/lib/hub/categories";
@@ -36,15 +37,13 @@ export default async function CategoryPage({ params }: Props) {
 
   return (
     <>
-      <header className="mx-auto max-w-content px-5 pt-10 lg:px-10 lg:pt-14">
-        <nav aria-label="Breadcrumb" className="t-index"><Link href="/mavericks" className="hover:text-ink">MAVERICKS</Link> <span aria-hidden>/</span> <span className="t-num">{String(index + 1).padStart(2, "0")}</span></nav>
-        <div className="mt-6 grid gap-x-6 gap-y-6 lg:grid-cols-12 lg:items-end">
-          <h1 className="font-display text-[clamp(2.125rem,5vw,4.5rem)] font-normal leading-[1.02] tracking-[-0.04em] text-ink lg:col-span-8">
-            MAVERICKS <span className="text-accent">{category.charAt(0).toUpperCase() + category.slice(1)}</span>
-          </h1>
-          <div className="lg:col-span-4">
-            <p className="font-medium text-ink">{H.categories[category].tagline}</p>
-            <p className="mt-2 text-[15px] leading-relaxed text-ink-muted">{H.categories[category].description}</p>
+      <HubNav t={t} current={category} />
+      <header className="mx-auto max-w-content px-5 pt-12 lg:px-10 lg:pt-20">
+        <div className="grid gap-x-6 gap-y-6 lg:grid-cols-12 lg:items-end">
+          <h1 className="t-h1 text-ink lg:col-span-7">{categoryTitle(category)}</h1>
+          <div className="lg:col-span-4 lg:col-start-9">
+            <p className="text-[18px] font-semibold tracking-[-0.015em] text-ink">{H.categories[category].tagline}</p>
+            <p className="mt-2 text-[17px] leading-relaxed text-ink-muted">{H.categories[category].description}</p>
           </div>
         </div>
       </header>
@@ -57,14 +56,14 @@ export default async function CategoryPage({ params }: Props) {
         ) : (
           <>
             {category === "teaches" && (
-              <div className="mb-14 grid gap-x-6 gap-y-6 border-y border-rule py-8 lg:grid-cols-12 lg:items-center">
-                <p className="font-display text-[clamp(1.375rem,2.4vw,2rem)] font-normal tracking-[-0.03em] text-ink lg:col-span-7">FTC Builder Academy</p>
-                <p className="text-[15px] text-ink-muted lg:col-span-3">{t.learn.intro}</p>
-                <Link href="/learn" className="btn-primary justify-self-start lg:col-span-2 lg:justify-self-end">{t.learn.title}{lessons?.ok ? ` · ${lessons.data.lessons.length}` : ""}</Link>
+              <div className="mb-14 grid gap-x-6 gap-y-6 rounded-[3px] bg-paper p-7 lg:grid-cols-12 lg:items-center lg:p-10">
+                <p className="t-h2 text-ink lg:col-span-5">FTC Builder Academy</p>
+                <p className="text-[16px] leading-relaxed text-ink-muted lg:col-span-4">{t.learn.intro}</p>
+                <Link href="/learn" className="btn-primary justify-self-start lg:col-span-3 lg:justify-self-end">{t.learn.title}{lessons?.ok ? ` · ${lessons.data.lessons.length}` : ""}</Link>
               </div>
             )}
             {entries.length === 0 ? (
-              <p className="max-w-xl border-t border-line pt-6 text-ink-muted">{H.empty}</p>
+              <div className="grid gap-x-6 border-t border-ink pt-8 lg:grid-cols-12"><p className="max-w-xl text-[18px] leading-relaxed text-ink-muted lg:col-span-6">{H.empty}</p></div>
             ) : category === "achieves" ? (
               <AchievementsTimeline entries={entries} t={t} locale={locale} names={names} />
             ) : (
@@ -76,10 +75,10 @@ export default async function CategoryPage({ params }: Props) {
 
       <nav aria-label={H.allCategories} className="border-t border-line">
         <div className="mx-auto flex max-w-content flex-wrap items-baseline justify-between gap-6 px-5 py-10 lg:px-10">
-          <Link href="/mavericks" className="link-rule text-[14px] text-ink-muted">{H.allCategories}</Link>
+          <Link href="/mavericks" className="link-rule text-[15px] text-ink-muted">{H.allCategories}</Link>
           <Link href={`/mavericks/${next}`} className="group text-right">
-            <span className="t-index block">{String(HUB_CATEGORIES.indexOf(next) + 1).padStart(2, "0")}</span>
-            <span className="font-display text-[clamp(1.25rem,2.4vw,1.875rem)] tracking-[-0.03em] text-ink group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">{categoryTitle(next)} →</span>
+            <span className="t-index block">{H.next}</span>
+            <span className="text-[clamp(1.375rem,2.4vw,1.875rem)] font-semibold tracking-[-0.025em] text-ink group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">{categoryTitle(next)} →</span>
           </Link>
         </div>
       </nav>

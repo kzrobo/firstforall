@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { loadPdfJs } from "@/components/reader/pdf";
+import { PDF_OPTIONS, loadPdfJs } from "@/components/reader/pdf";
 
 /** Renders page 1 of a published PDF as the document thumbnail, once scrolled into view. */
 export function PdfThumbnail({ url, title }: { url: string; title: string }) {
@@ -17,7 +17,7 @@ export function PdfThumbnail({ url, title }: { url: string; title: string }) {
       io.disconnect();
       try {
         const pdfjs = await loadPdfJs();
-        const doc = await pdfjs.getDocument({ url, isEvalSupported: false, disableAutoFetch: true }).promise;
+        const doc = await pdfjs.getDocument({ url, ...PDF_OPTIONS, disableAutoFetch: true }).promise;
         const page = await doc.getPage(1);
         const base = page.getViewport({ scale: 1 });
         const ratio = window.devicePixelRatio || 1;

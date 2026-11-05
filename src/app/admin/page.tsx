@@ -27,13 +27,13 @@ export default async function AdminOverviewPage() {
           Manual upload and publishing screens are not built yet. Until then, manage manual records in the Supabase dashboard; database policies enforce the same role rules.
         </p>
         <table className="mt-6 w-full text-left text-[14px]">
-          <thead className="border-b border-line text-[12px] text-ink-muted">
+          <thead className="border-b border-line text-[13px] text-ink-muted">
             <tr><th className="py-2 font-medium">Manual</th><th className="font-medium">Season</th><th className="font-medium">Status</th><th className="font-medium">Translations</th></tr>
           </thead>
           <tbody>
             {(manuals ?? []).map((m) => (
               <tr key={m.id} className="border-b border-line">
-                <td className="py-3 font-medium">{m.title}<span className="block text-[12px] font-normal text-ink-muted">/{m.slug} · rev {m.revision}</span></td>
+                <td className="py-3 font-medium">{m.title}<span className="block text-[13px] font-normal text-ink-muted">/{m.slug} · rev {m.revision}</span></td>
                 <td>{m.season}</td>
                 <td className="capitalize">{m.status.replace("_", " ")}</td>
                 <td>{m.manual_translations.map((t) => `${t.language_code} (${t.status})`).join(", ") || "—"}</td>

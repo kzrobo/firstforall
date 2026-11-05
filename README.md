@@ -7,8 +7,13 @@ Community platform by MAVERICKS FTC #24034 for multilingual FTC documentation. N
 2. Copy `.env.example` → `.env.local`; fill `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 3. Create your user in Supabase Auth, then grant the founder role:
    `insert into team_members (user_id, role) values ('<auth-user-uuid>', 'super_admin');`
-4. Until the admin upload UI lands (Milestone C): upload the PDF to bucket `manuals-public`, insert rows into
-   `manuals` and `manual_translations` (`status='published'`, `page_count` set; master first).
+4. Manuals: describe the PDFs in a manifest (see `docs/manuals-import.example.json`: edition slug, title, season,
+   version / Team Update, language, official source or community translation), then
+   ```bash
+   node scripts/import-manuals.mjs validate manuals.json                       # local checks + inventory, uploads nothing
+   NEXT_PUBLIC_SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… node scripts/import-manuals.mjs import manuals.json   # as drafts
+   ```
+   Add `--publish` once reviewed. Files are uploaded byte-for-byte; existing languages are skipped, never overwritten.
 5. Hero video (only footage you have the rights to): apply the migrations, then on a trusted machine
    ```bash
    NEXT_PUBLIC_SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… node scripts/hero-video.mjs verify          # checks bucket + slots
@@ -29,6 +34,10 @@ Only enter facts you can document — leave unknown fields empty.
 Sign in at `/login`, open **Admin → Lessons → Add lesson**, paste a YouTube link (watch, youtu.be or Shorts), add a title,
 category and spoken language, then save as draft or publish (founders and editors with `can_publish`). Apply
 `supabase/migrations/20261101000000_learn.sql` first; it creates the tables, policies and the four starter categories.
+
+## Team page
+`/mavericks/team` shows the roster from `src/content/team.ts` (names and roles exactly as in the team's posts). Entries with
+`verify` still need confirmation from the team before launch (spellings of Kaussar, Asqar, Erdaulet; Adem's role "Cader").
 
 ## Photos
 See `docs/ASSETS.md` for every photo/video slot, its shape and how to set it.

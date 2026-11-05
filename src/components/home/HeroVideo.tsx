@@ -41,7 +41,7 @@ export function HeroVideo({ video, poster, posterMobile = null, labels }: {
 
   return (
     <>
-    <div className="absolute inset-0 -z-10 overflow-hidden bg-canvas">
+    <div className="absolute inset-0 -z-10 overflow-hidden bg-[#00102b]">
       {poster && (
         <Image src={poster.url} alt="" fill priority sizes="100vw"
           className={`object-cover transition-opacity duration-700 ${playing ? "opacity-0" : "opacity-100"} ${posterMobile ? "max-md:portrait:hidden" : ""}`}
@@ -77,7 +77,7 @@ export function HeroVideo({ video, poster, posterMobile = null, labels }: {
     </div>
     {allowed !== null && (
         <button type="button" onClick={toggle}
-          className="absolute bottom-7 right-5 z-30 inline-flex items-center gap-2 text-[12px] font-medium text-ink/75 hover:text-ink lg:right-10">
+          className="absolute bottom-12 right-5 z-30 inline-flex h-11 items-center gap-2 text-[14px] font-medium text-ink-muted hover:text-ink lg:bottom-16 lg:right-10">
           <svg aria-hidden viewBox="0 0 24 24" className="size-3" fill="currentColor">{playing ? <path d="M7 5h3v14H7zM14 5h3v14h-3z" /> : <path d="M8 5v14l11-7z" />}</svg>
           {playing ? labels.pause : labels.play}
         </button>

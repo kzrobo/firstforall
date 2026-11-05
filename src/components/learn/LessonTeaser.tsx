@@ -9,19 +9,19 @@ export function LessonTeaser({ lesson, variant = "standard", languageLabel, head
 }) {
   const H = headingLevel;
   const duration = formatDuration(lesson.durationSeconds);
-  const titleClass = variant === "lead" ? "t-h2 mt-5" : variant === "compact" ? "mt-3 text-[15px] font-medium leading-snug" : "mt-4 text-[17px] font-medium leading-snug tracking-[-0.01em]";
+  const titleClass = variant === "lead" ? "t-h2 mt-3" : variant === "compact" ? "mt-1.5 text-[16px] font-semibold leading-snug tracking-[-0.01em]" : "mt-1.5 text-[18px] font-semibold leading-snug tracking-[-0.015em]";
   const media = (
     <span className="relative block">
       <YouTubeThumb id={lesson.youtubeId} title={lesson.title} priority={variant === "lead"} />
       <span className={`absolute ${variant === "lead" ? "bottom-5 left-5" : "bottom-3 left-3"}`}><PlayMark size={variant === "lead" ? "lg" : "sm"} /></span>
-      {duration && <span className="t-num absolute bottom-3 right-3 bg-navy/85 px-1.5 py-0.5 text-[12px] font-medium text-white">{duration}</span>}
+      {duration && <span className="t-num absolute bottom-3 right-3 rounded bg-black/75 px-1.5 py-0.5 text-[13px] font-medium text-white">{duration}</span>}
     </span>
   );
   if (mediaOnly) return media;
   return (
     <article className="group">
       <Link href={`/learn/${lesson.slug}`} className="block" tabIndex={-1} aria-hidden>{media}</Link>
-      <p className={`t-index ${variant === "lead" ? "mt-5" : "mt-3"}`}>
+      <p className={`t-meta ${variant === "lead" ? "mt-5" : "mt-4"}`}>
         {lesson.category.name} <span aria-hidden>·</span> {languageLabel}
       </p>
       <H className={titleClass}>

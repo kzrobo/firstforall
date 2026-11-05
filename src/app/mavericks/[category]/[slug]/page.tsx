@@ -39,7 +39,7 @@ export default async function EntryPage({ params }: Props) {
 
   return (
     <article>
-      <header className="mx-auto max-w-content px-5 pt-10 lg:px-10 lg:pt-14">
+      <header className="mx-auto max-w-content px-5 pt-10 lg:px-10 lg:pt-16">
         <nav aria-label="Breadcrumb" className="t-index">
           <Link href="/mavericks" className="hover:text-ink">MAVERICKS</Link> <span aria-hidden>/</span>{" "}
           <Link href={`/mavericks/${category}`} className="hover:text-ink">{categoryTitle(category)}</Link>
@@ -48,9 +48,9 @@ export default async function EntryPage({ params }: Props) {
           <div className="lg:col-span-8">
             {category === "connects" && e.logoUrl && (
               // eslint-disable-next-line @next/next/no-img-element -- partner team logo from storage
-              <img src={e.logoUrl} alt={`${e.teamName ?? e.title} logo`} className="mb-6 size-16 rounded-full bg-ink object-contain p-1.5" />
+              <img src={e.logoUrl} alt={`${e.teamName ?? e.title} logo`} className="mb-6 size-16 rounded-full bg-white object-contain p-1 ring-1 ring-line" />
             )}
-            <h1 className="t-display text-ink">{e.title}</h1>
+            <h1 className="t-h1 max-w-[20ch] text-ink">{e.title}</h1>
             {e.subtitle && <p className="t-lead mt-4 max-w-2xl text-ink-muted">{e.subtitle}</p>}
           </div>
           <div className="lg:col-span-4"><EntryMeta e={e} t={t} locale={locale} countryName={country} /></div>
@@ -59,7 +59,7 @@ export default async function EntryPage({ params }: Props) {
 
       {e.coverUrl && (
         <div className="mx-auto mt-10 max-w-content sm:px-5 lg:mt-14 lg:px-10">
-          <div className="relative aspect-[3/2] overflow-hidden bg-soft lg:aspect-[21/9]">
+          <div className="relative aspect-[3/2] overflow-hidden bg-soft sm:rounded-[3px] lg:aspect-[21/9]">
             <Image src={e.coverUrl} alt="" fill priority sizes="(min-width: 1440px) 1360px, 100vw" className="object-cover" />
           </div>
         </div>
@@ -80,21 +80,21 @@ export default async function EntryPage({ params }: Props) {
           </div>
           <aside className="space-y-10 lg:col-span-3 lg:col-start-10">
             {(e.teamName || e.teamNumber || country) && category === "connects" && (
-              <dl className="grid grid-cols-[auto_1fr] gap-x-5 gap-y-2 border-t border-rule pt-4 text-[14px]">
-                {e.teamName && <><dt className="text-ink-faint">{F.team}</dt><dd className="text-ink">{e.teamName}</dd></>}
-                {e.teamNumber && <><dt className="text-ink-faint">{F.ftcNumber}</dt><dd className="t-num text-ink">#{e.teamNumber}</dd></>}
-                {country && <><dt className="text-ink-faint">{F.location}</dt><dd className="text-ink">{[e.city, country].filter(Boolean).join(", ")}</dd></>}
+              <dl className="grid grid-cols-[auto_1fr] gap-x-5 gap-y-2.5 border-t border-ink pt-4 text-[15px]">
+                {e.teamName && <><dt className="text-ink-muted">{F.team}</dt><dd className="text-ink">{e.teamName}</dd></>}
+                {e.teamNumber && <><dt className="text-ink-muted">{F.ftcNumber}</dt><dd className="t-num text-ink">#{e.teamNumber}</dd></>}
+                {country && <><dt className="text-ink-muted">{F.location}</dt><dd className="text-ink">{[e.city, country].filter(Boolean).join(", ")}</dd></>}
               </dl>
             )}
             {e.milestones.length > 0 && (
               <div>
-                <h2 className="t-index">{F.milestones}</h2>
-                <ol className="mt-3 border-l border-rule pl-5">
+                <h2 className="t-label text-ink">{F.milestones}</h2>
+                <ol className="mt-4 border-l border-rule pl-5">
                   {e.milestones.map((m, i) => (
                     <li key={i} className="relative pb-5 last:pb-0">
-                      <span aria-hidden className="absolute -left-[23.5px] top-1.5 size-2 rounded-full bg-accent" />
-                      <p className="t-num text-[12px] text-ink-faint">{m.date}</p>
-                      <p className="text-[15px] text-ink">{m.label}</p>
+                      <span aria-hidden className="absolute -left-[24.5px] top-2 size-2 rounded-full bg-navy ring-4 ring-canvas" />
+                      <p className="t-num text-[14px] text-ink-muted">{m.date}</p>
+                      <p className="text-[16px] leading-snug text-ink">{m.label}</p>
                     </li>
                   ))}
                 </ol>
@@ -102,8 +102,8 @@ export default async function EntryPage({ params }: Props) {
             )}
             {e.collaborators.length > 0 && (
               <div>
-                <h2 className="t-index">{F.collaborators}</h2>
-                <ul className="mt-3 space-y-1.5 text-[15px] text-ink">{e.collaborators.map((c) => <li key={c}>{c}</li>)}</ul>
+                <h2 className="t-label text-ink">{F.collaborators}</h2>
+                <ul className="mt-3 space-y-1.5 text-[16px] text-ink">{e.collaborators.map((c) => <li key={c}>{c}</li>)}</ul>
               </div>
             )}
           </aside>
@@ -111,19 +111,19 @@ export default async function EntryPage({ params }: Props) {
 
         {e.videoId && (
           <section aria-label={F.video} className="mt-16 lg:mt-24">
-            <h2 className="t-index mb-4">{F.video}</h2>
+            <h2 className="t-h3 mb-5 text-ink">{F.video}</h2>
             <VideoEmbed id={e.videoId} title={e.title} playLabel={t.learn.play} />
           </section>
         )}
         {screenshots.length > 0 && (
           <section aria-label={F.screenshots} className="mt-16 lg:mt-24">
-            <h2 className="t-index mb-4">{F.screenshots}</h2>
+            <h2 className="t-h3 mb-5 text-ink">{F.screenshots}</h2>
             <TeamGallery items={screenshots} showEmpty={false} />
           </section>
         )}
         {photos.length > 0 && (
           <section aria-label={F.photos} className="mt-16 lg:mt-24">
-            <h2 className="t-index mb-4">{F.photos}</h2>
+            <h2 className="t-h3 mb-5 text-ink">{F.photos}</h2>
             <TeamGallery items={photos} showEmpty={false} />
           </section>
         )}
@@ -133,13 +133,13 @@ export default async function EntryPage({ params }: Props) {
         <div className="mx-auto grid max-w-content gap-x-6 gap-y-8 px-5 py-12 lg:grid-cols-12 lg:px-10">
           {related.length > 0 && (
             <div className="lg:col-span-8">
-              <h2 className="t-index">{F.related}</h2>
+              <h2 className="t-label text-ink">{F.related}</h2>
               <ul className="mt-3 border-t border-line">
                 {related.map((r) => (
                   <li key={r.id} className="border-b border-line">
                     <Link href={`/mavericks/${r.category}/${r.slug}`} className="group flex items-baseline justify-between gap-6 py-4">
-                      <span className="font-display text-[17px] tracking-[-0.02em] text-ink group-hover:underline group-hover:underline-offset-4">{r.title}</span>
-                      <span className="text-[12px] text-ink-faint">{categoryTitle(r.category)}</span>
+                      <span className="text-[17px] font-semibold tracking-[-0.015em] text-ink group-hover:underline group-hover:underline-offset-4">{r.title}</span>
+                      <span className="text-[14px] text-ink-muted">{categoryTitle(r.category)}</span>
                     </Link>
                   </li>
                 ))}

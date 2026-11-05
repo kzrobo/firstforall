@@ -4,7 +4,7 @@ import { signIn } from "./actions";
 
 export function LoginForm({ t }: { t: { email: string; password: string; submit: string; error: string } }) {
   const [state, action, pending] = useActionState(signIn, { error: false });
-  const input = "mt-1.5 h-11 w-full border border-line bg-paper px-3";
+  const input = "mt-1.5 h-11 w-full rounded-md border border-line-strong bg-canvas px-3";
   return (
     <form action={action} className="mt-10 space-y-5">
       <label className="block text-sm font-medium">{t.email}<input name="email" type="email" autoComplete="email" required className={input} /></label>

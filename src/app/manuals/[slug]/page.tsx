@@ -71,7 +71,7 @@ export default async function ManualOverviewPage({ params }: Props) {
         <div className="mt-6 overflow-x-auto">
           <table className="w-full min-w-[560px] text-left text-[15px]">
             <thead>
-              <tr className="border-b-2 border-rule text-[13px] text-ink-muted">
+              <tr className="border-b border-ink text-[14px] text-ink-muted">
                 <th className="py-3 pr-4 font-semibold">{t.manuals.language}</th>
                 <th className="py-3 pr-4 font-semibold">{t.manuals.revision}</th>
                 <th className="py-3 pr-4 font-semibold">{t.manuals.translatedBy}</th>
@@ -83,7 +83,7 @@ export default async function ManualOverviewPage({ params }: Props) {
                 <tr key={tr.id} className="border-b border-line">
                   <td className="py-4 pr-4">
                     <span className="font-semibold text-ink">{languageName(tr.language, locale)}</span>
-                    <span className="mt-0.5 block text-[13px] text-ink-muted">{tr.isSource ? t.manuals.official : t.manuals.community}</span>
+                    <span className="mt-0.5 block text-[14px] text-ink-muted">{tr.isSource ? t.manuals.official : t.manuals.community}</span>
                   </td>
                   <td className="py-4 pr-4 t-num">{tr.revision}{tr.pageCount ? <span className="text-ink-muted"> · {tr.pageCount} {t.manuals.pages}</span> : null}</td>
                   <td className="py-4 pr-4 text-ink-muted">{tr.credit ?? "—"}</td>

@@ -35,7 +35,7 @@ export default async function AdminHubPage({ searchParams }: Props) {
         ))}
       </nav>
       {notice && <p role="status" className="mt-6 border-l-2 border-accent bg-accent-pale px-4 py-3 text-[14px]">{notice}</p>}
-      {error && <p role="alert" className="mt-6 border-l-2 border-red-400 bg-red-950/40 px-4 py-3 text-[14px] text-red-100">{error}</p>}
+      {error && <p role="alert" className="mt-6 border-l-2 border-red-700 bg-red-950/40 px-4 py-3 text-[14px] text-red-100">{error}</p>}
       {!result.ok ? (
         <p className="mt-8 text-ink-muted">Could not load entries: {result.reason === "not_configured" ? "database not configured." : result.message}</p>
       ) : rows.length === 0 ? (
@@ -43,7 +43,7 @@ export default async function AdminHubPage({ searchParams }: Props) {
       ) : (
         <div className="mt-6 overflow-x-auto">
           <table className="w-full min-w-[820px] text-left text-[14px]">
-            <thead className="border-b border-line text-[12px] text-ink-faint">
+            <thead className="border-b border-line text-[13px] text-ink-faint">
               <tr><th className="py-2 pr-4 font-medium">Entry</th><th className="pr-4 font-medium">Category</th><th className="pr-4 font-medium">Status</th><th className="pr-4 font-medium">Updated</th><th><span className="sr-only">Actions</span></th></tr>
             </thead>
             <tbody>
@@ -51,12 +51,12 @@ export default async function AdminHubPage({ searchParams }: Props) {
                 <tr key={e.id} className="border-b border-line align-top">
                   <td className="py-4 pr-4">
                     <Link href={`/admin/hub/${e.id}`} className="font-medium text-ink hover:underline">{e.title}</Link>
-                    <span className="mt-0.5 block text-[12px] text-ink-faint">/mavericks/{e.category}/{e.slug}</span>
+                    <span className="mt-0.5 block text-[13px] text-ink-faint">/mavericks/{e.category}/{e.slug}</span>
                   </td>
                   <td className="py-4 pr-4 text-ink-muted">{categoryTitle(e.category).replace("MAVERICKS ", "")}</td>
                   <td className="py-4 pr-4">
                     <span className={e.status === "published" ? "font-medium text-ink" : "text-ink-muted"}>{e.status === "published" ? "Published" : e.status === "archived" ? "Archived" : "Draft"}</span>
-                    {e.isFeatured && <span className="ml-2 bg-accent px-1.5 py-0.5 text-[11px] font-semibold text-canvas">Featured</span>}
+                    {e.isFeatured && <span className="ml-2 rounded bg-mist px-1.5 py-0.5 text-[13px] font-semibold text-navy">Featured</span>}
                   </td>
                   <td className="t-num py-4 pr-4 text-ink-faint">{e.updatedAt.slice(0, 10)}</td>
                   <td className="whitespace-nowrap py-3 text-right">

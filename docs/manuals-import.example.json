@@ -1,0 +1,30 @@
+{
+  "files": [
+    {
+      "file": "pdfs/2026-27-competition-manual-en.pdf",
+      "slug": "ftc-2026-2027-competition-manual-tu03",
+      "title": "Competition Manual",
+      "season": "2026-2027",
+      "seasonName": "Season name as printed on the manual",
+      "category": "competition",
+      "version": "Version as printed on the cover",
+      "teamUpdate": "03",
+      "language": "en",
+      "isSource": true,
+      "sourceUrl": "Link to the official FIRST page for this PDF"
+    },
+    {
+      "file": "pdfs/2026-27-competition-manual-kk.pdf",
+      "slug": "ftc-2026-2027-competition-manual-tu03",
+      "title": "Competition Manual",
+      "season": "2026-2027",
+      "category": "competition",
+      "version": "Version of the English edition this translation follows",
+      "teamUpdate": "03",
+      "language": "kk",
+      "isSource": false,
+      "sourceVersion": "English version / TU it was translated from",
+      "translationCredit": "Translator or team, as they wish to be credited"
+    }
+  ]
+}

@@ -13,16 +13,16 @@ export function AchievementsTimeline({ entries, t, locale, names }: { entries: H
     <div className="space-y-16">
       {groups.map(({ k, items }) => (
         <section key={k} aria-label={k} className="grid gap-x-6 gap-y-4 lg:grid-cols-12">
-          <h2 className="font-display text-[clamp(1.5rem,2.6vw,2.25rem)] font-normal tracking-[-0.035em] text-ink lg:col-span-3">{k}</h2>
-          <ol className="border-t border-rule lg:col-span-9">
+          <h2 className="t-num text-[clamp(1.75rem,3vw,2.5rem)] font-semibold tracking-[-0.035em] text-ink lg:col-span-3">{k}</h2>
+          <ol className="border-t border-ink lg:col-span-9">
             {items.map((e) => (
               <li key={e.id} className="border-b border-line">
                 <Link href={`/mavericks/achieves/${e.slug}`} className="group grid gap-x-6 gap-y-1 py-5 sm:grid-cols-[10rem_1fr]">
-                  <span className="text-[13px] text-ink-faint">{formatEventDate(e.eventDate, locale)}{names[e.id] ? <><br />{[e.city, names[e.id]].filter(Boolean).join(", ")}</> : null}</span>
+                  <span className="text-[15px] text-ink-muted">{formatEventDate(e.eventDate, locale)}{names[e.id] ? <><br />{[e.city, names[e.id]].filter(Boolean).join(", ")}</> : null}</span>
                   <span>
-                    <span className="font-display block text-[18px] font-medium tracking-[-0.02em] text-ink group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">{e.title}</span>
-                    {e.sections.result && <span className="mt-1 block text-[15px] text-accent">{e.sections.result}</span>}
-                    {e.subtitle && <span className="mt-1 block text-[14px] text-ink-muted">{e.subtitle}</span>}
+                    <span className="block text-[19px] font-semibold tracking-[-0.015em] text-ink group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">{e.title}</span>
+                    {e.sections.result && <span className="mt-1 block text-[16px] font-medium text-navy">{e.sections.result}</span>}
+                    {e.subtitle && <span className="mt-1 block text-[15px] text-ink-muted">{e.subtitle}</span>}
                   </span>
                 </Link>
               </li>

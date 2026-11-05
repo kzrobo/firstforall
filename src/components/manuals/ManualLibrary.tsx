@@ -42,7 +42,7 @@ export function ManualLibrary({ manuals, t, locale, initial }: { manuals: Manual
   return (
     <div className="mx-auto max-w-content px-5 lg:px-10">
       {/* Search */}
-      <label id="search" className="flex scroll-mt-24 items-center gap-4 border-b-2 border-rule">
+      <label id="search" className="flex scroll-mt-24 items-center gap-4 rounded-md border border-line-strong bg-canvas px-4 focus-within:border-ink">
         <svg aria-hidden className="size-5 shrink-0 text-ink" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="6.5" /><path d="m20 20-4.2-4.2" /></svg>
         <span className="sr-only">{t.manuals.search}</span>
         <input
@@ -50,7 +50,7 @@ export function ManualLibrary({ manuals, t, locale, initial }: { manuals: Manual
           value={f.q}
           onChange={(e) => set({ q: e.target.value })}
           placeholder={t.manuals.searchPlaceholder}
-          className="h-16 w-full bg-transparent text-[18px] placeholder:text-ink-faint focus:outline-none lg:text-[20px]"
+          className="h-14 w-full bg-transparent text-[17px] placeholder:text-ink-faint focus:outline-none lg:text-[18px]"
         />
       </label>
 
@@ -58,12 +58,12 @@ export function ManualLibrary({ manuals, t, locale, initial }: { manuals: Manual
       <div className="grid gap-x-6 gap-y-6 border-b border-line py-6 lg:grid-cols-12 lg:items-end">
         <fieldset className="lg:col-span-6">
           <legend className="t-index mb-2">{languageGroup.label}</legend>
-          <div className="flex flex-wrap gap-x-5 gap-y-2">
+          <div className="flex flex-wrap gap-2">
             {[{ value: "", label: t.manuals.all }, ...languageGroup.values].map((v) => {
               const on = f.language === v.value;
               return (
                 <button key={v.value || "all"} type="button" aria-pressed={on} onClick={() => set({ language: v.value })}
-                  className={`h-9 border-b-2 text-[15px] transition-colors ${on ? "border-accent font-medium text-ink" : "border-transparent text-ink-muted hover:text-ink"}`}>
+                  className={`h-9 rounded-full border px-3.5 text-[15px] transition-colors ${on ? "border-navy bg-navy font-medium text-white" : "border-line text-ink hover:border-ink"}`}>
                   {v.label}
                 </button>
               );
@@ -111,17 +111,20 @@ export function ManualLibrary({ manuals, t, locale, initial }: { manuals: Manual
                 <p className="t-index">{m.season}{m.seasonName ? ` · ${m.seasonName}` : ""} · <span className="capitalize">{m.category}</span></p>
                 <h2 className="t-h2 mt-2 text-ink"><Link href={`/manuals/${m.slug}`} className="hover:underline hover:decoration-1 hover:underline-offset-4">{m.title}</Link></h2>
                 {m.description && <p className="mt-3 max-w-lg text-[15px] text-ink-muted">{m.description}</p>}
-                <p className="mt-3 text-[13px] text-ink-faint">{t.manuals.revision} {m.revision}</p>
+                <p className="mt-3 text-[14px] text-ink-muted">{t.manuals.revision} {m.revision}</p>
               </div>
               <ul className="self-start border-t border-line sm:col-start-2 lg:col-span-4 lg:col-start-9" aria-label={t.manuals.translations}>
                 {m.translations.map((tr) => (
-                  <li key={tr.id} className="flex items-baseline justify-between gap-4 border-b border-line py-3">
-                    <Link href={readerHref(m.slug, tr.language)} className={`text-[15px] font-medium hover:underline hover:underline-offset-4 ${f.language === tr.language ? "text-accent" : "text-ink"}`}>
-                      {languageName(tr.language, locale)}
-                    </Link>
-                    <span className="flex gap-4 text-[13px]">
-                      <Link href={readerHref(m.slug, tr.language)} className="text-tech hover:underline">{t.manuals.read}</Link>
-                      <a href={tr.fileUrl} download className="text-ink-faint hover:text-ink">PDF</a>
+                  <li key={tr.id} className="flex items-baseline justify-between gap-4 border-b border-line py-3.5">
+                    <span>
+                      <Link href={readerHref(m.slug, tr.language)} className={`text-[16px] font-medium hover:underline hover:underline-offset-4 ${f.language === tr.language ? "underline underline-offset-4" : ""} text-ink`}>
+                        {languageName(tr.language, locale)}
+                      </Link>
+                      <span className="mt-0.5 block text-[14px] text-ink-muted">{tr.isSource ? t.manuals.source : t.manuals.community}</span>
+                    </span>
+                    <span className="flex gap-4 text-[14px]">
+                      <Link href={readerHref(m.slug, tr.language)} className="font-medium text-ink underline-offset-4 hover:underline">{t.manuals.read}</Link>
+                      <a href={tr.fileUrl} download className="text-ink-muted underline-offset-4 hover:text-ink hover:underline">PDF</a>
                     </span>
                   </li>
                 ))}
@@ -134,7 +137,7 @@ export function ManualLibrary({ manuals, t, locale, initial }: { manuals: Manual
           {results.map((m) => (
             <li key={m.id} className="group grid grid-cols-[96px_1fr] gap-x-5 py-6 sm:block sm:py-0">
               <Link href={`/manuals/${m.slug}`} tabIndex={-1} aria-hidden
-                className="img-zoom block self-start overflow-hidden shadow-[0_1px_2px_rgba(0,16,43,0.08)] transition-shadow duration-300 sm:group-hover:shadow-[0_28px_50px_-30px_rgba(0,16,43,0.45)]">
+                className="img-zoom block self-start overflow-hidden rounded-[3px] shadow-[0_1px_2px_rgba(0,0,0,0.06)] transition-shadow duration-300 sm:group-hover:shadow-[0_24px_44px_-28px_rgba(0,16,43,0.35)]">
                 <DocumentThumb manual={m} />
               </Link>
               <div className="sm:mt-5">
@@ -142,12 +145,12 @@ export function ManualLibrary({ manuals, t, locale, initial }: { manuals: Manual
                 <h2 className="mt-1.5 text-[17px] font-medium leading-snug tracking-[-0.01em] text-ink sm:text-[18px]">
                   <Link href={`/manuals/${m.slug}`} className="decoration-1 underline-offset-4 group-hover:underline">{m.title}</Link>
                 </h2>
-                <p className="mt-1.5 text-[13px] text-ink-muted"><span className="capitalize">{m.category}</span> · {t.manuals.revision} {m.revision}</p>
+                <p className="mt-1.5 text-[14px] text-ink-muted"><span className="capitalize">{m.category}</span> · {t.manuals.revision} {m.revision}</p>
                 <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 border-t border-line pt-3 text-[14px]" aria-label={t.manuals.translations}>
                   {m.translations.map((tr) => (
                     <li key={tr.id}>
                       <Link href={readerHref(m.slug, tr.language)} title={t.manuals.read}
-                        className={`link-rule ${f.language === tr.language ? "font-medium text-ink decoration-accent decoration-2" : "text-tech decoration-line-strong"}`}>
+                        className={`link-rule text-ink ${f.language === tr.language ? "font-semibold decoration-2" : "decoration-line-strong"}`}>
                         {languageName(tr.language, locale)}
                       </Link>
                     </li>
