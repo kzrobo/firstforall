@@ -1,18 +1,20 @@
 import Link from "next/link";
 import { formatDuration } from "@/lib/learn/youtube";
-import type { Lesson } from "@/lib/learn/types";
+import { isNewLesson, type Lesson } from "@/lib/learn/types";
 import { PlayMark, YouTubeThumb } from "./YouTubeThumb";
 
 /** Thumbnail + caption, used on /learn and the homepage. "lead" is the large editorial variant. */
-export function LessonTeaser({ lesson, variant = "standard", languageLabel, headingLevel = "h3", mediaOnly = false }: {
+export function LessonTeaser({ lesson, variant = "standard", languageLabel, headingLevel = "h3", mediaOnly = false, newLabel }: {
   lesson: Lesson; variant?: "lead" | "standard" | "compact"; languageLabel: string; headingLevel?: "h2" | "h3"; mediaOnly?: boolean;
+  /** Shown before the category for lessons published in the last 14 days */
+  newLabel?: string;
 }) {
   const H = headingLevel;
   const duration = formatDuration(lesson.durationSeconds);
   const titleClass = variant === "lead" ? "t-h2 mt-3" : variant === "compact" ? "mt-1.5 text-[16px] font-semibold leading-snug tracking-[-0.01em]" : "mt-1.5 text-[18px] font-semibold leading-snug tracking-[-0.015em]";
   const media = (
     <span className="relative block">
-      <YouTubeThumb id={lesson.youtubeId} title={lesson.title} priority={variant === "lead"} />
+      <YouTubeThumb id={lesson.youtubeId} title={lesson.title} src={lesson.thumbnailUrl} priority={variant === "lead"} />
       <span className={`absolute ${variant === "lead" ? "bottom-5 left-5" : "bottom-3 left-3"}`}><PlayMark size={variant === "lead" ? "lg" : "sm"} /></span>
       {duration && <span className="t-num absolute bottom-3 right-3 rounded bg-black/75 px-1.5 py-0.5 text-[13px] font-medium text-white">{duration}</span>}
     </span>
@@ -22,6 +24,7 @@ export function LessonTeaser({ lesson, variant = "standard", languageLabel, head
     <article className="group">
       <Link href={`/learn/${lesson.slug}`} className="block" tabIndex={-1} aria-hidden>{media}</Link>
       <p className={`t-meta ${variant === "lead" ? "mt-5" : "mt-4"}`}>
+        {newLabel && isNewLesson(lesson) && <><span className="font-semibold text-navy">{newLabel}</span> <span aria-hidden>·</span> </>}
         {lesson.category.name} <span aria-hidden>·</span> {languageLabel}
       </p>
       <H className={titleClass}>

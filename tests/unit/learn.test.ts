@@ -5,7 +5,9 @@ import { categoryName, sortLessons, type Lesson } from "@/lib/learn/types";
 const cat = { id: "c", slug: "ftc-basics", name: "FTC Basics", names: { en: "FTC Basics", kk: "FTC негіздері" }, order: 1 };
 const lesson = (p: Partial<Lesson>): Lesson => ({
   id: p.id ?? "x", slug: "s", youtubeId: "testfixture", title: "t", description: null, category: cat, language: "en",
-  durationSeconds: null, isFeatured: false, status: "published", order: 0, publishedAt: "2026-01-01", updatedAt: "", ...p,
+  durationSeconds: null, isFeatured: false, status: "published", order: 0, publishedAt: "2026-01-01", updatedAt: "",
+  source: "manual", thumbnailUrl: null, lockedFields: [],
+  youtube: { title: null, description: null, publishedAt: null, durationSeconds: null, availability: null, unavailableReason: null, syncedAt: null }, ...p,
 });
 
 describe("lessons", () => {

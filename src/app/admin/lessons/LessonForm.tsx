@@ -4,7 +4,14 @@ import { useActionState, useMemo, useState, useTransition } from "react";
 import { YouTubeThumb } from "@/components/learn/YouTubeThumb";
 import { formatDuration, parseYouTubeUrl, slugify, youTubeWatchUrl } from "@/lib/learn/youtube";
 import type { Lesson, LessonCategory } from "@/lib/learn/types";
+import { UNAVAILABLE_LABEL } from "@/lib/youtube/labels";
 import { fetchYouTubeTitle, saveLesson, type LessonFormState } from "./actions";
+
+const SYNC_FIELDS = [
+  { key: "title", label: "Title" }, { key: "description", label: "Description" },
+  { key: "category_id", label: "Category (from mapped playlists)" }, { key: "duration_seconds", label: "Duration" },
+] as const;
+type SyncKey = (typeof SYNC_FIELDS)[number]["key"];
 
 const LANGS = [
   { code: "en", label: "English" }, { code: "kk", label: "Kazakh" }, { code: "ru", label: "Russian" }, { code: "es", label: "Spanish" },
@@ -21,6 +28,11 @@ export function LessonForm({ lesson, categories, canPublish }: { lesson?: Lesson
   const [, startSubmit] = useTransition();
   const videoId = useMemo(() => parseYouTubeUrl(url), [url]);
   const fe = state.fieldErrors ?? {};
+  const tracked = Boolean(lesson && (lesson.source === "youtube" || lesson.youtube.availability !== null));
+  const fromChannel = lesson?.source === "youtube";
+  const [sync, setSync] = useState<Record<SyncKey, boolean>>(() =>
+    Object.fromEntries(SYNC_FIELDS.map((f) => [f.key, !(lesson?.lockedFields ?? []).includes(f.key)])) as Record<SyncKey, boolean>);
+  const edited = (k: SyncKey) => { if (tracked) setSync((s) => ({ ...s, [k]: false })); };
 
   const input = "mt-1.5 block h-11 w-full rounded-md border border-line-strong bg-canvas px-3 text-[15px] focus:border-rule focus:outline-none aria-[invalid=true]:border-red-700";
   const label = "block text-[14px] font-medium text-ink";
@@ -41,18 +53,18 @@ export function LessonForm({ lesson, categories, canPublish }: { lesson?: Lesson
       <div className="space-y-6 lg:col-span-7">
         <div>
           <label htmlFor="youtube_url" className={label}>YouTube link</label>
-          <input id="youtube_url" name="youtube_url" type="url" inputMode="url" required value={url} onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://www.youtube.com/watch?v=… or https://youtu.be/…" className={input} {...aria("youtube_url")} />
+          <input id="youtube_url" name="youtube_url" type="url" inputMode="url" required value={url} onChange={(e) => setUrl(e.target.value)} readOnly={fromChannel}
+            placeholder="https://www.youtube.com/watch?v=… or https://youtu.be/…" className={`${input} read-only:bg-paper read-only:text-ink-muted`} {...aria("youtube_url")} />
           {err("youtube_url")}
           <p className="mt-1.5 text-[13px] text-ink-muted">
-            {url && !videoId ? "Not recognised as a YouTube video link." : videoId ? <>Video id <code className="text-ink">{videoId}</code></> : "Watch, youtu.be and Shorts links are accepted. Embed code is not."}
+            {fromChannel ? "Imported from our YouTube channel — the video of this lesson cannot be changed." : url && !videoId ? "Not recognised as a YouTube video link." : videoId ? <>Video id <code className="text-ink">{videoId}</code></> : "Watch, youtu.be and Shorts links are accepted. Embed code is not."}
           </p>
         </div>
 
         <div>
           <div className="flex items-end justify-between gap-4">
             <label htmlFor="title" className={label}>Title</label>
-            <button type="button" disabled={!videoId || fetching}
+            {!fromChannel && <button type="button" disabled={!videoId || fetching}
               onClick={() => startFetch(async () => {
                 setFetchMsg(null);
                 const r = await fetchYouTubeTitle(url);
@@ -61,10 +73,10 @@ export function LessonForm({ lesson, categories, canPublish }: { lesson?: Lesson
               })}
               className="link-rule text-[13px] text-tech disabled:opacity-40">
               {fetching ? "Fetching…" : "Fetch title from YouTube"}
-            </button>
+            </button>}
           </div>
           <input id="title" name="title" required maxLength={160} value={title}
-            onChange={(e) => { setTitle(e.target.value); if (!slugTouched) setSlug(slugify(e.target.value)); }} className={input} {...aria("title")} />
+            onChange={(e) => { setTitle(e.target.value); edited("title"); if (!slugTouched) setSlug(slugify(e.target.value)); }} className={input} {...aria("title")} />
           {err("title")}
           {fetchMsg && <p role="status" className="mt-1.5 text-[13px] text-ink-muted">{fetchMsg}</p>}
         </div>
@@ -82,17 +94,44 @@ export function LessonForm({ lesson, categories, canPublish }: { lesson?: Lesson
 
         <div>
           <label htmlFor="description" className={label}>Description <span className="font-normal text-ink-muted">(optional)</span></label>
-          <textarea id="description" name="description" rows={6} maxLength={4000} defaultValue={lesson?.description ?? ""}
+          <textarea id="description" name="description" rows={6} maxLength={4000} defaultValue={lesson?.description ?? ""} onChange={() => edited("description")}
             className="mt-1.5 block w-full rounded-md border border-line-strong bg-canvas px-3 py-2.5 text-[15px] leading-relaxed focus:border-rule focus:outline-none" />
           <p className="mt-1.5 text-[13px] text-ink-muted">Write it in the language of the video. Plain text; line breaks are kept.</p>
         </div>
       </div>
 
       <div className="space-y-6 lg:col-span-5">
+        {tracked && lesson && (
+          <section aria-labelledby="yt-sync" className="rounded-md border border-line bg-paper p-5">
+            <h2 id="yt-sync" className="t-label text-ink">{fromChannel ? "Imported from YouTube" : "Also on our YouTube channel"}</h2>
+            <p className="mt-1.5 text-[13px] text-ink-muted">
+              {lesson.youtube.syncedAt ? <>Last updated by the sync {new Date(lesson.youtube.syncedAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" })} UTC. </> : null}
+              {lesson.youtube.publishedAt ? <>Published on YouTube {new Date(lesson.youtube.publishedAt).toLocaleDateString("en-GB", { dateStyle: "medium", timeZone: "UTC" })}.</> : null}
+            </p>
+            {lesson.youtube.availability === "unavailable" && (
+              <p role="status" className="mt-3 border-l-2 border-red-700 bg-canvas px-3 py-2 text-[13px] text-ink">
+                Hidden from /learn: the video is {UNAVAILABLE_LABEL[lesson.youtube.unavailableReason ?? ""] ?? "unavailable"}. It reappears automatically when it is public again.
+              </p>
+            )}
+            {lesson.youtube.title && lesson.youtube.title !== lesson.title && <p className="mt-3 text-[13px] text-ink-muted">YouTube title: <span className="text-ink">{lesson.youtube.title}</span></p>}
+            <fieldset className="mt-4">
+              <legend className="text-[13px] font-semibold text-ink">Keep in sync with YouTube</legend>
+              <div className="mt-2 grid gap-1.5">
+                {SYNC_FIELDS.map((f) => (
+                  <label key={f.key} className="flex items-center gap-2.5 text-[14px]">
+                    <input type="checkbox" name={`sync_${f.key}`} checked={sync[f.key]} onChange={(e) => setSync((s) => ({ ...s, [f.key]: e.target.checked }))} className="accent-tech" />
+                    {f.label}{!sync[f.key] && <span className="text-[13px] text-ink-muted">— your version is kept</span>}
+                  </label>
+                ))}
+              </div>
+              <p className="mt-2 text-[13px] text-ink-muted">Editing a field unticks it, so the automatic sync never overwrites your changes. Tick a field again to take YouTube&apos;s version.</p>
+            </fieldset>
+          </section>
+        )}
         <div>
           <p className={label}>Preview</p>
           <div className="mt-1.5 border border-line">
-            {videoId ? <YouTubeThumb id={videoId} title={title || "Lesson"} /> : <div className="flex aspect-video items-center justify-center bg-soft text-[13px] text-ink-faint">Paste a link to preview</div>}
+            {videoId ? <YouTubeThumb id={videoId} title={title || "Lesson"} src={lesson && videoId === lesson.youtubeId ? lesson.thumbnailUrl : null} /> : <div className="flex aspect-video items-center justify-center bg-soft text-[13px] text-ink-faint">Paste a link to preview</div>}
           </div>
           {videoId && <a href={youTubeWatchUrl(videoId)} target="_blank" rel="noopener noreferrer" className="link-rule mt-2 inline-block text-[13px] text-tech">Open on YouTube ↗</a>}
         </div>
@@ -100,7 +139,7 @@ export function LessonForm({ lesson, categories, canPublish }: { lesson?: Lesson
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label htmlFor="category_id" className={label}>Category</label>
-            <select id="category_id" name="category_id" required defaultValue={lesson?.category.id ?? ""} className={input} {...aria("category_id")}>
+            <select id="category_id" name="category_id" required defaultValue={lesson?.category.id ?? ""} onChange={() => edited("category_id")} className={input} {...aria("category_id")}>
               <option value="" disabled>Choose…</option>
               {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
@@ -116,7 +155,7 @@ export function LessonForm({ lesson, categories, canPublish }: { lesson?: Lesson
           </div>
           <div>
             <label htmlFor="duration" className={label}>Duration <span className="font-normal text-ink-muted">(optional)</span></label>
-            <input id="duration" name="duration" placeholder="12:05" defaultValue={formatDuration(lesson?.durationSeconds ?? null) ?? ""} className={input} {...aria("duration")} />
+            <input id="duration" name="duration" placeholder="12:05" defaultValue={formatDuration(lesson?.durationSeconds ?? null) ?? ""} onChange={() => edited("duration_seconds")} className={input} {...aria("duration")} />
             {err("duration")}
           </div>
           <div>

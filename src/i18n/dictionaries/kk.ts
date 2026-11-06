@@ -90,6 +90,8 @@ const kk: DeepPartial<Dictionary> = {
     category: "Санат",
     duration: "Ұзақтығы",
     watchOnYouTube: "YouTube-та көру",
+    newLesson: "Жаңа",
+    publishedOn: "Жарияланған күні",
     play: "Бейнені қосу",
     related: "Басқа сабақтар",
     back: "Барлық сабақтар",

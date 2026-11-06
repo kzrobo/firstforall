@@ -21,6 +21,17 @@ export const lessonRowSchema = z.object({
   display_order: z.number().int(),
   published_at: z.string().nullable(),
   updated_at: z.string(),
+  // YouTube sync columns (absent before the 20261107 migration — defaults keep old databases working)
+  source: z.enum(["manual", "youtube"]).default("manual"),
+  locked_fields: z.array(z.string()).default([]),
+  thumbnail_url: z.string().nullable().default(null),
+  youtube_title: z.string().nullable().default(null),
+  youtube_description: z.string().nullable().default(null),
+  youtube_published_at: z.string().nullable().default(null),
+  youtube_duration_seconds: z.number().int().nullable().default(null),
+  youtube_availability: z.enum(["available", "unavailable"]).nullable().default(null),
+  youtube_unavailable_reason: z.string().nullable().default(null),
+  youtube_synced_at: z.string().nullable().default(null),
 });
 
 export interface LessonCategory { id: string; slug: string; name: string; names: Record<string, string>; order: number }
@@ -39,6 +50,22 @@ export interface Lesson {
   order: number;
   publishedAt: string | null;
   updatedAt: string;
+  /** "youtube" = imported automatically from the channel; "manual" = added in the admin */
+  source: "manual" | "youtube";
+  thumbnailUrl: string | null;
+  /** Editorial fields an admin changed; the sync no longer writes them */
+  lockedFields: string[];
+  /** YouTube's own values (null for lessons the sync has never seen) */
+  youtube: {
+    title: string | null; description: string | null; publishedAt: string | null; durationSeconds: number | null;
+    availability: "available" | "unavailable" | null; unavailableReason: string | null; syncedAt: string | null;
+  };
+}
+
+/** Fresh = published within the last 14 days (shown as "New" on /learn). */
+export function isNewLesson(l: Lesson, now = Date.now()): boolean {
+  const t = Date.parse(l.youtube.publishedAt ?? l.publishedAt ?? "");
+  return Number.isFinite(t) && now - t < 14 * 86_400_000 && now >= t;
 }
 
 export function categoryName(names: Record<string, string>, locale: string): string {

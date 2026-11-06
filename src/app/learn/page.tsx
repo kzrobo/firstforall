@@ -97,12 +97,12 @@ export default async function LearnPage({ searchParams }: Props) {
                   <h2 id={`cat-${c.slug}`} className="text-[22px] font-semibold tracking-[-0.02em] text-ink">{c.name}</h2>
                   <Link href={`/learn?category=${c.slug}`} className="link-arrow shrink-0 text-[15px] text-ink" scroll={false}>{inCat.length} {plural(locale, inCat.length, { one: L.lesson, few: L.lessonsFew, many: L.lessons })}</Link>
                 </div>
-                <LessonGrid lessons={inCat} lang={lang} />
+                <LessonGrid lessons={inCat} lang={lang} newLabel={L.newLesson} />
               </section>
             );
           })
         ) : rest.length > 0 ? (
-          <LessonGrid lessons={rest} lang={lang} />
+          <LessonGrid lessons={rest} lang={lang} newLabel={L.newLesson} />
         ) : null}
       </div>
     </>
@@ -114,10 +114,10 @@ function LessonTeaserMedia({ lesson }: { lesson: Lesson }) {
   return <LessonTeaser lesson={lesson} variant="lead" languageLabel="" headingLevel="h3" mediaOnly />;
 }
 
-function LessonGrid({ lessons, lang }: { lessons: Lesson[]; lang: (l: Lesson) => string }) {
+function LessonGrid({ lessons, lang, newLabel }: { lessons: Lesson[]; lang: (l: Lesson) => string; newLabel: string }) {
   return (
     <ul className="grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3 [&:not(:first-child)]:mt-8">
-      {lessons.map((l) => <li key={l.id}><LessonTeaser lesson={l} languageLabel={lang(l)} /></li>)}
+      {lessons.map((l) => <li key={l.id}><LessonTeaser lesson={l} languageLabel={lang(l)} newLabel={newLabel} /></li>)}
     </ul>
   );
 }

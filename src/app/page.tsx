@@ -149,7 +149,7 @@ export default async function HomePage() {
           </div>
           {lead && (
             <div className="mt-14 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-              {[lead, ...rest].slice(0, 3).map((l) => <LessonTeaser key={l.id} lesson={l} variant="standard" languageLabel={languageName(l.language, locale)} />)}
+              {[lead, ...rest].slice(0, 3).map((l) => <LessonTeaser key={l.id} lesson={l} variant="standard" languageLabel={languageName(l.language, locale)} newLabel={t.learn.newLesson} />)}
             </div>
           )}
         </div>

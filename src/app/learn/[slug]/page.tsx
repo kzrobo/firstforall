@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: l.title,
     description: l.description?.slice(0, 160) ?? `${l.category.name} — FTC Builder Academy by MAVERICKS`,
-    openGraph: { title: l.title, type: "video.other", images: [{ url: youTubeThumbnails(l.youtubeId).hq, width: 480, height: 360 }] },
+    openGraph: { title: l.title, type: "video.other", images: [l.thumbnailUrl ? { url: l.thumbnailUrl } : { url: youTubeThumbnails(l.youtubeId).hq, width: 480, height: 360 }] },
   };
 }
 
@@ -34,6 +34,8 @@ export default async function LessonPage({ params }: Props) {
     ...result.related.filter((l) => l.id !== lesson.id && l.category.id !== lesson.category.id),
   ].slice(0, 3);
   const duration = formatDuration(lesson.durationSeconds);
+  const publishedIso = lesson.youtube.publishedAt ?? lesson.publishedAt;
+  const published = publishedIso ? new Intl.DateTimeFormat(locale, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(publishedIso)) : null;
 
   return (
     <article>
@@ -46,7 +48,7 @@ export default async function LessonPage({ params }: Props) {
       </header>
 
       <div className="mx-auto mt-8 max-w-content px-0 sm:px-5 lg:mt-12 lg:px-10">
-        <VideoEmbed id={lesson.youtubeId} title={lesson.title} playLabel={L.play} />
+        <VideoEmbed id={lesson.youtubeId} title={lesson.title} playLabel={L.play} thumbnail={lesson.thumbnailUrl} />
       </div>
 
       <div className="mx-auto grid max-w-content gap-x-6 gap-y-10 px-5 pb-20 pt-10 lg:grid-cols-12 lg:px-10 lg:pb-28 lg:pt-14">
@@ -63,6 +65,7 @@ export default async function LessonPage({ params }: Props) {
             <dt className="border-b border-line py-3 text-ink-muted">{L.spokenLanguage}</dt>
             <dd className="border-b border-line py-3">{languageName(lesson.language, locale)}</dd>
             {duration && <><dt className="border-b border-line py-3 text-ink-muted">{L.duration}</dt><dd className="t-num border-b border-line py-3">{duration}</dd></>}
+            {published && <><dt className="border-b border-line py-3 text-ink-muted">{L.publishedOn}</dt><dd className="border-b border-line py-3"><time dateTime={publishedIso!}>{published}</time></dd></>}
           </dl>
           <a href={youTubeWatchUrl(lesson.youtubeId)} target="_blank" rel="noopener noreferrer" className="link-arrow mt-6 text-[15px] text-ink">{L.watchOnYouTube}</a>
         </aside>
@@ -76,7 +79,7 @@ export default async function LessonPage({ params }: Props) {
               <Link href="/learn" className="link-arrow text-[14px] text-ink">{L.back}</Link>
             </div>
             <ul className="mt-8 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-              {related.map((l) => <li key={l.id}><LessonTeaser lesson={l} languageLabel={languageName(l.language, locale)} /></li>)}
+              {related.map((l) => <li key={l.id}><LessonTeaser lesson={l} languageLabel={languageName(l.language, locale)} newLabel={L.newLesson} /></li>)}
             </ul>
           </div>
         </section>

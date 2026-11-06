@@ -90,6 +90,8 @@ const ru: DeepPartial<Dictionary> = {
     category: "Категория",
     duration: "Длительность",
     watchOnYouTube: "Смотреть на YouTube",
+    newLesson: "Новое",
+    publishedOn: "Опубликовано",
     play: "Воспроизвести видео",
     related: "Другие уроки",
     back: "Все уроки",

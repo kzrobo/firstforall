@@ -90,6 +90,8 @@ const es: DeepPartial<Dictionary> = {
     category: "Categoría",
     duration: "Duración",
     watchOnYouTube: "Ver en YouTube",
+    newLesson: "Nuevo",
+    publishedOn: "Publicado",
     play: "Reproducir vídeo",
     related: "Más lecciones",
     back: "Todas las lecciones",

@@ -3,8 +3,19 @@ import { cache } from "react";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { categoryName, categoryRowSchema, lessonRowSchema, sortLessons, type Lesson, type LessonCategory } from "./types";
 
-const LESSON_COLUMNS =
+const BASE_COLUMNS =
   "id, slug, youtube_id, title, description, category_id, language_code, duration_seconds, is_featured, status, display_order, published_at, updated_at";
+const SYNC_COLUMNS =
+  "source, locked_fields, thumbnail_url, youtube_title, youtube_description, youtube_published_at, youtube_duration_seconds, youtube_availability, youtube_unavailable_reason, youtube_synced_at";
+const LESSON_COLUMNS = `${BASE_COLUMNS}, ${SYNC_COLUMNS}`;
+/** 42703 = undefined column: the YouTube migration has not run on this database yet. */
+const missingSyncColumns = (code?: string) => code === "42703";
+type Rows = { data: unknown[] | null; error: { code?: string; message: string } | null };
+/** Runs a lessons query with the YouTube columns, retrying without them on a pre-migration database. */
+async function selectLessons(build: (columns: string) => PromiseLike<Rows>): Promise<Rows> {
+  const r = await build(LESSON_COLUMNS);
+  return r.error && missingSyncColumns(r.error.code) ? build(BASE_COLUMNS) : r;
+}
 
 export type LearnResult<T> = { ok: true; data: T } | { ok: false; reason: "not_configured" | "error"; message?: string };
 
@@ -35,6 +46,11 @@ function toLessons(rows: unknown[], categories: LessonCategory[]): Lesson[] {
       id: r.id, slug: r.slug, youtubeId: r.youtube_id, title: r.title, description: r.description, category,
       language: r.language_code, durationSeconds: r.duration_seconds, isFeatured: r.is_featured, status: r.status,
       order: r.display_order, publishedAt: r.published_at, updatedAt: r.updated_at,
+      source: r.source, thumbnailUrl: r.thumbnail_url, lockedFields: r.locked_fields,
+      youtube: {
+        title: r.youtube_title, description: r.youtube_description, publishedAt: r.youtube_published_at, durationSeconds: r.youtube_duration_seconds,
+        availability: r.youtube_availability, unavailableReason: r.youtube_unavailable_reason, syncedAt: r.youtube_synced_at,
+      },
     }];
   });
 }
@@ -44,7 +60,11 @@ export const listPublishedLessons = cache(async (locale: string): Promise<LearnR
   const cats = await listCategories(locale);
   if (!cats.ok) return cats;
   const supabase = (await createSupabaseServerClient())!;
-  const { data, error } = await supabase.from("lessons").select(LESSON_COLUMNS).eq("status", "published");
+  // Videos that became private or were removed on YouTube stay out of the public library.
+  const { data, error } = await selectLessons((cols) => {
+    const q = supabase.from("lessons").select(cols).eq("status", "published");
+    return cols === LESSON_COLUMNS ? q.or("youtube_availability.is.null,youtube_availability.eq.available") : q;
+  });
   if (error) return { ok: false, reason: "error", message: error.message };
   return { ok: true, data: { lessons: sortLessons(toLessons(data ?? [], cats.data)), categories: cats.data } };
 });
@@ -60,7 +80,7 @@ export async function listAllLessonsForAdmin(locale: string): Promise<LearnResul
   const cats = await loadCategories(locale);
   if (!cats.ok) return cats;
   const supabase = (await createSupabaseServerClient())!;
-  const { data, error } = await supabase.from("lessons").select(LESSON_COLUMNS).order("display_order").order("created_at", { ascending: false });
+  const { data, error } = await selectLessons((cols) => supabase.from("lessons").select(cols).order("display_order").order("created_at", { ascending: false }));
   if (error) return { ok: false, reason: "error", message: error.message };
   return { ok: true, data: { lessons: toLessons(data ?? [], cats.data), categories: cats.data } };
 }

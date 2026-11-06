@@ -3,16 +3,18 @@ import { useState } from "react";
 import { youTubeThumbnails } from "@/lib/learn/youtube";
 
 /**
- * YouTube thumbnail in a fixed 16:9 frame. Tries maxres, then hq (always present; its
- * letterbox bars are cropped by object-cover), then a typographic fallback.
+ * YouTube thumbnail in a fixed 16:9 frame. Tries the thumbnail the YouTube API reported (synced
+ * lessons), then maxres, then hq (always present; its letterbox bars are cropped by object-cover),
+ * then a typographic fallback.
  */
-export function YouTubeThumb({ id, title, priority = false, className = "" }: { id: string; title: string; priority?: boolean; className?: string }) {
+export function YouTubeThumb({ id, title, src: apiSrc = null, priority = false, className = "" }: { id: string; title: string; src?: string | null; priority?: boolean; className?: string }) {
   const urls = youTubeThumbnails(id);
-  const [stage, setStage] = useState<0 | 1 | 2>(0);
-  const src = stage === 0 ? urls.maxres : urls.hq;
+  const chain = [...new Set([apiSrc, urls.maxres, urls.hq].filter((u): u is string => Boolean(u)))];
+  const [stage, setStage] = useState(0);
+  const src = chain[stage];
   return (
     <span className={`img-zoom relative block aspect-video w-full overflow-hidden rounded-md bg-soft ${className}`}>
-      {stage < 2 ? (
+      {src ? (
         // eslint-disable-next-line @next/next/no-img-element -- YouTube's CDN already serves sized JPEGs
         <img
           src={src}
@@ -20,9 +22,9 @@ export function YouTubeThumb({ id, title, priority = false, className = "" }: { 
           loading={priority ? "eager" : "lazy"}
           decoding="async"
           className="absolute inset-0 size-full object-cover"
-          onError={() => setStage((s) => (s === 0 ? 1 : 2))}
+          onError={() => setStage((s) => s + 1)}
           // maxresdefault answers with a 120×90 grey placeholder instead of a 404 for some videos
-          onLoad={(e) => { if (stage === 0 && e.currentTarget.naturalWidth <= 120) setStage(1); }}
+          onLoad={(e) => { if (src === urls.maxres && e.currentTarget.naturalWidth <= 120) setStage((s) => s + 1); }}
         />
       ) : (
         <span aria-hidden className="absolute inset-0 flex items-end p-4 text-[15px] leading-snug text-ink-muted">{title}</span>

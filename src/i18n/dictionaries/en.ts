@@ -88,6 +88,8 @@ const en = {
     category: "Category",
     duration: "Duration",
     watchOnYouTube: "Watch on YouTube",
+    newLesson: "New",
+    publishedOn: "Published",
     play: "Play video",
     related: "More lessons",
     back: "All lessons",
