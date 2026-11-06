@@ -13,7 +13,9 @@ describe("database security invariants", () => {
     expect(sql).toMatch(/public reads published translations[\s\S]+m\.status = 'published'/);
   });
   it("keeps drafts in a private bucket", () => {
-    expect(sql).toContain("('manuals-draft',  'manuals-draft',  false");
+    // Whitespace-insensitive: the draft bucket row must say public = false.
+    expect(sql).toMatch(/\(\s*'manuals-draft'\s*,\s*'manuals-draft'\s*,\s*false\s*,/);
+    expect(sql).not.toMatch(/\(\s*'manuals-draft'\s*,\s*'manuals-draft'\s*,\s*true/);
   });
   it("invalidates AI indexing when a translation file changes", () => {
     expect(sql).toContain("new.ingestion_status = 'stale'");
