@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Hero } from "@/components/home/Hero";
+import { ProjectGallery } from "@/components/hub/ProjectGallery";
 import { LessonTeaser } from "@/components/learn/LessonTeaser";
 import { DocumentThumb } from "@/components/manuals/DocumentThumb";
 import { formatBytes, readerHref } from "@/components/manuals/format";
@@ -8,6 +9,7 @@ import { UI_LOCALES } from "@/i18n/config";
 import { getI18n } from "@/i18n/server";
 import { plural } from "@/i18n/plural";
 import { HUB_CATEGORIES, categoryTitle } from "@/lib/hub/categories";
+import { toGalleryItems } from "@/lib/hub/gallery";
 import { listPublishedEntries } from "@/lib/hub/repository";
 import { sortEntries } from "@/lib/hub/types";
 import { languageName, nativeLanguageName } from "@/lib/languages";
@@ -31,8 +33,8 @@ export default async function HomePage() {
   const lessons = learnResult.ok ? learnResult.data.lessons : [];
   const [lead, ...rest] = lessons;
 
-  const work = sortEntries(hubResult.ok ? hubResult.data : []).slice(0, 3);
-  const workImage = (e: (typeof work)[number]) => e.coverUrl ?? e.media[0]?.url ?? null;
+  // Published projects and collaborations that have a real image, newest featured first
+  const work = toGalleryItems(sortEntries(hubResult.ok ? hubResult.data : []), (e) => `/mavericks/${e.category}/${e.slug}`).slice(0, 9);
 
   return (
     <>
@@ -176,35 +178,21 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 5 · Work: published stories as editorial rows, then the seven directions as a directory */}
+      {/* 5 · Work: the layered project gallery (compact), then the seven directions as a directory */}
       <section aria-labelledby="work-title" className="border-t border-rule">
-        <div className="mx-auto max-w-content px-5 py-20 lg:px-10 lg:py-28">
+        <div className="mx-auto max-w-content px-5 pt-20 lg:px-10 lg:pt-28">
           <div className="grid gap-x-6 gap-y-4 lg:grid-cols-12">
             <h2 id="work-title" className="t-h2 text-ink lg:col-span-6">{H.workTitle}</h2>
             <p className="text-[17px] text-ink-muted lg:col-span-4 lg:col-start-9 lg:pt-2">{work.length ? H.workBody : H.workEmpty}</p>
           </div>
-          {work.length > 0 && (
-            <ul className="mt-12 grid gap-x-6 gap-y-12 md:grid-cols-3">
-              {work.map((e) => {
-                const img = workImage(e);
-                return (
-                  <li key={e.id}>
-                    <Link href={`/mavericks/${e.category}/${e.slug}`} className="group block">
-                      <span className="img-zoom relative block aspect-[4/3] overflow-hidden rounded-[3px] bg-paper">
-                        {img ? <Image src={img} alt="" fill sizes="(min-width: 768px) 30vw, 100vw" className="object-cover" />
-                          : e.logoUrl ? (
-                            // eslint-disable-next-line @next/next/no-img-element -- storage-hosted team logo
-                            <img src={e.logoUrl} alt="" className="absolute left-1/2 top-1/2 size-24 -translate-x-1/2 -translate-y-1/2 rounded-full object-contain" />
-                          ) : <span aria-hidden className="absolute inset-x-6 bottom-6 text-[15px] font-medium text-ink-muted">{t.hub.categories[e.category].tagline}</span>}
-                      </span>
-                      <span className="t-meta mt-4 block">{categoryTitle(e.category)}</span>
-                      <span className="mt-1.5 block text-[19px] font-semibold leading-snug tracking-[-0.015em] text-ink group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">{e.title}</span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
+        </div>
+        {work.length > 0 && (
+          <div className="mt-10 lg:mt-12">
+            <ProjectGallery items={work} compact label={H.workTitle}
+              labels={{ previous: t.hub.galleryPrev, next: t.hub.galleryNext, open: t.hub.galleryOpen, hint: t.hub.galleryHint, hintTouch: t.hub.galleryHintTouch, of: t.hub.imageOf }} />
+          </div>
+        )}
+        <div className="mx-auto max-w-content px-5 pb-20 lg:px-10 lg:pb-28">
           <div className="mt-16 grid gap-x-6 gap-y-6 lg:mt-24 lg:grid-cols-12">
             <h3 className="t-label text-ink lg:col-span-3">{H.directions}</h3>
             <ul className="grid gap-x-6 sm:grid-cols-2 lg:col-span-9">
