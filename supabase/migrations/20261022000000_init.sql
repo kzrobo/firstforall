@@ -174,9 +174,9 @@ create policy "super admins manage settings" on public.site_settings
 -- Storage: public bucket for published assets, private bucket for drafts
 -- ---------------------------------------------------------------------------
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types) values
-  ('manuals-public', 'manuals-public', true, 104857600, array['application/pdf']),
-  ('manuals-draft',  'manuals-draft',  false, 104857600, array['application/pdf']),
-  ('public-media',   'public-media',   true, 524288000, array['image/jpeg','image/png','image/webp','video/mp4'])
+('manuals-public', 'manuals-public', true, 52428800, array['application/pdf']),
+('manuals-draft', 'manuals-draft', false, 52428800, array['application/pdf']),
+('public-media', 'public-media', true, 52428800, array['image/jpeg','image/png','image/webp','video/mp4'])
 on conflict (id) do nothing;
 
 create policy "team writes manual files" on storage.objects
