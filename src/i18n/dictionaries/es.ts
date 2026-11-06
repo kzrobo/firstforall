@@ -175,6 +175,13 @@ const es: DeepPartial<Dictionary> = {
     notFound: "Esta página o documento no está publicado.",
   },
   hub: {
+    projectsTitle: "Proyectos y eventos",
+    projectsIntro: "Proyectos de ingeniería, iniciativas y eventos de MAVERICKS: elige uno para leer la historia completa.",
+    galleryOpen: "Abrir proyecto",
+    galleryPrev: "Proyecto anterior",
+    galleryNext: "Proyecto siguiente",
+    galleryHint: "Arrastra, desplázate de lado o acerca el cursor a los bordes. También funcionan las flechas del teclado.",
+    galleryHintTouch: "Desliza para explorar.",
     previousImage: "Imagen anterior",
     nextImage: "Imagen siguiente",
     imageOf: "de",

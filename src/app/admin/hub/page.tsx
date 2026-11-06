@@ -24,7 +24,10 @@ export default async function AdminHubPage({ searchParams }: Props) {
           <h1 className="t-h2 text-ink">MAVERICKS hub</h1>
           <p className="mt-2 text-[14px] text-ink-muted">Projects, collaborations, case studies, events and milestones. Only published entries are public; drafts can be incomplete.</p>
         </div>
-        <Link href={`/admin/hub/new${active ? `?category=${active}` : ""}`} className="btn-primary">New entry</Link>
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+          <Link href="/admin/hub/gallery" className="link-arrow text-[15px] text-ink">Preview gallery</Link>
+          <Link href={`/admin/hub/new${active ? `?category=${active}` : ""}`} className="btn-primary">New entry</Link>
+        </div>
       </div>
       <nav aria-label="Categories" className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-[14px]">
         {[null, ...HUB_CATEGORIES].map((c) => (

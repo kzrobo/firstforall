@@ -5,6 +5,8 @@ import { ConnectionsSection } from "@/components/hub/ConnectionsSection";
 import { AchievementsTimeline } from "@/components/hub/AchievementsTimeline";
 import { HubNav } from "@/components/hub/HubNav";
 import { EntryList } from "@/components/hub/parts";
+import { ProjectGallery } from "@/components/hub/ProjectGallery";
+import { toGalleryItems } from "@/lib/hub/gallery";
 import { getI18n } from "@/i18n/server";
 import { HUB_CATEGORIES, categoryTitle, isHubCategory } from "@/lib/hub/categories";
 import { countryName } from "@/lib/hub/countries";
@@ -33,6 +35,8 @@ export default async function CategoryPage({ params }: Props) {
   const names = Object.fromEntries(entries.map((e) => [e.id, countryName(e.countryCode, locale)]));
   const index = HUB_CATEGORIES.indexOf(category);
   const next = HUB_CATEGORIES[(index + 1) % HUB_CATEGORIES.length];
+  const gallery = toGalleryItems(entries, (e) => `/mavericks/${e.category}/${e.slug}`);
+  const showGallery = result.ok && category !== "connects" && category !== "achieves" && gallery.length >= 2;
   const lessons = category === "teaches" ? await listPublishedLessons(locale) : null;
 
   return (
@@ -48,7 +52,7 @@ export default async function CategoryPage({ params }: Props) {
         </div>
       </header>
 
-      <div className="mx-auto max-w-content px-5 pb-20 pt-12 lg:px-10 lg:pb-28 lg:pt-16">
+      <div className={`mx-auto max-w-content px-5 lg:px-10 ${showGallery ? "pt-10 lg:pt-12" : "pb-20 pt-12 lg:pb-28 lg:pt-16"}`}>
         {!result.ok ? (
           <p className="text-ink-muted">{H.notConfigured}</p>
         ) : category === "connects" ? (
@@ -66,12 +70,19 @@ export default async function CategoryPage({ params }: Props) {
               <div className="grid gap-x-6 border-t border-ink pt-8 lg:grid-cols-12"><p className="max-w-xl text-[18px] leading-relaxed text-ink-muted lg:col-span-6">{H.empty}</p></div>
             ) : category === "achieves" ? (
               <AchievementsTimeline entries={entries} t={t} locale={locale} names={names} />
-            ) : (
+            ) : showGallery ? null : (
               <EntryList entries={entries} t={t} locale={locale} names={names} />
             )}
           </>
         )}
       </div>
+
+      {showGallery && (
+        <div className="pb-20 lg:pb-28">
+          <ProjectGallery items={gallery} label={H.categories[category].tagline}
+            labels={{ previous: H.galleryPrev, next: H.galleryNext, open: H.galleryOpen, hint: H.galleryHint, hintTouch: H.galleryHintTouch, of: H.imageOf }} />
+        </div>
+      )}
 
       <nav aria-label={H.allCategories} className="border-t border-line">
         <div className="mx-auto flex max-w-content flex-wrap items-baseline justify-between gap-6 px-5 py-10 lg:px-10">

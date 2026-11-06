@@ -3,6 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { CategoryIndex } from "@/components/hub/CategoryIndex";
 import { HubNav } from "@/components/hub/HubNav";
+import { ProjectGallerySection } from "@/components/hub/ProjectGallerySection";
+import { toGalleryItems } from "@/lib/hub/gallery";
+import { sortEntries } from "@/lib/hub/types";
 import { TEAM } from "@/content/team";
 import { getI18n } from "@/i18n/server";
 import type { HubCategory } from "@/lib/hub/categories";
@@ -32,6 +35,8 @@ export default async function MavericksHubPage() {
         <h1 className="t-h1 text-ink lg:col-span-6">{H.title}</h1>
         <p className="t-lead max-w-xl text-ink-muted lg:col-span-5 lg:col-start-8 lg:pt-2">{H.intro}</p>
       </header>
+
+      <ProjectGallerySection t={t} items={toGalleryItems(sortEntries(entries.ok ? entries.data.filter((e) => e.category !== "connects") : []), (e) => `/mavericks/${e.category}/${e.slug}`)} />
 
       <section aria-label={H.title} className="mx-auto max-w-content px-5 pb-10 lg:px-10">
         <CategoryIndex t={t} counts={counts} images={images} />

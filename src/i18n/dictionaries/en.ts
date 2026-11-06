@@ -173,6 +173,13 @@ const en = {
     notFound: "This page or document is not published.",
   },
   hub: {
+    projectsTitle: "Projects and events",
+    projectsIntro: "Engineering projects, initiatives and events by MAVERICKS — select one to read the full story.",
+    galleryOpen: "Open project",
+    galleryPrev: "Previous project",
+    galleryNext: "Next project",
+    galleryHint: "Drag, scroll sideways or move to the edges to explore. Arrow keys work too.",
+    galleryHintTouch: "Swipe to explore.",
     previousImage: "Previous image",
     nextImage: "Next image",
     imageOf: "of",

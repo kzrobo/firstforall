@@ -175,6 +175,13 @@ const kk: DeepPartial<Dictionary> = {
     notFound: "Бұл бет немесе құжат жарияланбаған.",
   },
   hub: {
+    projectsTitle: "Жобалар мен іс-шаралар",
+    projectsIntro: "MAVERICKS-тің инженерлік жобалары, бастамалары мен іс-шаралары — толығырақ оқу үшін біреуін таңдаңыз.",
+    galleryOpen: "Жобаны ашу",
+    galleryPrev: "Алдыңғы жоба",
+    galleryNext: "Келесі жоба",
+    galleryHint: "Сүйреңіз, жанына айналдырыңыз немесе курсорды шетке апарыңыз. Көрсеткі пернелері де жұмыс істейді.",
+    galleryHintTouch: "Көру үшін сырғытыңыз.",
     previousImage: "Алдыңғы сурет",
     nextImage: "Келесі сурет",
     imageOf: "/",
