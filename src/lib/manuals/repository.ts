@@ -11,7 +11,7 @@ const SELECT = `id, slug, title, season, season_name, category, description, cov
 
 export type RepoResult<T> = { ok: true; data: T } | { ok: false; reason: "not_configured" | "error"; message?: string };
 
-function toManual(raw: unknown): Manual | null {
+function toManual(raw: unknown, opts: { includeDrafts?: boolean } = {}): Manual | null {
   const parsed = manualRowSchema.safeParse(raw);
   if (!parsed.success) return null;
   const row = parsed.data;
@@ -32,8 +32,9 @@ function toManual(raw: unknown): Manual | null {
     // Defence in depth: RLS already hides drafts from the public, but the public site
     // must never render a non-published translation even for a signed-in editor.
     translations: row.manual_translations
-      .filter((t) => t.status === "published")
+      .filter((t) => opts.includeDrafts || t.status === "published")
       .map((t) => ({
+        ...(opts.includeDrafts ? { status: t.status } : {}),
         id: t.id,
         language: t.language_code,
         isSource: t.is_source,
@@ -49,6 +50,28 @@ function toManual(raw: unknown): Manual | null {
   };
 }
 
+/** Team preview: every manual and translation the signed-in member may read (RLS decides), drafts included. Admin routes only. */
+export interface TeamManual { manual: Manual; status: "draft" | "in_review" | "published" | "archived" }
+
+export async function listManualsForTeam(): Promise<RepoResult<TeamManual[]>> {
+  const supabase = await createSupabaseServerClient();
+  if (!supabase) return { ok: false, reason: "not_configured" };
+  const { data, error } = await supabase.from("manuals").select(`status, ${SELECT}`).order("season", { ascending: false }).order("title");
+  if (error) return { ok: false, reason: "error", message: error.message };
+  return {
+    ok: true,
+    data: (data ?? []).flatMap((raw) => {
+      const manual = toManual(raw, { includeDrafts: true });
+      return manual ? [{ manual, status: (raw as { status: TeamManual["status"] }).status }] : [];
+    }),
+  };
+}
+
+export async function getManualForTeam(slug: string): Promise<RepoResult<TeamManual | null>> {
+  const r = await listManualsForTeam();
+  return r.ok ? { ok: true, data: r.data.find((m) => m.manual.slug === slug) ?? null } : r;
+}
+
 export const listPublishedManuals = cache(async (): Promise<RepoResult<Manual[]>> => {
   const supabase = await createSupabaseServerClient();
   if (!supabase) return { ok: false, reason: "not_configured" };
@@ -59,7 +82,7 @@ export const listPublishedManuals = cache(async (): Promise<RepoResult<Manual[]>
     .order("season", { ascending: false })
     .order("title");
   if (error) return { ok: false, reason: "error", message: error.message };
-  return { ok: true, data: (data ?? []).map(toManual).filter((m): m is Manual => m !== null) };
+  return { ok: true, data: (data ?? []).map((r) => toManual(r)).filter((m): m is Manual => m !== null) };
 });
 
 export const getPublishedManual = cache(async (slug: string): Promise<RepoResult<Manual | null>> => {

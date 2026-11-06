@@ -14,6 +14,9 @@ Community platform by MAVERICKS FTC #24034 for multilingual FTC documentation. N
    NEXT_PUBLIC_SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… node scripts/import-manuals.mjs import manuals.json   # as drafts
    ```
    Add `--publish` once reviewed. Files are uploaded byte-for-byte; existing languages are skipped, never overwritten.
+   Review drafts at **Admin → Manuals** (team-only preview reader). The BIOBUZZ 2026–2027 TU07 manifest (English source +
+   11 community translations) is `docs/manuals/biobuzz-2026-2027-tu07.manifest.json`; put the 12 PDFs in `docs/manuals/pdfs/`
+   (git-ignored) and run the commands above from the repository root.
 5. Hero video (only footage you have the rights to): apply the migrations, then on a trusted machine
    ```bash
    NEXT_PUBLIC_SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… node scripts/hero-video.mjs verify          # checks bucket + slots

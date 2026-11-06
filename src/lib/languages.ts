@@ -4,6 +4,15 @@ const KNOWN: Record<string, { english: string; native: string }> = {
   kk: { english: "Kazakh", native: "Қазақша" },
   ru: { english: "Russian", native: "Русский" },
   es: { english: "Spanish", native: "Español" },
+  // Community translation languages of the BIOBUZZ TU07 manual
+  id: { english: "Indonesian", native: "Bahasa Indonesia" },
+  "zh-Hans": { english: "Chinese (Simplified)", native: "简体中文" },
+  ja: { english: "Japanese", native: "日本語" },
+  ko: { english: "Korean", native: "한국어" },
+  pt: { english: "Portuguese", native: "Português" },
+  tr: { english: "Turkish", native: "Türkçe" },
+  uk: { english: "Ukrainian", native: "Українська" },
+  uz: { english: "Uzbek", native: "Oʻzbekcha" },
 };
 
 /**
@@ -11,10 +20,14 @@ const KNOWN: Record<string, { english: string; native: string }> = {
  * Node and browsers ship different CLDR data, which caused hydration mismatches in kk.
  */
 const NAMES: Record<string, Record<string, string>> = {
-  en: { en: "English", kk: "Kazakh", ru: "Russian", es: "Spanish" },
-  kk: { en: "Ағылшын", kk: "Қазақша", ru: "Орыс", es: "Испан" },
-  ru: { en: "Английский", kk: "Казахский", ru: "Русский", es: "Испанский" },
-  es: { en: "Inglés", kk: "Kazajo", ru: "Ruso", es: "Español" },
+  en: { en: "English", kk: "Kazakh", ru: "Russian", es: "Spanish",
+    id: "Indonesian", "zh-Hans": "Chinese (Simplified)", ja: "Japanese", ko: "Korean", pt: "Portuguese", tr: "Turkish", uk: "Ukrainian", uz: "Uzbek" },
+  kk: { en: "Ағылшын", kk: "Қазақша", ru: "Орыс", es: "Испан",
+    id: "Индонезия", "zh-Hans": "Қытай (жеңілдетілген)", ja: "Жапон", ko: "Корей", pt: "Португал", tr: "Түрік", uk: "Украин", uz: "Өзбек" },
+  ru: { en: "Английский", kk: "Казахский", ru: "Русский", es: "Испанский",
+    id: "Индонезийский", "zh-Hans": "Китайский (упрощённый)", ja: "Японский", ko: "Корейский", pt: "Португальский", tr: "Турецкий", uk: "Украинский", uz: "Узбекский" },
+  es: { en: "Inglés", kk: "Kazajo", ru: "Ruso", es: "Español",
+    id: "Indonesio", "zh-Hans": "Chino (simplificado)", ja: "Japonés", ko: "Coreano", pt: "Portugués", tr: "Turco", uk: "Ucraniano", uz: "Uzbeko" },
 };
 
 const BCP47 = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/;

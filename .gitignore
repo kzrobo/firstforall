@@ -44,3 +44,7 @@ yarn-error.log*
 next-env.d.ts
 
 !.env.example
+
+# Manual PDFs live in storage, never in git (scripts/import-manuals.mjs)
+/docs/manuals/pdfs/
+*.pdf

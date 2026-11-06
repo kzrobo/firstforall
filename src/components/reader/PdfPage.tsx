@@ -10,6 +10,9 @@ export const PdfPage = memo(function PdfPage({ doc, pageNumber, scale, aspect, l
   const canvas = useRef<HTMLCanvasElement>(null);
   const [visible, setVisible] = useState(false);
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
+  // PDF.js must not start a render on a canvas while a previous render on it is still unwinding
+  // (e.g. a zoom change mid-render); otherwise the new render throws and the page stays blank.
+  const inflight = useRef<RenderTask | null>(null);
 
   useEffect(() => {
     const el = slot.current;
@@ -24,6 +27,9 @@ export const PdfPage = memo(function PdfPage({ doc, pageNumber, scale, aspect, l
     let task: RenderTask | null = null;
     let cancelled = false;
     (async () => {
+      const previous = inflight.current;
+      if (previous) { previous.cancel(); await previous.promise.catch(() => undefined); }
+      if (cancelled) return;
       const page = await doc.getPage(pageNumber);
       if (cancelled || !canvas.current) return;
       const viewport = page.getViewport({ scale });
@@ -33,7 +39,9 @@ export const PdfPage = memo(function PdfPage({ doc, pageNumber, scale, aspect, l
       c.height = Math.floor(viewport.height * ratio);
       setSize({ w: viewport.width, h: viewport.height });
       task = page.render({ canvasContext: c.getContext("2d")!, viewport, transform: ratio !== 1 ? [ratio, 0, 0, ratio, 0, 0] : undefined });
-      await task.promise.catch(() => undefined);
+      inflight.current = task;
+      await task.promise.catch((e: Error) => { if (e?.name !== "RenderingCancelledException") console.warn(`[reader] page ${pageNumber} render failed: ${e?.message}`); });
+      if (inflight.current === task) inflight.current = null;
     })();
     return () => { cancelled = true; task?.cancel(); };
   }, [visible, doc, pageNumber, scale]);

@@ -124,4 +124,4 @@ for (const [slug, group] of Object.entries(bySlug)) {
     console.log(`  ✓ ${slug} [${e.language}] ${r.pages} pages → manuals-public/${filePath}`);
   }
 }
-console.log(publish ? "\n✓ Imported and published." : "\n✓ Imported as drafts. Review in the reader as a team member, then publish.");
+console.log(publish ? "\n✓ Imported and published." : "\n✓ Imported as drafts. Review them at /admin/manuals (team draft preview), then publish.");

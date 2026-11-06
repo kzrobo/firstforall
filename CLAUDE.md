@@ -18,7 +18,7 @@ Next.js 15 App Router · TypeScript strict · Tailwind v4 (tokens in `src/app/gl
 - `src/i18n/` — UI locales en/kk/ru/es; dictionaries fall back to English. UI language ≠ document language.
 - `src/lib/manuals/` — Zod types, server repository (published only), pure filter + reader-nav logic.
 - `src/components/reader/` — PDF.js reader (lazy page rendering, outline, search, zoom). Every `getDocument` uses `PDF_OPTIONS` (cmaps + standard fonts copied to `public/pdfjs` by `scripts/copy-pdfjs-assets.mjs`); without them non-embedded CJK text silently disappears.
-- `scripts/import-manuals.mjs` — validate/import real manual PDFs from a manifest (unmodified files, draft by default, never overwrites).
+- `scripts/import-manuals.mjs` — validate/import real manual PDFs from a manifest (unmodified files, draft by default, never overwrites). Manifests live in `docs/manuals/`; PDFs never go into git. Drafts are reviewed at `/admin/manuals` (team-only preview reader, same component via `basePath`).
 - `src/lib/learn/` + `src/app/learn`, `src/app/admin/lessons` — LEARN (YouTube lessons). Only validated 11-char video ids are stored; embeds are click-to-play youtube-nocookie.
 - `src/app/mavericks/team` — the 14-member roster (`src/content/team.ts`; `lead` = documented leadership, `verify` = still to confirm, never shown). `HubNav` links overview · seven directions · team.
 - `src/lib/hub/` + `src/app/mavericks`, `src/app/admin/hub` — MAVERICKS hub (7 editorial categories, not FIRST award titles). `hub_entries` table; per-category sections in `categories.ts`. Connects globe = `src/components/hub/globe/` (react-globe.gl, client-only; origin Shymkent; city coords only when entered, else country centroid labelled as such; the archive list is the keyboard path).

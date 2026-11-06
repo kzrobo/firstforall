@@ -50,6 +50,8 @@ export interface ManualTranslation {
   fileUrl: string;
   sectionMap: SectionMap | null;
   publishedAt: string | null;
+  /** Only filled for the team draft preview; public pages only ever see published translations. */
+  status?: "draft" | "in_review" | "published" | "archived";
 }
 
 export interface Manual {

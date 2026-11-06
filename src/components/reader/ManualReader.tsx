@@ -21,9 +21,19 @@ interface Props {
   initialPage: number;
   t: Dictionary["reader"];
   locale: string;
+  /** Where the reader lives (default: the public /manuals/<slug>/read). The team draft preview passes its own path. */
+  basePath?: string;
+  /** Target of the title link (default: the public manual page). */
+  backHref?: string;
 }
 
-export function ManualReader({ manual, translations, current, initialPage, t, locale }: Props) {
+export function ManualReader({ manual, translations, current, initialPage, t, locale, basePath, backHref }: Props) {
+  const hrefFor = useCallback((lang: string, page?: number) => {
+    if (!basePath) return readerHref(manual.slug, lang, page);
+    const qs = new URLSearchParams({ lang });
+    if (page && page > 1) qs.set("page", String(page));
+    return `${basePath}?${qs}`;
+  }, [basePath, manual.slug]);
   const router = useRouter();
   const params = useSearchParams();
   const root = useRef<HTMLDivElement>(null);
@@ -136,8 +146,8 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
   // Keep the URL shareable (?lang=&page=) without adding history entries
   useEffect(() => {
     if (!doc) return;
-    window.history.replaceState(window.history.state, "", readerHref(manual.slug, current.language, page));
-  }, [page, doc, manual.slug, current.language]);
+    window.history.replaceState(window.history.state, "", hrefFor(current.language, page));
+  }, [page, doc, current.language, hrefFor]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -197,7 +207,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
     const to = translations.find((tr) => tr.language === lang);
     if (!to || to.id === current.id) return;
     const { page: p, mapped } = mapPageAcrossTranslations(current, to, page);
-    router.push(readerHref(manual.slug, lang, p) + (mapped ? "" : "&r=1"));
+    router.push(hrefFor(lang, p) + (mapped ? "" : "&r=1"));
   };
 
   const runSearch = async (e: React.FormEvent) => {
@@ -256,7 +266,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
           <button type="button" className={iconBtn} aria-expanded={panelOpen} onClick={() => setPanelOpen((v) => !v)} title={t.toc}>
             <span className="sr-only">{t.toc}</span><Icon name="toc" />
           </button>
-          <Link href={`/manuals/${manual.slug}`} className="ml-1 hidden max-w-[26ch] truncate text-[14px] font-semibold text-ink hover:underline xl:block" title={t.back}>
+          <Link href={backHref ?? `/manuals/${manual.slug}`} className="ml-1 hidden max-w-[26ch] truncate text-[14px] font-semibold text-ink hover:underline xl:block" title={t.back}>
             {manual.title}
           </Link>
           {divider}
