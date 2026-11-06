@@ -8,7 +8,7 @@ import { passesSiteLock } from "@/lib/site-lock";
  */
 export async function middleware(request: NextRequest) {
   const password = process.env.SITE_ACCESS_PASSWORD;
-  if (!passesSiteLock(request.nextUrl.pathname, request.headers.get("authorization"), password)) {
+  if (!passesSiteLock(request.nextUrl.pathname, request.headers.get("authorization"), password, process.env.SITE_ACCESS_QA_PASSWORD)) {
     return new NextResponse("This FIRST FOR ALL preview is private. Sign in with the team password.", {
       status: 401,
       headers: { "WWW-Authenticate": 'Basic realm="FIRST FOR ALL preview", charset="UTF-8"', "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" },

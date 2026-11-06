@@ -19,6 +19,13 @@ describe("private-preview gate", () => {
   it("accepts passwords containing colons and non-ASCII-safe base64 only", () => {
     expect(passesSiteLock("/", basic("team", "a:b:c"), "a:b:c")).toBe(true);
   });
+  it("accepts a second (temporary QA) password only while the team password gate is on", () => {
+    expect(passesSiteLock("/", basic("qa", "qa-temp"), "team-pw", "qa-temp")).toBe(true);
+    expect(passesSiteLock("/", basic("qa", "team-pw"), "team-pw", "qa-temp")).toBe(true);
+    expect(passesSiteLock("/", basic("qa", "other"), "team-pw", "qa-temp")).toBe(false);
+    expect(passesSiteLock("/", basic("qa", ""), "team-pw", "")).toBe(false);
+    expect(passesSiteLock("/", null, undefined, "qa-temp")).toBe(true); // no team password = public site
+  });
   it("lets the scheduled sync through (it has its own CRON_SECRET)", () => {
     expect(passesSiteLock("/api/cron/youtube-sync", null, "s3cret-team")).toBe(true);
     expect(passesSiteLock("/api/other", null, "s3cret-team")).toBe(false);

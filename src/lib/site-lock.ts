@@ -15,8 +15,12 @@ function safeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-/** True when the request may pass: gate off, exempt path, or the right password. */
-export function passesSiteLock(pathname: string, authorization: string | null, password: string | undefined): boolean {
+/**
+ * True when the request may pass: gate off, exempt path, or one of the accepted passwords.
+ * `password` is the team password; `extra` is an optional second one (e.g. a temporary QA password
+ * that is removed after testing). The gate is on whenever the team password is set.
+ */
+export function passesSiteLock(pathname: string, authorization: string | null, password: string | undefined, extra?: string): boolean {
   if (!password) return true;
   if (GATE_EXEMPT.some((r) => r.test(pathname))) return true;
   const m = /^Basic\s+([A-Za-z0-9+/=]+)$/i.exec(authorization ?? "");
@@ -24,5 +28,7 @@ export function passesSiteLock(pathname: string, authorization: string | null, p
   let decoded = "";
   try { decoded = atob(m[1]); } catch { return false; }
   const i = decoded.indexOf(":");
-  return i >= 0 && safeEqual(decoded.slice(i + 1), password);
+  if (i < 0) return false;
+  const given = decoded.slice(i + 1);
+  return safeEqual(given, password) || (Boolean(extra) && safeEqual(given, extra!));
 }
