@@ -49,7 +49,8 @@ scheduler (hourly) ──POST + Bearer CRON_SECRET──▶ /api/cron/youtube-sy
    - `YOUTUBE_API_KEY` — the key from step 2
    - `SUPABASE_SERVICE_ROLE_KEY` — Supabase → *Project settings → API → service_role*
    - `CRON_SECRET` — a long random string, e.g. `openssl rand -hex 32`
-4. **Turn on the schedule** — choose one:
+4. **Turn on the schedule** — `vercel.json` already defines a **daily Vercel Cron** (04:17 UTC; Hobby plans allow
+   one run per day). For hourly runs, use one of these as well:
    - **GitHub Actions (included, any host):** add repository secrets `SITE_URL` (e.g. `https://…`) and
      `CRON_SECRET` (same value as step 3). `.github/workflows/youtube-sync.yml` then runs hourly; until
      both secrets exist it only prints a notice. Run it once by hand from the *Actions* tab.
