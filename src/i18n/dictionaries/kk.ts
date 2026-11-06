@@ -175,6 +175,11 @@ const kk: DeepPartial<Dictionary> = {
     notFound: "Бұл бет немесе құжат жарияланбаған.",
   },
   hub: {
+    previousImage: "Алдыңғы сурет",
+    nextImage: "Келесі сурет",
+    imageOf: "/",
+    images: "Суреттер",
+    draftPreview: "Жоба нұсқасы — бұл бетті тек команда көреді. Жарияланғанға дейін ол көпшілікке ашық емес.",
     next: "Келесі",
     overview: "Шолу",
     kicker: "MAVERICKS әлемі",

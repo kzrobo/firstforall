@@ -173,6 +173,11 @@ const en = {
     notFound: "This page or document is not published.",
   },
   hub: {
+    previousImage: "Previous image",
+    nextImage: "Next image",
+    imageOf: "of",
+    images: "Images",
+    draftPreview: "Draft preview — only the team can see this page. Nothing here is public until it is published.",
     next: "Next",
     overview: "Overview",
     kicker: "The MAVERICKS universe",

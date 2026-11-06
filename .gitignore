@@ -48,3 +48,6 @@ next-env.d.ts
 # Manual PDFs live in storage, never in git (scripts/import-manuals.mjs)
 /docs/manuals/pdfs/
 *.pdf
+# Hub import images live in storage, never in git (scripts/import-hub.mjs)
+/docs/hub/images/
+*.zip

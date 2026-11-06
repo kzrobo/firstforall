@@ -175,6 +175,11 @@ const es: DeepPartial<Dictionary> = {
     notFound: "Esta página o documento no está publicado.",
   },
   hub: {
+    previousImage: "Imagen anterior",
+    nextImage: "Imagen siguiente",
+    imageOf: "de",
+    images: "Imágenes",
+    draftPreview: "Vista previa del borrador: solo el equipo puede ver esta página. Nada es público hasta que se publique.",
     next: "Siguiente",
     overview: "Resumen",
     kicker: "El universo MAVERICKS",

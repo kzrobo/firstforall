@@ -5,7 +5,8 @@ export const mediaItemSchema = z.object({
   path: z.string().min(1).max(300),
   alt: z.string().max(300).default(""),
   caption: z.string().max(300).optional(),
-  kind: z.enum(["photo", "screenshot"]).default("photo"),
+  /** photo = photograph, screenshot = call screenshot, graphic = designed post/slide/poster */
+  kind: z.enum(["photo", "screenshot", "graphic"]).default("photo"),
 });
 export const milestoneSchema = z.object({ date: z.string().max(20), label: z.string().min(1).max(200) });
 
@@ -40,7 +41,7 @@ export const hubRowSchema = z.object({
   updated_at: z.string(),
 });
 
-export interface HubMedia { url: string; path: string; alt: string; caption: string | null; kind: "photo" | "screenshot" }
+export interface HubMedia { url: string; path: string; alt: string; caption: string | null; kind: "photo" | "screenshot" | "graphic" }
 export interface Milestone { date: string; label: string }
 
 export interface HubEntry {

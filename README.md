@@ -38,6 +38,15 @@ Sign in at `/login`, open **Admin → Lessons → Add lesson**, paste a YouTube 
 category and spoken language, then save as draft or publish (founders and editors with `can_publish`). Apply
 `supabase/migrations/20261101000000_learn.sql` first; it creates the tables, policies and the four starter categories.
 
+## Importing projects and events
+Describe entries in a manifest (example: `docs/hub/drive-2026-11-06.manifest.json`; text only as printed in the team's
+materials, unknown facts left out), put the images next to it, then:
+```bash
+node scripts/import-hub.mjs validate docs/hub/<manifest>.json
+NEXT_PUBLIC_SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… node scripts/import-hub.mjs import docs/hub/<manifest>.json
+```
+Entries arrive as drafts; review them under **Admin → MAVERICKS hub → Preview**, add missing facts, then publish.
+
 ## Team page
 `/mavericks/team` shows the roster from `src/content/team.ts` (names and roles exactly as in the team's posts). Entries with
 `verify` still need confirmation from the team before launch (spellings of Kaussar, Asqar, Erdaulet; Adem's role "Cader").

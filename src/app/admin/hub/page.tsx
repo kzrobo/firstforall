@@ -76,6 +76,7 @@ export default async function AdminHubPage({ searchParams }: Props) {
                         )}
                       </>
                     )}
+                    <Link href={`/admin/hub/${e.id}/preview`} className="link-rule mr-4 text-ink-muted">Preview</Link>
                     {e.status === "published" && <Link href={`/mavericks/${e.category}/${e.slug}`} className="link-rule mr-4 text-ink-muted">View</Link>}
                     {session?.canPublish && <HubDeleteButton id={e.id} title={e.title} action={deleteHubEntry} />}
                   </td>

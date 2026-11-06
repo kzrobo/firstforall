@@ -89,14 +89,16 @@ export async function saveHubEntry(_prev: HubFormState, form: FormData): Promise
   }
 
   // Existing media: keep, edit alt/caption/kind, or remove.
-  const kept: { path: string; alt: string; caption?: string; kind: "photo" | "screenshot" }[] = [];
+  type Kind = "photo" | "screenshot" | "graphic";
+  const asKind = (v: string): Kind => (v === "screenshot" || v === "graphic" ? v : "photo");
+  const kept: { path: string; alt: string; caption?: string; kind: Kind }[] = [];
   const count = Number(get("media_count")) || 0;
   for (let i = 0; i < Math.min(count, 60); i++) {
     const path = get(`media_${i}_path`);
     if (!path.startsWith("hub/") || form.get(`media_${i}_remove`) === "on") continue;
     const alt = get(`media_${i}_alt`).trim().slice(0, 300);
     if (!alt) return { fieldErrors: { media: "Every image needs a short description (alt text)." } };
-    kept.push({ path, alt, caption: get(`media_${i}_caption`).trim().slice(0, 300) || undefined, kind: get(`media_${i}_kind`) === "screenshot" ? "screenshot" : "photo" });
+    kept.push({ path, alt, caption: get(`media_${i}_caption`).trim().slice(0, 300) || undefined, kind: asKind(get(`media_${i}_kind`)) });
   }
 
   const newMedia = files(form, "new_media");
@@ -121,7 +123,7 @@ export async function saveHubEntry(_prev: HubFormState, form: FormData): Promise
   for (const f of newMedia) {
     const r = await upload(supabase, f, folder);
     if ("error" in r) return { fieldErrors: { media: r.error } };
-    kept.push({ path: r.path!, alt: newAlt, kind: get("new_media_kind") === "screenshot" ? "screenshot" : "photo" });
+    kept.push({ path: r.path!, alt: newAlt, kind: asKind(get("new_media_kind")) });
   }
 
   if (v.is_featured) {
