@@ -180,7 +180,7 @@ const es: DeepPartial<Dictionary> = {
     galleryOpen: "Abrir proyecto",
     galleryPrev: "Proyecto anterior",
     galleryNext: "Proyecto siguiente",
-    galleryHint: "Arrastra, desplázate de lado o acerca el cursor a los bordes. También funcionan las flechas del teclado.",
+    galleryHint: "Arrastra o desplázate de lado para explorar. También funcionan las flechas del teclado.",
     galleryHintTouch: "Desliza para explorar.",
     previousImage: "Imagen anterior",
     nextImage: "Imagen siguiente",

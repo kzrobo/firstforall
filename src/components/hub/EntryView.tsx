@@ -57,55 +57,51 @@ export function EntryView({ e, related, t, locale, country, preview = false }: {
     </>
   );
   const hasFacts = e.collaborators.length > 0 || e.milestones.length > 0 || (category === "connects" && Boolean(e.teamName || e.teamNumber || country));
-  const summary = e.summary && <p className="text-[clamp(1.125rem,1.6vw,1.375rem)] leading-[1.55] tracking-[-0.01em] text-ink">{e.summary}</p>;
-  const sectionList = sections.length > 0 && (
-    <div className="space-y-10">
-      {sections.map((k) => (
-        <section key={k} className="grid gap-x-6 gap-y-3 border-t border-line pt-5 md:grid-cols-8">
-          <h2 className="t-h3 text-ink md:col-span-2">{t.hub.sections[k]}</h2>
-          <p className="whitespace-pre-line text-[16px] leading-[1.75] text-ink-muted md:col-span-6">{e.sections[k]}</p>
-        </section>
-      ))}
+
+  // The written side of the spread: name, category, introduction, the category's story sections, facts.
+  const story = (
+    <div className="min-w-0">
+      <nav aria-label="Breadcrumb" className="t-meta">
+        <Link href="/mavericks" className="hover:text-ink">MAVERICKS</Link> <span aria-hidden>/</span>{" "}
+        <Link href={`/mavericks/${category}`} className="hover:text-ink">{categoryTitle(category)}</Link>
+      </nav>
+      {category === "connects" && e.logoUrl && (
+        // eslint-disable-next-line @next/next/no-img-element -- partner team logo from storage
+        <img src={e.logoUrl} alt={`${e.teamName ?? e.title} logo`} className="mt-6 size-16 rounded-full bg-white object-contain p-1 ring-1 ring-line" />
+      )}
+      <h1 className="font-display mt-4 max-w-[18ch] text-[clamp(1.875rem,2.9vw,2.75rem)] font-medium leading-[1.06] tracking-[-0.035em] text-ink">{e.title}</h1>
+      {e.subtitle && <p className="mt-4 max-w-xl text-[clamp(1.0625rem,1.3vw,1.1875rem)] leading-relaxed text-ink-muted">{e.subtitle}</p>}
+      <div className="mt-5 empty:hidden"><EntryMeta e={e} t={t} locale={locale} countryName={country} /></div>
+      {e.summary && <p className="mt-8 max-w-[40rem] text-[17px] leading-[1.7] text-ink">{e.summary}</p>}
+      {sections.length > 0 && (
+        <div className="mt-10 max-w-[40rem] space-y-7">
+          {sections.map((k) => (
+            <section key={k} className="border-t border-line pt-5">
+              <h2 className="t-label text-ink">{t.hub.sections[k]}</h2>
+              <p className="mt-2.5 whitespace-pre-line text-[16px] leading-[1.75] text-ink-muted">{e.sections[k]}</p>
+            </section>
+          ))}
+        </div>
+      )}
+      {hasFacts && <div className="mt-10 max-w-[40rem] space-y-10">{facts}</div>}
     </div>
   );
 
   return (
     <article>
       {preview && <p role="status" className="border-b border-line bg-mist px-5 py-3 text-center text-[15px] font-medium text-navy lg:px-10">{t.hub.draftPreview}</p>}
-      <header className="mx-auto max-w-content px-5 pt-10 lg:px-10 lg:pt-16">
-        <nav aria-label="Breadcrumb" className="t-index">
-          <Link href="/mavericks" className="hover:text-ink">MAVERICKS</Link> <span aria-hidden>/</span>{" "}
-          <Link href={`/mavericks/${category}`} className="hover:text-ink">{categoryTitle(category)}</Link>
-        </nav>
-        <div className="mt-8 grid gap-x-6 gap-y-6 lg:grid-cols-12 lg:items-end">
-          <div className="lg:col-span-8">
-            {category === "connects" && e.logoUrl && (
-              // eslint-disable-next-line @next/next/no-img-element -- partner team logo from storage
-              <img src={e.logoUrl} alt={`${e.teamName ?? e.title} logo`} className="mb-6 size-16 rounded-full bg-white object-contain p-1 ring-1 ring-line" />
-            )}
-            <h1 className="t-h1 max-w-[20ch] text-ink">{e.title}</h1>
-            {e.subtitle && <p className="t-lead mt-4 max-w-2xl text-ink-muted">{e.subtitle}</p>}
+      <div className="mx-auto max-w-content px-5 pb-16 pt-8 lg:px-10 lg:pb-24 lg:pt-14">
+        {slides.length > 0 ? (
+          // Desktop: the project's own carousel on the left, its story on the right. Phone: carousel first.
+          <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:gap-16">
+            <EntryCarousel items={slides} className="lg:sticky lg:top-24 lg:max-w-[58%] lg:flex-none" label={`${e.title} — ${t.hub.images}`}
+              labels={{ previous: t.hub.previousImage, next: t.hub.nextImage, of: t.hub.imageOf }} />
+            <div className="min-w-0 flex-1 lg:pt-2">{story}</div>
           </div>
-          <div className="lg:col-span-4"><EntryMeta e={e} t={t} locale={locale} countryName={country} /></div>
-        </div>
-      </header>
-
-      {slides.length > 0 ? (
-        <div className="mx-auto max-w-content px-5 pb-16 pt-10 lg:px-10 lg:pb-24 lg:pt-14">
-          <div className="grid grid-cols-[minmax(0,1fr)] gap-x-6 gap-y-10 lg:grid-cols-12">
-            <div className="min-w-0 lg:col-span-7"><EntryCarousel items={slides} label={`${e.title} — ${t.hub.images}`} labels={{ previous: t.hub.previousImage, next: t.hub.nextImage, of: t.hub.imageOf }} /></div>
-            {(summary || hasFacts) && <aside className="space-y-10 lg:col-span-4 lg:col-start-9">{summary}{facts}</aside>}
-          </div>
-          {sectionList && <div className="mt-16 lg:mt-24 lg:w-2/3">{sectionList}</div>}
-        </div>
-      ) : (
-        <div className="mx-auto max-w-content px-5 py-16 lg:px-10 lg:py-24">
-          <div className="grid gap-x-6 gap-y-12 lg:grid-cols-12">
-            <div className="space-y-12 lg:col-span-8">{summary}{sectionList}</div>
-            {hasFacts && <aside className="space-y-10 lg:col-span-3 lg:col-start-10">{facts}</aside>}
-          </div>
-        </div>
-      )}
+        ) : (
+          <div className="max-w-3xl">{story}</div>
+        )}
+      </div>
 
       {(e.videoId || screenshots.length > 0) && (
         <div className="mx-auto max-w-content px-5 pb-16 lg:px-10 lg:pb-24">

@@ -180,7 +180,7 @@ const kk: DeepPartial<Dictionary> = {
     galleryOpen: "Жобаны ашу",
     galleryPrev: "Алдыңғы жоба",
     galleryNext: "Келесі жоба",
-    galleryHint: "Сүйреңіз, жанына айналдырыңыз немесе курсорды шетке апарыңыз. Көрсеткі пернелері де жұмыс істейді.",
+    galleryHint: "Сүйреңіз немесе жанына айналдырыңыз. Көрсеткі пернелері де жұмыс істейді.",
     galleryHintTouch: "Көру үшін сырғытыңыз.",
     previousImage: "Алдыңғы сурет",
     nextImage: "Келесі сурет",

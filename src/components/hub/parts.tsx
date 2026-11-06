@@ -25,6 +25,7 @@ export function StageTag({ stage, t }: { stage: HubEntry["stage"]; t: Dictionary
 /** One line of facts under a title: stage · date · place · team number. */
 export function EntryMeta({ e, t, locale, countryName }: { e: HubEntry; t: Dictionary; locale: string; countryName: string | null }) {
   const bits = [formatEventDate(e.eventDate, locale), e.season, [e.city, countryName].filter(Boolean).join(", ") || null, e.teamNumber ? `FTC #${e.teamNumber}` : null].filter(Boolean);
+  if (!e.stage && !bits.length) return null;
   return (
     <p className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[15px] text-ink-muted">
       <StageTag stage={e.stage} t={t} />

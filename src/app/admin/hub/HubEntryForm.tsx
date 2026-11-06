@@ -148,10 +148,16 @@ export function HubEntryForm({ entry, initialCategory, countries, others, canPub
                 <input type="hidden" name={`media_${i}_path`} value={m.path} />
                 <input name={`media_${i}_alt`} defaultValue={m.alt} aria-label="Alt text" placeholder="Alt text (required)" className="h-9 w-full rounded-md border border-line-strong bg-canvas px-2 text-[14px]" />
                 <input name={`media_${i}_caption`} defaultValue={m.caption ?? ""} aria-label="Caption" placeholder="Caption (optional)" className="h-9 w-full rounded-md border border-line-strong bg-canvas px-2 text-[14px]" />
-                <div className="flex items-center gap-4 text-[13px]">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px]">
+                  <label className="flex items-center gap-2">Position
+                    <input type="number" name={`media_${i}_order`} defaultValue={i + 1} min={1} max={60} className="h-8 w-16 rounded-md border border-line-strong bg-canvas px-2" />
+                  </label>
                   <select name={`media_${i}_kind`} defaultValue={m.kind} aria-label="Image type" className="h-8 rounded-md border border-line-strong bg-canvas px-2"><option value="photo">Photo</option><option value="screenshot">Call screenshot</option><option value="graphic">Graphic / slide</option></select>
                   <label className="flex items-center gap-2 text-red-700"><input type="checkbox" name={`media_${i}_remove`} className="accent-tech" />Remove</label>
                 </div>
+                <label className="block text-[13px] text-ink-muted">Replace with a new file
+                  <input type="file" name={`media_${i}_replace`} accept="image/jpeg,image/png,image/webp" className="mt-1 block w-full text-[13px] file:mr-3 file:h-8 file:border-0 file:bg-soft file:px-3 file:text-ink" />
+                </label>
               </div>
             </div>
           ))}
@@ -162,7 +168,7 @@ export function HubEntryForm({ entry, initialCategory, countries, others, canPub
               <input name="new_media_alt" placeholder="Describe these images (alt text)" aria-label="Alt text for new images" className="h-10 rounded-md border border-line-strong bg-canvas px-3 text-[14px]" />
               <select name="new_media_kind" aria-label="Type of new images" className="h-10 rounded-md border border-line-strong bg-canvas px-2 text-[14px]"><option value="photo">Photos</option><option value="screenshot">Call screenshots</option><option value="graphic">Graphics / slides</option></select>
             </div>
-            <p className={hint}>JPEG, PNG or WebP · up to 8 MB each · only genuine team media.</p>
+            <p className={hint}>JPEG, PNG or WebP · up to 8 MB each · only genuine team media. These images form the project&apos;s own carousel, in the order of their positions; new images are added at the end.</p>
             {err("media")}
           </div>
         </fieldset>

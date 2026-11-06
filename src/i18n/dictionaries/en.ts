@@ -178,7 +178,7 @@ const en = {
     galleryOpen: "Open project",
     galleryPrev: "Previous project",
     galleryNext: "Next project",
-    galleryHint: "Drag, scroll sideways or move to the edges to explore. Arrow keys work too.",
+    galleryHint: "Drag or scroll sideways to browse. Arrow keys work too.",
     galleryHintTouch: "Swipe to explore.",
     previousImage: "Previous image",
     nextImage: "Next image",

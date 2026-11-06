@@ -91,20 +91,29 @@ export async function saveHubEntry(_prev: HubFormState, form: FormData): Promise
   // Existing media: keep, edit alt/caption/kind, or remove.
   type Kind = "photo" | "screenshot" | "graphic";
   const asKind = (v: string): Kind => (v === "screenshot" || v === "graphic" ? v : "photo");
+  // Each kept image may get a new position (the carousel order) and a replacement file.
   const kept: { path: string; alt: string; caption?: string; kind: Kind }[] = [];
+  const existing: { item: (typeof kept)[number]; order: number; replace?: File }[] = [];
   const count = Number(get("media_count")) || 0;
   for (let i = 0; i < Math.min(count, 60); i++) {
     const path = get(`media_${i}_path`);
     if (!path.startsWith("hub/") || form.get(`media_${i}_remove`) === "on") continue;
     const alt = get(`media_${i}_alt`).trim().slice(0, 300);
     if (!alt) return { fieldErrors: { media: "Every image needs a short description (alt text)." } };
-    kept.push({ path, alt, caption: get(`media_${i}_caption`).trim().slice(0, 300) || undefined, kind: asKind(get(`media_${i}_kind`)) });
+    const order = Number(get(`media_${i}_order`));
+    existing.push({
+      item: { path, alt, caption: get(`media_${i}_caption`).trim().slice(0, 300) || undefined, kind: asKind(get(`media_${i}_kind`)) },
+      order: Number.isFinite(order) && order > 0 ? order : i + 1,
+      replace: files(form, `media_${i}_replace`)[0],
+    });
   }
+  existing.sort((a, b) => a.order - b.order); // stable: equal positions keep their previous order
 
   const newMedia = files(form, "new_media");
   const logo = files(form, "logo")[0];
   const cover = files(form, "cover")[0];
-  if (newMedia.length + (logo ? 1 : 0) + (cover ? 1 : 0) > MAX_IMAGES_PER_SAVE) return { fieldErrors: { media: `Upload at most ${MAX_IMAGES_PER_SAVE} images per save.` } };
+  const replacements = existing.filter((x) => x.replace).length;
+  if (newMedia.length + replacements + (logo ? 1 : 0) + (cover ? 1 : 0) > MAX_IMAGES_PER_SAVE) return { fieldErrors: { media: `Upload at most ${MAX_IMAGES_PER_SAVE} images per save.` } };
   const newAlt = get("new_media_alt").trim().slice(0, 300);
   if (newMedia.length && !newAlt) return { fieldErrors: { media: "Describe the new images (alt text) before uploading." } };
 
@@ -119,6 +128,15 @@ export async function saveHubEntry(_prev: HubFormState, form: FormData): Promise
     const r = await upload(supabase, file, folder);
     if ("error" in r) return { fieldErrors: { media: r.error } };
     set(r.path!);
+  }
+  for (const x of existing) {
+    if (x.replace) {
+      const r = await upload(supabase, x.replace, folder);
+      if ("error" in r) return { fieldErrors: { media: r.error } };
+      if (coverPath === x.item.path) coverPath = r.path!; // a replaced cover image stays the cover
+      x.item.path = r.path!;
+    }
+    kept.push(x.item);
   }
   for (const f of newMedia) {
     const r = await upload(supabase, f, folder);

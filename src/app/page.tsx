@@ -178,7 +178,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 5 · Work: the layered project gallery (compact), then the seven directions as a directory */}
+      {/* 5 · Work: the center-focused project carousel (compact), then the seven directions as a directory */}
       <section aria-labelledby="work-title" className="border-t border-rule">
         <div className="mx-auto max-w-content px-5 pt-20 lg:px-10 lg:pt-28">
           <div className="grid gap-x-6 gap-y-4 lg:grid-cols-12">

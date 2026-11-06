@@ -2,7 +2,7 @@ import type { Dictionary } from "@/i18n/dictionary";
 import type { GalleryItem } from "@/lib/hub/gallery";
 import { ProjectGallery } from "./ProjectGallery";
 
-/** Heading + full-bleed parallax gallery. Renders nothing when no entry has a real image. */
+/** Heading + full-bleed center-focused project carousel. Renders nothing when no entry has a real image. */
 export function ProjectGallerySection({ items, t, title, intro, id = "projects" }: {
   items: GalleryItem[]; t: Dictionary; title?: string; intro?: string | null; id?: string;
 }) {
