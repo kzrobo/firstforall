@@ -24,11 +24,11 @@ export function SiteHeader({ t, locale }: { t: Dictionary; locale: UiLocale }) {
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-50 focus:rounded focus:bg-navy focus:px-3 focus:py-2 focus:text-white">
         {t.nav.skip}
       </a>
-      <div className="mx-auto grid h-16 max-w-content grid-cols-[1fr_auto] items-center gap-6 px-5 lg:h-[76px] lg:grid-cols-[1fr_auto_1fr] lg:px-10">
+      <div className="mx-auto grid h-16 max-w-content grid-cols-[1fr_auto] items-center gap-6 px-5 lg:h-[76px] lg:grid-cols-[auto_1fr_auto] lg:px-10 xl:grid-cols-[1fr_auto_1fr]">
         <Link href="/" className="justify-self-start" aria-label="FIRST FOR ALL — MAVERICKS FTC #24034">
           <BrandMark />
         </Link>
-        <nav aria-label={t.nav.primary} className="hidden lg:block">
+        <nav aria-label={t.nav.primary} className="hidden justify-self-center lg:block">
           <NavLinks items={items} />
         </nav>
         <div className="hidden items-center justify-self-end gap-5 lg:flex">

@@ -21,7 +21,9 @@ export function HeaderShell({ children }: { children: React.ReactNode }) {
   }, [home]);
 
   const overlay = home && media && !scrolled;
-  const solid = "border-b border-line bg-canvas/95 supports-[backdrop-filter]:bg-canvas/85 backdrop-blur-[8px]";
+  // Solid white, no backdrop-filter: a filter would make the header the containing block of the
+  // fixed mobile-menu panel and squeeze it to the header's height.
+  const solid = "border-b border-line bg-canvas";
   const cls = home && media
     ? `fixed inset-x-0 top-0 z-40 transition-[background-color,border-color] duration-300 ${overlay ? "on-media border-b border-transparent bg-transparent" : solid}`
     : `sticky top-0 z-40 ${solid}`;

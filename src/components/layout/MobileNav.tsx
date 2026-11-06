@@ -34,12 +34,12 @@ export function MobileNav({ items, t, locale }: { items: NavItem[]; t: Dictionar
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((v) => !v)}
-        className="-mr-2 inline-flex h-11 items-center gap-3 px-2 text-[15px] font-medium text-ink"
+        className="-mr-2 inline-flex h-11 items-center gap-3 px-2 text-[16px] font-semibold tracking-[-0.01em] text-ink"
       >
         {open ? t.nav.close : t.nav.menu}
         <span aria-hidden className="relative block h-3 w-5">
-          <span className={`absolute left-0 h-[1.5px] w-5 bg-current transition-transform ${open ? "top-1/2 rotate-45" : "top-0.5"}`} />
-          <span className={`absolute left-0 h-[1.5px] w-5 bg-current transition-transform ${open ? "top-1/2 -rotate-45" : "bottom-0.5"}`} />
+          <span className={`absolute left-0 h-[2px] w-5 bg-current transition-transform ${open ? "top-1/2 rotate-45" : "top-0.5"}`} />
+          <span className={`absolute left-0 h-[2px] w-5 bg-current transition-transform ${open ? "top-1/2 -rotate-45" : "bottom-0.5"}`} />
         </span>
       </button>
       {open && (
@@ -51,7 +51,7 @@ export function MobileNav({ items, t, locale }: { items: NavItem[]; t: Dictionar
                 return (
                   <li key={item.href} className="border-b border-line">
                     <Link href={item.href} aria-current={active ? "page" : undefined} className="flex items-center justify-between gap-4 py-4">
-                      <span className={`text-[26px] font-semibold tracking-[-0.03em] ${active ? "text-navy" : "text-ink"}`}>{item.label}</span>
+                      <span className={`text-[26px] font-semibold tracking-[-0.025em] ${active ? "text-navy" : "text-ink"}`}>{item.label}</span>
                       {active && <span aria-hidden className="size-2 rounded-full bg-navy" />}
                     </Link>
                   </li>
@@ -62,7 +62,7 @@ export function MobileNav({ items, t, locale }: { items: NavItem[]; t: Dictionar
           <div className="mt-auto pt-10">
             <p className="t-label mb-3 text-ink">{t.nav.language}</p>
             <LanguageSwitcher locale={locale} label={t.nav.language} variant="stacked" />
-            <Link href="/login" className="mt-6 inline-block text-[15px] text-ink-muted underline underline-offset-4">{t.nav.signIn}</Link>
+            <Link href="/login" className="mt-6 inline-block text-[15px] font-medium text-ink-muted underline underline-offset-4">{t.nav.signIn}</Link>
           </div>
         </div>
       )}

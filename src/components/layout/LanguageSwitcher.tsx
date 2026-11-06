@@ -24,8 +24,8 @@ export function LanguageSwitcher({ locale, label, variant = "inline" }: { locale
             onClick={() => !on && choose(l)}
             className={
               variant === "stacked"
-                ? `h-12 text-[15px] font-medium ${i ? "border-l border-line" : ""} ${on ? "bg-navy text-white" : "text-ink hover:bg-soft"}`
-                : `h-9 min-w-9 px-1.5 text-[13px] font-semibold uppercase tracking-[0.02em] transition-colors ${on ? "text-ink underline decoration-[1.5px] underline-offset-[7px]" : "text-ink-muted hover:text-ink"}`
+                ? `h-12 text-[16px] font-semibold ${i ? "border-l border-line" : ""} ${on ? "bg-navy text-white" : "text-ink hover:bg-soft"}`
+                : `h-10 min-w-9 px-1.5 text-[14px] xl:min-w-10 xl:px-2 font-semibold uppercase tracking-[0.04em] transition-colors ${on ? "text-ink underline decoration-2 underline-offset-[8px]" : "text-ink-muted hover:text-ink"}`
             }
           >
             <span aria-hidden={variant === "inline"}>{variant === "stacked" ? LOCALE_LABELS[l] : l}</span>

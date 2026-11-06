@@ -11,7 +11,7 @@ export function isActive(pathname: string, href: string): boolean {
 export function NavLinks({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
   return (
-    <ul className="flex items-center gap-2">
+    <ul className="flex items-center xl:gap-1">
       {items.map((item) => {
         const active = isActive(pathname, item.href);
         return (
@@ -19,10 +19,11 @@ export function NavLinks({ items }: { items: NavItem[] }) {
             <Link
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`group relative inline-flex h-11 items-center px-3 text-[15px] font-medium tracking-[-0.01em] transition-colors ${active ? "text-ink" : "text-ink-muted hover:text-ink"}`}
+              className={`group relative inline-flex h-11 items-center whitespace-nowrap px-2.5 text-[15px] font-semibold tracking-[-0.012em] transition-colors xl:px-3.5 xl:text-[16px] ${active ? "text-ink" : "text-ink/80 hover:text-ink"}`}
             >
               {item.label}
-              <span aria-hidden className={`absolute inset-x-3 bottom-1.5 h-[1.5px] origin-left bg-ink transition-transform duration-200 ${active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`} />
+              {/* active page: a short 2px rule under the label; hover previews it at half strength */}
+              <span aria-hidden className={`absolute inset-x-2.5 bottom-[7px] xl:inset-x-3.5 h-[2px] rounded-full bg-current transition-[opacity,transform] duration-200 ${active ? "opacity-100" : "scale-x-50 opacity-0 group-hover:scale-x-100 group-hover:opacity-40"}`} />
             </Link>
           </li>
         );
