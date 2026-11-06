@@ -11,7 +11,11 @@ const SELECT = `id, slug, title, season, season_name, category, description, cov
 
 export type RepoResult<T> = { ok: true; data: T } | { ok: false; reason: "not_configured" | "error"; message?: string };
 
-function toManual(raw: unknown, opts: { includeDrafts?: boolean } = {}): Manual | null {
+/** Draft files live in the private 'manuals-draft' bucket; only published files are in 'manuals-public'. */
+export const DRAFT_BUCKET = "manuals-draft";
+export const PUBLIC_BUCKET = "manuals-public";
+
+function toManual(raw: unknown, opts: { includeDrafts?: boolean; signed?: Map<string, string> } = {}): Manual | null {
   const parsed = manualRowSchema.safeParse(raw);
   if (!parsed.success) return null;
   const row = parsed.data;
@@ -42,7 +46,7 @@ function toManual(raw: unknown, opts: { includeDrafts?: boolean } = {}): Manual 
         credit: t.translation_credit,
         pageCount: t.page_count,
         fileSizeBytes: t.file_size_bytes,
-        fileUrl: publicStorageUrl("manuals-public", t.file_path),
+        fileUrl: t.status === "published" ? publicStorageUrl(PUBLIC_BUCKET, t.file_path) : opts.signed?.get(t.file_path) ?? publicStorageUrl(PUBLIC_BUCKET, t.file_path),
         sectionMap: t.section_map,
         publishedAt: t.published_at,
       }))
@@ -58,10 +62,19 @@ export async function listManualsForTeam(): Promise<RepoResult<TeamManual[]>> {
   if (!supabase) return { ok: false, reason: "not_configured" };
   const { data, error } = await supabase.from("manuals").select(`status, ${SELECT}`).order("season", { ascending: false }).order("title");
   if (error) return { ok: false, reason: "error", message: error.message };
+  // Unpublished files: one-hour signed links from the private bucket (storage RLS: team members only).
+  // Files imported before drafts moved to the private bucket fall back to their public path.
+  const draftPaths = (data ?? []).flatMap((m) => ((m as { manual_translations?: { file_path: string; status: string }[] }).manual_translations ?? [])
+    .filter((t) => t.status !== "published").map((t) => t.file_path));
+  const signed = new Map<string, string>();
+  if (draftPaths.length) {
+    const { data: urls } = await supabase.storage.from(DRAFT_BUCKET).createSignedUrls(draftPaths, 3600);
+    for (const u of urls ?? []) if (u.signedUrl && u.path && !u.error) signed.set(u.path, u.signedUrl);
+  }
   return {
     ok: true,
     data: (data ?? []).flatMap((raw) => {
-      const manual = toManual(raw, { includeDrafts: true });
+      const manual = toManual(raw, { includeDrafts: true, signed });
       return manual ? [{ manual, status: (raw as { status: TeamManual["status"] }).status }] : [];
     }),
   };

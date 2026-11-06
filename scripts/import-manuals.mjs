@@ -86,13 +86,31 @@ const publish = flags.includes("--publish");
 const status = publish ? "published" : "draft";
 const now = publish ? new Date().toISOString() : null;
 
-const { data: bucket, error: be } = await supabase.storage.getBucket("manuals-public");
-if (be || !bucket) fail(`bucket manuals-public not reachable: ${be?.message}`);
-if (bucket.allowed_mime_types?.length && !bucket.allowed_mime_types.includes("application/pdf")) fail("bucket manuals-public does not accept application/pdf");
+// Drafts go to the private bucket (team-only signed links); only published files are public.
+const BUCKET = publish ? "manuals-public" : "manuals-draft";
+const { data: bucket, error: be } = await supabase.storage.getBucket(BUCKET);
+if (be || !bucket) fail(`bucket ${BUCKET} not reachable: ${be?.message}`);
+if (!publish && bucket.public) fail(`bucket ${BUCKET} must be private for drafts`);
+if (bucket.allowed_mime_types?.length && !bucket.allowed_mime_types.includes("application/pdf")) fail(`bucket ${BUCKET} does not accept application/pdf`);
 const largest = Math.max(...rows.map((r) => r.bytes.length));
 if (bucket.file_size_limit && largest > Number(bucket.file_size_limit)) fail(`a file (${largest} bytes) exceeds the bucket limit (${bucket.file_size_limit})`);
-console.log(`\nStorage ${new URL(url).host}: manuals-public public=${bucket.public}, limit=${bucket.file_size_limit ?? "none"} — importing as ${status}`);
+console.log(`\nStorage ${new URL(url).host}: ${BUCKET} public=${bucket.public}, limit=${bucket.file_size_limit ?? "none"} — importing as ${status}`);
 
+
+/** Upload with retries: transient failures (rate limits, 5xx, dropped connections) are retried with backoff. */
+async function uploadWithRetry(bucketApi, p, bytes, opts) {
+  let last;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    if (attempt) await new Promise((r) => setTimeout(r, 2000 * 2 ** attempt));
+    last = await bucketApi.upload(p, bytes, opts);
+    if (!last.error) return last;
+    const status = Number(last.error.statusCode ?? last.error.status ?? 0);
+    if (/exists|duplicate/i.test(last.error.message ?? "")) return last;
+    if (status && status < 500 && status !== 429 && status !== 408) return last; // permanent (4xx): do not retry
+  }
+  return last;
+}
+const describe = (err) => `${err?.message || err?.error || err?.name || "unknown error"}${err?.statusCode ? ` (HTTP ${err.statusCode})` : ""}`;
 const bySlug = Object.groupBy(rows, (r) => r.entry.slug);
 for (const [slug, group] of Object.entries(bySlug)) {
   const head = (group.find((r) => r.entry.isSource) ?? group[0]).entry;
@@ -113,15 +131,15 @@ for (const [slug, group] of Object.entries(bySlug)) {
     const { data: existing } = await supabase.from("manual_translations").select("id, revision").eq("manual_id", manual.id).eq("language_code", e.language).maybeSingle();
     if (existing) { console.log(`  · ${slug} [${e.language}] already exists (revision ${existing.revision}) — skipped, not overwritten`); continue; }
     const filePath = `${slug}/${e.language}-${r.sha256.slice(0, 12)}.pdf`;
-    const up = await supabase.storage.from("manuals-public").upload(filePath, r.bytes, { contentType: "application/pdf", upsert: false, cacheControl: "31536000" });
-    if (up.error) fail(`upload ${e.file}: ${up.error.message}`);
+    const up = await uploadWithRetry(supabase.storage.from(BUCKET), filePath, r.bytes, { contentType: "application/pdf", upsert: false, cacheControl: "31536000" });
+    if (up.error) fail(`upload ${e.file}: ${describe(up.error)}`);
     const { error: te } = await supabase.from("manual_translations").insert({
       manual_id: manual.id, language_code: e.language, is_source: e.isSource, file_path: filePath, file_size_bytes: r.bytes.length,
       revision: e.teamUpdate ? `${e.version} · TU ${e.teamUpdate}` : e.version, source_revision: e.sourceVersion ?? null,
       translation_credit: e.translationCredit ?? null, page_count: r.pages, status, published_at: now,
     });
     if (te) fail(`translation row ${slug} [${e.language}]: ${te.message} (file stays at ${filePath})`);
-    console.log(`  ✓ ${slug} [${e.language}] ${r.pages} pages → manuals-public/${filePath}`);
+    console.log(`  ✓ ${slug} [${e.language}] ${r.pages} pages → ${BUCKET}/${filePath}`);
   }
 }
 console.log(publish ? "\n✓ Imported and published." : "\n✓ Imported as drafts. Review them at /admin/manuals (team draft preview), then publish.");

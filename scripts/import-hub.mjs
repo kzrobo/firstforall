@@ -37,6 +37,21 @@ if (!url || !key) fail("import needs NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVI
 const supabase = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
 const { data: bucket, error: be } = await supabase.storage.getBucket("public-media");
 if (be || !bucket) fail(`bucket public-media not reachable: ${be?.message}`);
+
+/** Upload with retries: transient failures (rate limits, 5xx, dropped connections) are retried with backoff. */
+async function uploadWithRetry(bucketApi, p, bytes, opts) {
+  let last;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    if (attempt) await new Promise((r) => setTimeout(r, 2000 * 2 ** attempt));
+    last = await bucketApi.upload(p, bytes, opts);
+    if (!last.error) return last;
+    const status = Number(last.error.statusCode ?? last.error.status ?? 0);
+    if (/exists|duplicate/i.test(last.error.message ?? "")) return last;
+    if (status && status < 500 && status !== 429 && status !== 408) return last; // permanent (4xx): do not retry
+  }
+  return last;
+}
+const describe = (err) => `${err?.message || err?.error || err?.name || "unknown error"}${err?.statusCode ? ` (HTTP ${err.statusCode})` : ""}`;
 console.log(`\nStorage ${new URL(url).host}: public-media public=${bucket.public} — importing as DRAFTS`);
 
 for (const { entry: e, images } of reports) {
@@ -46,8 +61,8 @@ for (const { entry: e, images } of reports) {
   const stored = {};
   for (const img of images) {
     const p = `hub/${e.category}/${e.slug}/${img.sha256.slice(0, 12)}.${img.ext}`;
-    const up = await supabase.storage.from("public-media").upload(p, img.bytes, { contentType: img.type, upsert: false, cacheControl: "31536000" });
-    if (up.error && !/exists|duplicate/i.test(up.error.message)) fail(`upload ${img.file}: ${up.error.message}`);
+    const up = await uploadWithRetry(supabase.storage.from("public-media"), p, img.bytes, { contentType: img.type, upsert: false, cacheControl: "31536000" });
+    if (up.error && !/exists|duplicate/i.test(up.error.message ?? "")) fail(`upload ${img.file}: ${describe(up.error)}`);
     stored[img.file] = p;
   }
   const media = images.map((img) => ({ path: stored[img.file], alt: img.alt, ...(img.caption ? { caption: img.caption } : {}), kind: img.kind }));
