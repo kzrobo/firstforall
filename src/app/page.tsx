@@ -73,8 +73,11 @@ export default async function HomePage() {
       <section aria-labelledby="library-title" className="mx-auto max-w-content px-5 py-24 lg:px-10 lg:py-36">
         <div className="grid gap-x-6 gap-y-12 lg:grid-cols-12">
           <div className="lg:col-span-4">
-            <h2 id="library-title" className="t-h2 text-ink">{H.libraryTitle}</h2>
-            <p className="mt-5 max-w-sm text-[17px] leading-relaxed text-ink-muted">{H.libraryLead}</p>
+            <h2 id="library-title" className="t-h2 text-ink">
+              {/* One sentence per line ("FTC manuals." / "In your language.") keeps the heading balanced at every width */}
+              {H.libraryTitle.split(/(?<=[.!?])\s+/).map((line, i) => <span key={i} className="block">{line}</span>)}
+            </h2>
+            <p className="mt-5 max-w-sm text-[18px] leading-relaxed text-ink-muted">{H.libraryLead}</p>
             <Link href="/manuals" className="link-arrow mt-7 text-[16px] text-ink">{H.libraryLink}</Link>
           </div>
           {!featured ? (
