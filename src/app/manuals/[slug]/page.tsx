@@ -6,19 +6,20 @@ import { formatBytes, readerHref } from "@/components/manuals/format";
 import { Notice } from "@/components/ui/Notice";
 import { UI_LOCALES } from "@/i18n/config";
 import { getI18n } from "@/i18n/server";
-import { languageName } from "@/lib/languages";
+import { languageName, nativeLanguageName } from "@/lib/languages";
 import { getPublishedManual } from "@/lib/manuals/repository";
+import { resolveReaderTarget } from "@/lib/manuals/reader-nav";
+import { getSavedManualLanguage } from "@/lib/manuals/saved-language";
 
-type Props = { params: Promise<{ slug: string }> };
+type Props = { params: Promise<{ slug: string }>; searchParams?: Promise<{ lang?: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const r = await getPublishedManual((await params).slug);
   return r.ok && r.data ? { title: r.data.title, description: r.data.description ?? undefined } : { title: "Manual" };
 }
 
-export default async function ManualOverviewPage({ params }: Props) {
-  const { slug } = await params;
-  const { t, locale } = await getI18n();
+export default async function ManualOverviewPage({ params, searchParams }: Props) {
+  const [{ slug }, sp, { t, locale }, saved] = await Promise.all([params, searchParams ?? Promise.resolve({} as { lang?: string }), getI18n(), getSavedManualLanguage()]);
   const result = await getPublishedManual(slug);
   if (!result.ok) {
     return <div className="mx-auto max-w-content px-5 py-20 lg:px-10"><Notice tone="warning">{t.manuals.notConfigured}</Notice></div>;
@@ -28,7 +29,8 @@ export default async function ManualOverviewPage({ params }: Props) {
   const published = new Set(manual.translations.map((tr) => tr.language));
   const missingUi = UI_LOCALES.filter((l) => !published.has(l));
 
-  const primary = manual.translations.find((tr) => tr.isSource) ?? manual.translations[0];
+  // The edition in the visitor's language (?lang=, this visit's choice, the interface language), else the source.
+  const primary = resolveReaderTarget(manual.translations, { lang: sp.lang }, [saved, locale]).translation;
 
   return (
     <article>
@@ -40,7 +42,7 @@ export default async function ManualOverviewPage({ params }: Props) {
         </div>
         <div className="mx-auto grid max-w-content gap-x-8 lg:gap-x-16 gap-y-10 px-5 pb-14 pt-10 md:grid-cols-12 lg:px-10 lg:pb-20">
           <div className="max-w-[260px] md:col-span-4 md:max-w-none lg:col-span-3">
-            <DocumentThumb manual={manual} />
+            <DocumentThumb manual={manual} edition={primary} />
           </div>
           <div className="md:col-span-8 lg:col-span-8 lg:col-start-5">
             <p className="t-index">{manual.season}{manual.seasonName ? ` · ${manual.seasonName}` : ""} · <span className="capitalize">{manual.category}</span></p>
@@ -49,7 +51,7 @@ export default async function ManualOverviewPage({ params }: Props) {
             {primary && (
               <div className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-4">
                 <Link href={readerHref(manual.slug, primary.language)} className="btn-primary">
-                  {t.manuals.read}
+                  {t.manuals.readManual} · <span lang={primary.language}>{nativeLanguageName(primary.language)}</span>
                 </Link>
                 <a href={primary.fileUrl} download className="link-arrow text-[15px] text-ink">{t.manuals.download}</a>
               </div>

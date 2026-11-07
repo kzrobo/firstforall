@@ -5,6 +5,7 @@ import { Notice } from "@/components/ui/Notice";
 import { getI18n } from "@/i18n/server";
 import { getPublishedManual } from "@/lib/manuals/repository";
 import { resolveReaderTarget } from "@/lib/manuals/reader-nav";
+import { getSavedManualLanguage } from "@/lib/manuals/saved-language";
 
 type Props = { params: Promise<{ slug: string }>; searchParams: Promise<{ lang?: string; page?: string }> };
 
@@ -14,11 +15,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ReaderPage({ params, searchParams }: Props) {
-  const [{ slug }, sp, { t, locale }] = await Promise.all([params, searchParams, getI18n()]);
+  const [{ slug }, sp, { t, locale }, saved] = await Promise.all([params, searchParams, getI18n(), getSavedManualLanguage()]);
   const result = await getPublishedManual(slug);
   if (!result.ok) return <div className="mx-auto max-w-content px-5 py-20"><Notice tone="warning">{t.manuals.notConfigured}</Notice></div>;
   if (!result.data) notFound();
-  const { translation, page } = resolveReaderTarget(result.data.translations, sp);
+  const { translation, page } = resolveReaderTarget(result.data.translations, sp, [saved, locale]);
   if (!translation) notFound();
   return (
     <ManualReader

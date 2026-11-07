@@ -8,6 +8,7 @@ import { languageName } from "@/lib/languages";
 import { mapPageAcrossTranslations } from "@/lib/manuals/reader-nav";
 import type { ManualTranslation } from "@/lib/manuals/types";
 import { readerHref } from "@/components/manuals/format";
+import { rememberManualLanguage } from "@/components/manuals/remember-language";
 import { Icon } from "./icons";
 import { PdfPage } from "./PdfPage";
 import { PDF_OPTIONS, loadPdfJs, readOutline, searchDocument, type OutlineEntry } from "./pdf";
@@ -146,7 +147,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
   // Keep the URL shareable (?lang=&page=) without adding history entries
   useEffect(() => {
     if (!doc) return;
-    window.history.replaceState(window.history.state, "", hrefFor(current.language, page));
+    window.history.replaceState(null, "", hrefFor(current.language, page));
   }, [page, doc, current.language, hrefFor]);
 
   // Keyboard shortcuts
@@ -207,6 +208,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
     const to = translations.find((tr) => tr.language === lang);
     if (!to || to.id === current.id) return;
     const { page: p, mapped } = mapPageAcrossTranslations(current, to, page);
+    if (!basePath) rememberManualLanguage(lang); // the public library opens in this language for the rest of the visit
     router.push(hrefFor(lang, p) + (mapped ? "" : "&r=1"));
   };
 
@@ -266,7 +268,7 @@ export function ManualReader({ manual, translations, current, initialPage, t, lo
           <button type="button" className={iconBtn} aria-expanded={panelOpen} onClick={() => setPanelOpen((v) => !v)} title={t.toc}>
             <span className="sr-only">{t.toc}</span><Icon name="toc" />
           </button>
-          <Link href={backHref ?? `/manuals/${manual.slug}`} className="ml-1 hidden max-w-[26ch] truncate text-[14px] font-semibold text-ink hover:underline xl:block" title={t.back}>
+          <Link href={backHref ?? `/manuals/${manual.slug}?lang=${encodeURIComponent(current.language)}`} className="ml-1 hidden max-w-[26ch] truncate text-[14px] font-semibold text-ink hover:underline xl:block" title={t.back}>
             {manual.title}
           </Link>
           {divider}

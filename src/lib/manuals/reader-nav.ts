@@ -1,14 +1,22 @@
+import { matchLanguage } from "./language";
 import type { ManualTranslation, SectionMap } from "./types";
 
-/** Parses `?lang=&page=` for the reader, choosing a safe published translation. */
+/**
+ * Parses `?lang=&page=` for the reader, choosing a safe published translation.
+ * Without `?lang=`, the first `preferred` language that is published wins (the language picked during
+ * this visit, then the interface language); otherwise the official source document opens.
+ */
 export function resolveReaderTarget(
   translations: ManualTranslation[],
   params: { lang?: string | string[]; page?: string | string[] },
+  preferred: (string | null | undefined)[] = [],
 ): { translation: ManualTranslation | null; page: number } {
   const lang = Array.isArray(params.lang) ? params.lang[0] : params.lang;
   const rawPage = Array.isArray(params.page) ? params.page[0] : params.page;
+  const langs = translations.map((t) => t.language);
+  const wanted = lang ? matchLanguage(lang, langs) : preferred.map((p) => matchLanguage(p, langs)).find(Boolean) ?? null;
   const translation =
-    translations.find((t) => t.language === lang) ?? translations.find((t) => t.isSource) ?? translations[0] ?? null;
+    translations.find((t) => t.language === wanted) ?? translations.find((t) => t.isSource) ?? translations[0] ?? null;
   let page = Number.parseInt(rawPage ?? "1", 10);
   if (!Number.isFinite(page) || page < 1) page = 1;
   if (translation?.pageCount && page > translation.pageCount) page = translation.pageCount;
