@@ -5,15 +5,15 @@ import { ProjectGallery } from "@/components/hub/ProjectGallery";
 import { LessonTeaser } from "@/components/learn/LessonTeaser";
 import { DocumentThumb } from "@/components/manuals/DocumentThumb";
 import { formatBytes, readerHref } from "@/components/manuals/format";
-import { UI_LOCALES } from "@/i18n/config";
+import { LOCALE_LABELS, UI_LOCALES } from "@/i18n/config";
 import { getI18n } from "@/i18n/server";
-import { plural } from "@/i18n/plural";
 import { HUB_CATEGORIES, categoryTitle } from "@/lib/hub/categories";
 import { toGalleryItems } from "@/lib/hub/gallery";
 import { listPublishedEntries } from "@/lib/hub/repository";
 import { sortEntries } from "@/lib/hub/types";
 import { languageName, nativeLanguageName } from "@/lib/languages";
 import { listPublishedLessons } from "@/lib/learn/repository";
+import { orderLanguages, publishedLanguages } from "@/lib/manuals/language";
 import { listPublishedManuals } from "@/lib/manuals/repository";
 import { getSiteMedia } from "@/lib/site/repository";
 
@@ -25,6 +25,8 @@ export default async function HomePage() {
   const H = t.home;
 
   const manuals = manualsResult.ok ? manualsResult.data : [];
+  // Every language with a published edition (drafts and archived editions never reach this list)
+  const manualLanguages = orderLanguages(publishedLanguages(manuals), locale);
   const featured = manuals.find((m) => m.isFeatured) ?? manuals[0] ?? null;
   const others = manuals.filter((m) => m.id !== featured?.id).slice(0, 4);
   const primary = featured ? (featured.translations.find((tr) => tr.isSource) ?? featured.translations[0]) : null;
@@ -40,7 +42,7 @@ export default async function HomePage() {
     <>
       <Hero t={t} media={media} />
 
-      {/* 1 · Mission: one statement, two ways in, and the four reading languages as a strip */}
+      {/* 1 · Mission: one statement, two ways in, and the published manual languages as a strip */}
       <section id="first-for-all" aria-labelledby="ffa-title" className="mx-auto max-w-content scroll-mt-20 px-5 pt-20 lg:px-10 lg:pt-32">
         <div className="grid gap-x-6 gap-y-10 lg:grid-cols-12">
           <h2 id="ffa-title" className="t-display text-ink lg:col-span-7">{t.hero.title1} {t.hero.title2}</h2>
@@ -52,21 +54,38 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
-        <nav aria-label={t.manuals.languages} className="mt-16 lg:mt-24">
-          <ul className="grid grid-cols-2 border-y border-rule lg:grid-cols-4">
-            {UI_LOCALES.map((l, i) => {
-              const n = manuals.filter((m) => m.translations.some((tr) => tr.language === l)).length;
-              return (
-                <li key={l} className={`${i % 2 ? "border-l border-line" : ""} ${i >= 2 ? "border-t border-line lg:border-t-0" : ""} ${i === 2 ? "lg:border-l" : ""}`}>
-                  <Link href={`/manuals?lang=${l}`} className="group flex h-full flex-col gap-2 px-0 py-6 pl-4 first:pl-0 sm:py-8 lg:pl-6">
-                    <span lang={l} className="text-[clamp(1.25rem,2vw,1.625rem)] font-semibold tracking-[-0.025em] text-ink group-hover:underline group-hover:decoration-1 group-hover:underline-offset-[6px]">{nativeLanguageName(l)}</span>
-                    <span className="text-[15px] text-ink-muted">{n ? `${n} ${plural(locale, n, { one: t.manuals.document, few: t.manuals.documentsFew, many: t.manuals.documents })}` : t.manuals.unavailable}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+        {/* Manual languages come from published editions (any number); the website's own interface languages are listed separately */}
+        <div className="mt-16 lg:mt-24">
+          {manualLanguages.length > 0 && (
+            <>
+              <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+                <h3 id="manual-languages" className="t-h3 text-ink">{H.stripTitle}</h3>
+                <p className="t-meta">{H.stripHint}</p>
+              </div>
+              <nav aria-labelledby="manual-languages" className="mt-5">
+                <ul className="grid grid-cols-2 gap-x-6 border-t border-rule sm:grid-cols-3 lg:grid-cols-6">
+                  {manualLanguages.map((l) => {
+                    const native = nativeLanguageName(l), local = languageName(l, locale);
+                    return (
+                      <li key={l} className="border-b border-line">
+                        <Link href={`/manuals?lang=${encodeURIComponent(l)}`} className="group flex h-full min-h-[72px] flex-col justify-center gap-0.5 py-4 lg:min-h-[84px]">
+                          <span lang={l} className="text-[17px] font-semibold tracking-[-0.015em] text-ink group-hover:underline group-hover:decoration-1 group-hover:underline-offset-[5px] lg:text-[19px]">{native}</span>
+                          {local !== native && <span className="text-[14px] text-ink-muted">{local}</span>}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </nav>
+            </>
+          )}
+          <p className="mt-6 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-[15px]">
+            <span className="font-semibold text-ink">{H.interfaceTitle}</span>
+            {UI_LOCALES.map((l) => (
+              <span key={l} lang={l} className={l === locale ? "font-medium text-ink" : "text-ink-muted"}>{LOCALE_LABELS[l]}</span>
+            ))}
+          </p>
+        </div>
       </section>
 
       {/* 2 · Library: the featured publication as an object, its translations beside it */}
