@@ -1,0 +1,97 @@
+{
+  "source": "WhatsApp messages from nursaya (team), 2026-11-06 13:44–13:45: five team logos with places; team names and FTC numbers sent in chat 2026-11-09.",
+  "note": "Logos are the teams' own artwork, squared for the round globe markers (screenshot corners filled with each logo's background). City coordinates are the city centre; Indonesia and Argentina are placed at the country centroid until the team gives a city.",
+  "entries": [
+    {
+      "category": "connects",
+      "slug": "foxslide-29029",
+      "title": "Foxslide",
+      "team": {
+        "name": "Foxslide",
+        "number": 29029
+      },
+      "location": {
+        "countryCode": "KZ",
+        "city": "Almaty",
+        "latitude": 43.2389,
+        "longitude": 76.8897
+      },
+      "logo": "images/connects/foxslide.png",
+      "review": [
+        "How MAVERICKS is connected to this team was not given — add the overview (and date) before publishing."
+      ]
+    },
+    {
+      "category": "connects",
+      "slug": "pandurata-26523",
+      "title": "Pandurata",
+      "team": {
+        "name": "Pandurata",
+        "number": 26523
+      },
+      "location": {
+        "countryCode": "ID"
+      },
+      "logo": "images/connects/pandurata.png",
+      "review": [
+        "How MAVERICKS is connected to this team was not given — add the overview (and date) before publishing.",
+        "City in Indonesia not given — shown at the country centroid."
+      ]
+    },
+    {
+      "category": "connects",
+      "slug": "altyngear-33423",
+      "title": "Altyngear",
+      "team": {
+        "name": "Altyngear",
+        "number": 33423
+      },
+      "location": {
+        "countryCode": "KZ",
+        "city": "Taldykorgan",
+        "latitude": 45.0156,
+        "longitude": 78.3739
+      },
+      "logo": "images/connects/altyngear.png",
+      "review": [
+        "How MAVERICKS is connected to this team was not given — add the overview (and date) before publishing."
+      ]
+    },
+    {
+      "category": "connects",
+      "slug": "nyancat-33030",
+      "title": "Nyancat",
+      "team": {
+        "name": "Nyancat",
+        "number": 33030
+      },
+      "location": {
+        "countryCode": "KZ",
+        "city": "Almaty",
+        "latitude": 43.2389,
+        "longitude": 76.8897
+      },
+      "logo": "images/connects/nyancat.png",
+      "review": [
+        "How MAVERICKS is connected to this team was not given — add the overview (and date) before publishing."
+      ]
+    },
+    {
+      "category": "connects",
+      "slug": "kondor-32736",
+      "title": "Kondor",
+      "team": {
+        "name": "Kondor",
+        "number": 32736
+      },
+      "location": {
+        "countryCode": "AR"
+      },
+      "logo": "images/connects/kondor.png",
+      "review": [
+        "How MAVERICKS is connected to this team was not given — add the overview (and date) before publishing.",
+        "City in Argentina not given — shown at the country centroid."
+      ]
+    }
+  ]
+}

@@ -28,7 +28,7 @@ export function sniffImage(b) {
 
 /**
  * Checks a manifest without touching the network. Returns one report per entry
- * ({ entry, images: [{file, bytes, sha256, type, alt, caption, kind}], problems }) plus manifest-wide problems.
+ * ({ entry, images: [{file, bytes, sha256, type, alt, caption, kind}], logo, problems }) plus manifest-wide problems.
  */
 export function checkManifest(manifest, baseDir, read = readFileSync) {
   const entries = Array.isArray(manifest?.entries) ? manifest.entries : [];
@@ -59,7 +59,33 @@ export function checkManifest(manifest, baseDir, read = readFileSync) {
       images.push({ file: m.file, bytes, sha256, ...t, alt: m.alt, caption: m.caption, kind: m.kind ?? "photo" });
     }
     if (e.cover && !(e.media ?? []).some((m) => m.file === e.cover)) problems.push(`cover "${e.cover}" must be one of the entry's media files`);
-    return { entry: e, images, problems };
+    // Partner team, place and logo (MAVERICKS Connects). All optional; give only verified facts.
+    if (e.team != null) {
+      if (typeof e.team.name !== "string" || e.team.name.length < 1 || e.team.name.length > 120) problems.push("team.name must be 1–120 characters");
+      if (e.team.number != null && !(Number.isInteger(e.team.number) && e.team.number >= 1 && e.team.number <= 999999)) problems.push(`team.number must be an FTC number (1–999999), got ${e.team.number}`);
+    }
+    const loc = e.location;
+    if (loc != null) {
+      if (loc.countryCode != null && !/^[A-Z]{2}$/.test(loc.countryCode)) problems.push(`location.countryCode must be ISO 3166-1 alpha-2 (e.g. "KZ"), got "${loc.countryCode}"`);
+      if (loc.city != null && (typeof loc.city !== "string" || loc.city.length > 80)) problems.push("location.city must be ≤ 80 characters");
+      const hasLat = loc.latitude != null, hasLng = loc.longitude != null;
+      if (hasLat !== hasLng) problems.push("location needs both latitude and longitude, or neither");
+      if (hasLat && !(typeof loc.latitude === "number" && Math.abs(loc.latitude) <= 90)) problems.push("location.latitude must be between -90 and 90");
+      if (hasLng && !(typeof loc.longitude === "number" && Math.abs(loc.longitude) <= 180)) problems.push("location.longitude must be between -180 and 180");
+      if (hasLat && !loc.city) problems.push("exact coordinates need the city they belong to");
+    }
+    let logo = null;
+    if (e.logo != null) {
+      let bytes;
+      try { bytes = read(path.resolve(baseDir, e.logo)); } catch { problems.push(`logo ${e.logo}: file not found`); }
+      if (bytes) {
+        const t = sniffImage(bytes);
+        if (!t) problems.push(`logo ${e.logo}: not a JPEG, PNG or WebP image`);
+        else if (bytes.length > MAX_IMAGE_BYTES) problems.push(`logo ${e.logo}: larger than 8 MB`);
+        else logo = { file: e.logo, bytes, sha256: createHash("sha256").update(bytes).digest("hex"), ...t };
+      }
+    }
+    return { entry: e, images, logo, problems };
   });
   return { reports, problems: global };
 }

@@ -23,7 +23,9 @@ console.log("\nEntries");
 for (const r of reports) {
   const e = r.entry;
   const missing = ["subtitle", "summary", "eventDate", "stage"].filter((k) => e[k] == null).join(", ");
-  console.log(`${r.problems.length ? "✗" : "✓"} ${e.category}/${e.slug} — "${e.title}" · ${r.images.length} image(s) · sections: ${Object.keys(e.sections ?? {}).join(", ") || "none"} · not given: ${missing || "—"}`);
+  const team = e.team ? ` · team ${e.team.name}${e.team.number ? ` #${e.team.number}` : ""}` : "";
+  const place = e.location ? ` · ${[e.location.city, e.location.countryCode].filter(Boolean).join(", ")}${e.location.latitude != null ? " (city coordinates)" : " (country centroid)"}` : "";
+  console.log(`${r.problems.length ? "✗" : "✓"} ${e.category}/${e.slug} — "${e.title}"${team}${place}${r.logo ? " · logo" : ""} · ${r.images.length} image(s) · sections: ${Object.keys(e.sections ?? {}).join(", ") || "none"} · not given: ${missing || "—"}`);
   for (const p of r.problems) console.log(`    ✗ ${p}`);
   for (const f of e.review ?? []) console.log(`    ⚠ review: ${f}`);
 }
@@ -54,7 +56,7 @@ async function uploadWithRetry(bucketApi, p, bytes, opts) {
 const describe = (err) => `${err?.message || err?.error || err?.name || "unknown error"}${err?.statusCode ? ` (HTTP ${err.statusCode})` : ""}`;
 console.log(`\nStorage ${new URL(url).host}: public-media public=${bucket.public} — importing as DRAFTS`);
 
-for (const { entry: e, images } of reports) {
+for (const { entry: e, images, logo } of reports) {
   const { data: existing, error } = await supabase.from("hub_entries").select("id, status").eq("category", e.category).eq("slug", e.slug).maybeSingle();
   if (error) fail(`lookup ${e.category}/${e.slug}: ${error.message}`);
   if (existing) { console.log(`  · ${e.category}/${e.slug} already exists (${existing.status}) — skipped, not overwritten`); continue; }
@@ -65,14 +67,23 @@ for (const { entry: e, images } of reports) {
     if (up.error && !/exists|duplicate/i.test(up.error.message ?? "")) fail(`upload ${img.file}: ${describe(up.error)}`);
     stored[img.file] = p;
   }
+  let logoPath = null;
+  if (logo) {
+    logoPath = `hub/${e.category}/${e.slug}/logo-${logo.sha256.slice(0, 12)}.${logo.ext}`;
+    const up = await uploadWithRetry(supabase.storage.from("public-media"), logoPath, logo.bytes, { contentType: logo.type, upsert: false, cacheControl: "31536000" });
+    if (up.error && !/exists|duplicate/i.test(up.error.message ?? "")) fail(`upload logo ${logo.file}: ${describe(up.error)}`);
+  }
   const media = images.map((img) => ({ path: stored[img.file], alt: img.alt, ...(img.caption ? { caption: img.caption } : {}), kind: img.kind }));
   const { error: ie } = await supabase.from("hub_entries").insert({
     category: e.category, slug: e.slug, title: e.title, subtitle: e.subtitle ?? null, summary: e.summary ?? null,
     sections: e.sections ?? {}, stage: e.stage ?? null, event_date: e.eventDate ?? null, season: e.season ?? null,
     collaborators: e.collaborators ?? [], cover_path: e.cover ? stored[e.cover] : media[0]?.path ?? null, media,
+    team_name: e.team?.name ?? null, team_number: e.team?.number ?? null, logo_path: logoPath,
+    country_code: e.location?.countryCode ?? null, city: e.location?.city ?? null,
+    latitude: e.location?.latitude ?? null, longitude: e.location?.longitude ?? null,
     display_order: e.order ?? 0, status: "draft",
   });
   if (ie) fail(`create ${e.category}/${e.slug}: ${ie.message}`);
-  console.log(`  + ${e.category}/${e.slug} (draft) · ${media.length} image(s)`);
+  console.log(`  + ${e.category}/${e.slug} (draft) · ${media.length} image(s)${logoPath ? " · logo" : ""}`);
 }
 console.log("\n✓ Imported as drafts. Review at /admin/hub (Preview), complete missing facts, then publish.");

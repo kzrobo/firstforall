@@ -37,3 +37,30 @@ describe("hub import manifest rules", () => {
     expect(manifest.entries.some((e: Record<string, unknown>) => "status" in e || "publish" in e)).toBe(false);
   });
 });
+
+describe("hub manifest: partner team, place and logo (MAVERICKS Connects)", () => {
+  const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 7]);
+  it("accepts verified team, city coordinates, a country-only place and a logo", () => {
+    const m = { entries: [
+      { category: "connects", slug: "fox", title: "Foxslide", team: { name: "Foxslide", number: 29029 }, logo: "fox.png",
+        location: { countryCode: "KZ", city: "Almaty", latitude: 43.2389, longitude: 76.8897 } },
+      { category: "connects", slug: "pan", title: "Pandurata", team: { name: "Pandurata", number: 26523 }, location: { countryCode: "ID" } },
+    ] };
+    const r = checkManifest(m, "/x", fakeRead({ "fox.png": png }));
+    expect(r.reports.map((x: { problems: string[] }) => x.problems)).toEqual([[], []]);
+    expect(r.reports[0].logo).toMatchObject({ file: "fox.png", ext: "png", type: "image/png" });
+    expect(r.reports[1].logo).toBeNull();
+  });
+  it("rejects bad numbers, country codes, half coordinates, coordinates without a city and non-image logos", () => {
+    const m = { entries: [
+      { category: "connects", slug: "a", title: "A team", team: { name: "A", number: 0 }, location: { countryCode: "kz" } },
+      { category: "connects", slug: "b", title: "B team", team: { name: "" }, location: { countryCode: "KZ", city: "Almaty", latitude: 43 } },
+      { category: "connects", slug: "c", title: "C team", location: { countryCode: "KZ", latitude: 43, longitude: 200 }, logo: "c.txt" },
+    ] };
+    const r = checkManifest(m, "/x", fakeRead({ "c.txt": Buffer.from("hello") }));
+    expect(r.reports[0].problems.join(" ")).toMatch(/FTC number.*countryCode|countryCode/);
+    expect(r.reports[0].problems).toHaveLength(2);
+    expect(r.reports[1].problems.join(" ")).toMatch(/team.name.*both latitude/);
+    expect(r.reports[2].problems.join(" ")).toMatch(/longitude must be.*city they belong to.*not a JPEG/);
+  });
+});
