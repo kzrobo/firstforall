@@ -1,10 +1,10 @@
-# FIRST FOR ALL — production setup (status 2026-11-07)
+# FIRST FOR ALL — production setup (status 2026-11-10: public)
 
 ## Where things are
 | | |
 |---|---|
-| Private preview (team password) | https://firstforall-git-main-nursaya.vercel.app — every page asks for `SITE_ACCESS_PASSWORD` |
-| Production address | https://firstforall.vercel.app — **nothing deployed yet** (production builds paused) |
+| Production (public since 2026-11-10) | https://firstforall.vercel.app — every push to `main` deploys here |
+| Preview deployments | other branches / PRs keep `SITE_ACCESS_PASSWORD` (Preview + Development env) |
 | Vercel | team `nursaya`, project `firstforall`, linked to `kzrobo/firstforall` (`main`) |
 | Supabase | project `xujypljqstjgueaeamfs` — all 7 migrations applied and recorded in `supabase_migrations.schema_migrations` |
 | Admin | `/admin` — one super_admin (the founder account); public sign-ups are disabled |
@@ -27,14 +27,13 @@
 
 ## YouTube sync
 - Auto-publish is **off**: new videos arrive as drafts.
-- Schedule: Vercel Cron, daily 04:17 UTC (`vercel.json`) — **runs on production deployments only**, i.e. after going
-  public. Until then use *Admin → Lessons → Sync now*. Hourly runs: add GitHub secrets `SITE_URL` and `CRON_SECRET`
+- Schedule: Vercel Cron, daily 04:17 UTC (`vercel.json`), active now that production is deployed. Hourly runs: add GitHub secrets `SITE_URL` and `CRON_SECRET`
   (`.github/workflows/youtube-sync.yml`; rotate `CRON_SECRET` in Vercel to a value you know).
 
-## Going public (only with the team's approval)
-1. Publish the reviewed manuals, hub entries and lessons in the admin.
-2. Vercel → project → Settings → Git → clear the *Ignored Build Step* (it currently skips production builds).
-3. Remove `SITE_ACCESS_PASSWORD` (or keep it for a private production) and redeploy `main` to production.
+## Went public (2026-11-10)
+All content published (1 manual · 12 editions, 5 lessons, 15 hub entries incl. 9 MAVERICKS Connects teams). The
+*Ignored Build Step* was cleared and `SITE_ACCESS_PASSWORD` removed from the Production environment only.
+To make the site private again: add `SITE_ACCESS_PASSWORD` to Production and redeploy.
 
 ## Security checks done (2026-11-07)
 Anonymous visitors: 0 rows from every table holding drafts or team data; draft PDFs unreachable (private bucket,
