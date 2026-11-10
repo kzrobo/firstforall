@@ -37,9 +37,9 @@ const en = {
     play: "Play background video",
   },
   home: {
-    workTitle: "Projects and collaborations",
-    workBody: "Recent work from the seven directions of MAVERICKS.",
-    workEmpty: "Project and collaboration stories appear here once the team publishes them.",
+    workTitle: "Projects",
+    workBody: "Recent projects by MAVERICKS.",
+    workEmpty: "Project stories appear here once the team publishes them.",
     directions: "Seven directions",
     meetTeam: "Meet the team",
     libraryLead: "Making robotics knowledge accessible to everyone.",

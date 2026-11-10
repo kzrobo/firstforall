@@ -39,9 +39,9 @@ const es: DeepPartial<Dictionary> = {
     play: "Reproducir vídeo de fondo",
   },
   home: {
-    workTitle: "Proyectos y colaboraciones",
-    workBody: "Trabajo reciente de las siete líneas de MAVERICKS.",
-    workEmpty: "Las historias de proyectos y colaboraciones aparecerán aquí cuando el equipo las publique.",
+    workTitle: "Proyectos",
+    workBody: "Proyectos recientes de MAVERICKS.",
+    workEmpty: "Las historias de proyectos aparecerán aquí cuando el equipo las publique.",
     directions: "Siete líneas",
     meetTeam: "Conoce al equipo",
     libraryLead: "Hacemos que el conocimiento de robótica sea accesible para todos.",

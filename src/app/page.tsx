@@ -36,7 +36,9 @@ export default async function HomePage() {
   const [lead, ...rest] = lessons;
 
   // Published projects and collaborations that have a real image, newest featured first
-  const work = toGalleryItems(sortEntries(hubResult.ok ? hubResult.data : []), (e) => `/mavericks/${e.category}/${e.slug}`).slice(0, 9);
+  // Projects only: MAVERICKS Connects (calls and meetings with other teams) live on their globe page, not here
+  const projects = (hubResult.ok ? hubResult.data : []).filter((e) => e.category !== "connects");
+  const work = toGalleryItems(sortEntries(projects), (e) => `/mavericks/${e.category}/${e.slug}`).slice(0, 9);
 
   return (
     <>
