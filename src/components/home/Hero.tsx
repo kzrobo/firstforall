@@ -32,7 +32,7 @@ export function Hero({ t, media }: { t: Dictionary; media: SiteMedia }) {
   return (
     <section aria-labelledby="hero-title" data-hero-media
       className="on-media relative isolate flex h-[100svh] min-h-[560px] flex-col overflow-hidden bg-navy [--hero-bg:#00102b]">
-      <HeroVideo video={video} poster={media.heroPoster} posterMobile={media.heroPosterMobile} labels={t.hero} />
+      <HeroVideo video={video} poster={media.heroPoster} posterMobile={media.heroPosterMobile} />
       {/* Legibility: an even navy tint, a little more under the navigation and under the headline */}
       <div aria-hidden className="absolute inset-0 -z-[2] bg-[#00102b]/30" />
       <div aria-hidden className="absolute inset-x-0 top-0 -z-[1] h-36 bg-gradient-to-b from-[#00102b]/55 to-transparent" />

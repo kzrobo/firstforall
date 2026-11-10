@@ -5,14 +5,14 @@ import type { MediaItem } from "@/lib/site/repository";
 
 /**
  * Full-bleed background video. Muted autoplay + loop + playsInline, started explicitly so it
- * really plays (not just a first frame). Reduced motion or data saver → poster only, with a
- * play control. The poster also covers the time before the first frame arrives.
+ * really plays (not just a first frame). No on-screen play/pause control (team decision); reduced
+ * motion or data saver → poster only. The poster also covers the time before the first frame arrives.
  * Phones in portrait get the lighter portrait files (source `media` query) and poster when provided.
  */
 const PHONE = "(max-width: 767px) and (orientation: portrait)";
 
-export function HeroVideo({ video, poster, posterMobile = null, labels }: {
-  video: MediaItem; poster: MediaItem | null; posterMobile?: MediaItem | null; labels: { pause: string; play: string };
+export function HeroVideo({ video, poster, posterMobile = null }: {
+  video: MediaItem; poster: MediaItem | null; posterMobile?: MediaItem | null;
 }) {
   const ref = useRef<HTMLVideoElement>(null);
   const [allowed, setAllowed] = useState<boolean | null>(null); // null until we know the preference
@@ -33,14 +33,7 @@ export function HeroVideo({ video, poster, posterMobile = null, labels }: {
     v.play().catch(() => setPlaying(false));
   }, [allowed]);
 
-  const toggle = () => {
-    const v = ref.current;
-    if (!v) { setAllowed(true); return; }
-    if (v.paused) void v.play(); else v.pause();
-  };
-
   return (
-    <>
     <div className="absolute inset-0 -z-10 overflow-hidden bg-[#00102b]">
       {poster && (
         <Image src={poster.url} alt="" fill priority sizes="100vw"
@@ -75,13 +68,5 @@ export function HeroVideo({ video, poster, posterMobile = null, labels }: {
         </video>
       )}
     </div>
-    {allowed !== null && (
-        <button type="button" onClick={toggle}
-          className="absolute bottom-12 right-5 z-30 inline-flex h-11 items-center gap-2 text-[14px] font-medium text-ink-muted hover:text-ink lg:bottom-16 lg:right-10">
-          <svg aria-hidden viewBox="0 0 24 24" className="size-3" fill="currentColor">{playing ? <path d="M7 5h3v14H7zM14 5h3v14h-3z" /> : <path d="M8 5v14l11-7z" />}</svg>
-          {playing ? labels.pause : labels.play}
-        </button>
-      )}
-    </>
   );
 }
