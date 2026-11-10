@@ -1,0 +1,100 @@
+{
+  "source": "Screenshots and posters sent by the team in chat on 2026-11-10 (team names and FTC numbers in the same message).",
+  "note": "Logos are cut from the teams' own posters (no original logo files were sent). Dates come from the poster (DigDugDuck) and the laptop's menu bar (Phantom).",
+  "entries": [
+    {
+      "category": "connects",
+      "slug": "infinis-36465",
+      "title": "Infinis",
+      "team": {
+        "name": "Infinis",
+        "number": 36465
+      },
+      "summary": "MAVERICKS and Infinis, FTC team #36465, met in an online video call.",
+      "media": [
+        {
+          "file": "images/connects/infinis-36465-call.jpg",
+          "alt": "Poster “Meeting — Infinis & Mavericks” with a screenshot of the video call",
+          "kind": "graphic"
+        }
+      ],
+      "cover": "images/connects/infinis-36465-call.jpg",
+      "logo": "images/connects/infinis.png",
+      "review": [
+        "City and country not given — the team is listed but not placed on the globe until a location is added.",
+        "Logo cut from the poster at low resolution — ask Infinis for the original file."
+      ]
+    },
+    {
+      "category": "connects",
+      "slug": "digdugduck-36038",
+      "title": "DigDugDuck",
+      "team": {
+        "name": "DigDugDuck",
+        "number": 36038
+      },
+      "summary": "MAVERICKS connected with DigDugDuck, FTC team #36038 from Thailand, in an online call on 23 October 2026.",
+      "media": [
+        {
+          "file": "images/connects/digdugduck-36038-call.jpg",
+          "alt": "DigDugDuck poster “Connecting with Mavericks #24034”, 23 October 2026, with a screenshot of the call",
+          "kind": "graphic"
+        }
+      ],
+      "cover": "images/connects/digdugduck-36038-call.jpg",
+      "location": {
+        "countryCode": "TH"
+      },
+      "logo": "images/connects/digdugduck.png",
+      "eventDate": "2026-10-23",
+      "review": [
+        "City in Thailand not given — shown at the country centroid."
+      ]
+    },
+    {
+      "category": "connects",
+      "slug": "juzztogyz-29393",
+      "title": "Juzz Togyz",
+      "team": {
+        "name": "Juzz Togyz",
+        "number": 29393
+      },
+      "summary": "MAVERICKS met Juzz Togyz, FTC team #29393, in an online video call.",
+      "media": [
+        {
+          "file": "images/connects/juzztogyz-29393-call.jpg",
+          "alt": "MAVERICKS × Juzz Togyz: screenshot of the video call, shared by @first.juzztogyz",
+          "kind": "graphic"
+        }
+      ],
+      "cover": "images/connects/juzztogyz-29393-call.jpg",
+      "logo": "images/connects/juzztogyz.png",
+      "review": [
+        "City and country not given — the team is listed but not placed on the globe until a location is added."
+      ]
+    },
+    {
+      "category": "connects",
+      "slug": "phantom-33830",
+      "title": "Phantom",
+      "team": {
+        "name": "Phantom",
+        "number": 33830
+      },
+      "summary": "MAVERICKS met Phantom, FTC team #33830, in an online video call.",
+      "media": [
+        {
+          "file": "images/connects/phantom-33830-call.jpg",
+          "alt": "Laptop showing the Google Meet call between MAVERICKS and Phantom",
+          "kind": "photo"
+        }
+      ],
+      "cover": "images/connects/phantom-33830-call.jpg",
+      "eventDate": "2026-10-20",
+      "review": [
+        "City and country not given — the team is listed but not placed on the globe until a location is added.",
+        "No logo yet — the globe shows the team's initials."
+      ]
+    }
+  ]
+}
