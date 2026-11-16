@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { toDocuments, type HubDocument } from "./documents";
 import { ALL_SECTION_KEYS, CATEGORY_SECTIONS, HUB_CATEGORIES, PROJECT_STAGES, type HubCategory, type ProjectStage, type SectionKey } from "./categories";
 
 export const mediaItemSchema = z.object({
@@ -30,6 +31,7 @@ export const hubRowSchema = z.object({
   logo_path: z.string().nullable(),
   cover_path: z.string().nullable(),
   media: z.array(z.unknown()).catch([]),
+  documents: z.array(z.unknown()).catch([]),
   milestones: z.array(z.unknown()).catch([]),
   video_youtube_id: z.string().nullable(),
   collaborators: z.array(z.string()).catch([]),
@@ -67,6 +69,8 @@ export interface HubEntry {
   coverUrl: string | null;
   coverPath: string | null;
   media: HubMedia[];
+  /** Readable PDFs, one per language (see documents.ts) */
+  documents: HubDocument[];
   milestones: Milestone[];
   videoId: string | null;
   collaborators: string[];
@@ -89,7 +93,7 @@ export function cleanSections(category: HubCategory, raw: Record<string, unknown
   return out;
 }
 
-export function toHubEntry(raw: unknown, publicUrl: (path: string) => string): HubEntry | null {
+export function toHubEntry(raw: unknown, publicUrl: (path: string) => string, documentUrl: (path: string) => string = publicUrl): HubEntry | null {
   const p = hubRowSchema.safeParse(raw);
   if (!p.success) return null;
   const r = p.data;
@@ -105,7 +109,7 @@ export function toHubEntry(raw: unknown, publicUrl: (path: string) => string): H
     teamName: r.team_name, teamNumber: r.team_number,
     logoUrl: r.logo_path ? publicUrl(r.logo_path) : null, logoPath: r.logo_path,
     coverUrl: r.cover_path ? publicUrl(r.cover_path) : null, coverPath: r.cover_path,
-    media, milestones, videoId: r.video_youtube_id, collaborators: r.collaborators, relatedIds: r.related_ids,
+    media, documents: toDocuments(r.documents, documentUrl), milestones, videoId: r.video_youtube_id, collaborators: r.collaborators, relatedIds: r.related_ids,
     isFeatured: r.is_featured, order: r.display_order, status: r.status, publishedAt: r.published_at, updatedAt: r.updated_at,
   };
 }

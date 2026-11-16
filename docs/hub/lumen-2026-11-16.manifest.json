@@ -1,0 +1,49 @@
+{
+  "source": "Google Drive folder 1_8qnQFh9-m8TkLWDipOsqMpJl3zAHi0_ (LUMEN_EN_light.pdf, LUMEN_KK_light.pdf, LUMEN_36_PAGES_MAX_QUALITY.pdf), sent by the team 2026-11-16. PDF author metadata: MAVERICKS FTC #24034.",
+  "note": "EN and KK are the team's own files, unchanged (sha256 2dafa47004410e57…, 789fd062fd84c0fd…). The Russian file was 133.6 MB (over the 50 MB storage limit), so LUMEN_RU_light.pdf was rebuilt from it the same way as the team's light editions: cover untouched, inner pages resized to 1840×2465 JPEG, same page placement. Web images are the cover and pages 2–3 of the English edition. The summary is taken from the comic's own text.",
+  "entries": [
+    {
+      "category": "inspires",
+      "slug": "lumen",
+      "title": "LUMEN",
+      "subtitle": "An illustrated adventure comic for kids, by MAVERICKS",
+      "summary": "Far beyond the mountains and clouds lies Lumen, a city where the most incredible ideas become real inventions. When a shadow begins to absorb its light, Leo, his friend and their robot Bin build a flying machine and set out to find the three Dawn Crystals that can restore the Heart of Lumen. A 36-page comic to read online or download, in English, Kazakh and Russian.",
+      "media": [
+        {
+          "file": "images/lumen/lumen-cover.jpg",
+          "alt": "LUMEN comic cover: two children and a small robot look out over a city of towers",
+          "kind": "graphic"
+        },
+        {
+          "file": "images/lumen/lumen-page-2.jpg",
+          "alt": "LUMEN, page 2: the city of Lumen, where ideas become inventions",
+          "kind": "graphic"
+        },
+        {
+          "file": "images/lumen/lumen-page-3.jpg",
+          "alt": "LUMEN, page 3: a shadow appears over the city",
+          "kind": "graphic"
+        }
+      ],
+      "cover": "images/lumen/lumen-cover.jpg",
+      "documents": [
+        {
+          "file": "images/lumen/LUMEN_EN_light.pdf",
+          "language": "en"
+        },
+        {
+          "file": "images/lumen/LUMEN_KK_light.pdf",
+          "language": "kk"
+        },
+        {
+          "file": "images/lumen/LUMEN_RU_light.pdf",
+          "language": "ru"
+        }
+      ],
+      "review": [
+        "Who wrote and illustrated the comic, and when it was made, are not stated — add if the team wants credits.",
+        "Story sections (problem / solution / approach…) are left empty."
+      ]
+    }
+  ]
+}

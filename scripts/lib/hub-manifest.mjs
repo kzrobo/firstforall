@@ -16,6 +16,9 @@ export const CATEGORY_SECTIONS = {
 export const STAGES = ["concept", "in_development", "prototype", "pilot", "active", "completed", "paused"];
 export const KINDS = ["photo", "screenshot", "graphic"];
 export const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
+/** Same limit as the 'manuals-public' bucket (PDF only, 50 MB per file). */
+export const MAX_DOCUMENT_BYTES = 50 * 1024 * 1024;
+const LANG = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/;
 const SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 /** JPEG / PNG / WebP by magic bytes (same rule as the admin upload). */
@@ -28,7 +31,7 @@ export function sniffImage(b) {
 
 /**
  * Checks a manifest without touching the network. Returns one report per entry
- * ({ entry, images: [{file, bytes, sha256, type, alt, caption, kind}], logo, problems }) plus manifest-wide problems.
+ * ({ entry, images: [{file, bytes, sha256, type, alt, caption, kind}], logo, documents: [{file, language, bytes, sha256}], problems }) plus manifest-wide problems.
  */
 export function checkManifest(manifest, baseDir, read = readFileSync) {
   const entries = Array.isArray(manifest?.entries) ? manifest.entries : [];
@@ -85,7 +88,19 @@ export function checkManifest(manifest, baseDir, read = readFileSync) {
         else logo = { file: e.logo, bytes, sha256: createHash("sha256").update(bytes).digest("hex"), ...t };
       }
     }
-    return { entry: e, images, logo, problems };
+    // Readable PDF documents (a comic, a booklet…), one per language. Stored unchanged.
+    const documents = [], seenLangs = new Set();
+    for (const d of e.documents ?? []) {
+      if (!d.language || !LANG.test(d.language)) { problems.push(`${d.file}: language "${d.language}" is not a BCP 47 tag (e.g. "kk")`); continue; }
+      if (seenLangs.has(d.language.toLowerCase())) { problems.push(`${d.file}: a second document for language "${d.language}" (one per language)`); continue; }
+      seenLangs.add(d.language.toLowerCase());
+      let bytes;
+      try { bytes = read(path.resolve(baseDir, d.file)); } catch { problems.push(`${d.file}: file not found`); continue; }
+      if (bytes.subarray(0, 5).toString("latin1") !== "%PDF-") { problems.push(`${d.file}: not a PDF`); continue; }
+      if (bytes.length > MAX_DOCUMENT_BYTES) { problems.push(`${d.file}: ${(bytes.length / 1048576).toFixed(1)} MB is larger than the 50 MB storage limit`); continue; }
+      documents.push({ file: d.file, language: d.language, bytes, sha256: createHash("sha256").update(bytes).digest("hex") });
+    }
+    return { entry: e, images, logo, documents, problems };
   });
   return { reports, problems: global };
 }

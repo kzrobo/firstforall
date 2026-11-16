@@ -70,6 +70,20 @@ export function HubEntryForm({ entry, initialCategory, countries, others, canPub
           <label htmlFor="summary" className={label}>Summary <span className="font-normal text-ink-faint">(optional, ≤ 800 characters)</span></label>
           <textarea id="summary" name="summary" rows={3} maxLength={800} defaultValue={entry?.summary ?? ""} className={area} />
         </div>
+        {entry && entry.documents.length > 0 && (
+          <div className="border-t border-line pt-6">
+            <p className="t-index pb-3">Readable PDFs — shown as “Read online” on the entry page</p>
+            <ul className="space-y-1.5 text-[15px] text-ink">
+              {entry.documents.map((d) => (
+                <li key={d.language}>
+                  <a href={d.url} target="_blank" rel="noopener noreferrer" className="link-rule">{d.language}</a>
+                  <span className="text-ink-muted">{d.pages ? ` · ${d.pages} pages` : ""}{d.bytes ? ` · ${(d.bytes / 1048576).toFixed(1)} MB` : ""}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2 text-[14px] text-ink-muted">PDFs are added with scripts/import-hub.mjs (files up to 50 MB). Saving this form keeps them.</p>
+          </div>
+        )}
         <fieldset className="space-y-5 border-t border-line pt-6">
           <legend className="t-index pb-3">Story — only verified facts; leave a section empty if it is not documented yet</legend>
           {CATEGORY_SECTIONS[category].map((k) => (

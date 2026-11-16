@@ -64,3 +64,27 @@ describe("hub manifest: partner team, place and logo (MAVERICKS Connects)", () =
     expect(r.reports[2].problems.join(" ")).toMatch(/longitude must be.*city they belong to.*not a JPEG/);
   });
 });
+
+describe("hub manifest: readable PDF documents", () => {
+  const pdf = (n: number) => Buffer.concat([Buffer.from("%PDF-1.7\n"), Buffer.from([n])]);
+  it("accepts one PDF per language and reports size and hash", () => {
+    const m = { entries: [{ category: "inspires", slug: "lumen", title: "LUMEN", documents: [{ file: "en.pdf", language: "en" }, { file: "kk.pdf", language: "kk" }] }] };
+    const r = checkManifest(m, "/x", fakeRead({ "en.pdf": pdf(1), "kk.pdf": pdf(2) }));
+    expect(r.reports[0].problems).toEqual([]);
+    expect(r.reports[0].documents.map((d: { language: string }) => d.language)).toEqual(["en", "kk"]);
+    expect(r.reports[0].documents[0].sha256).toHaveLength(64);
+  });
+  it("rejects non-PDFs, duplicate languages, bad language tags, missing and oversized files", () => {
+    const big = Buffer.concat([Buffer.from("%PDF-"), Buffer.alloc(50 * 1024 * 1024 + 1)]);
+    const m = { entries: [{ category: "inspires", slug: "lumen", title: "LUMEN", documents: [
+      { file: "en.pdf", language: "en" }, { file: "en2.pdf", language: "EN" }, { file: "x.jpg", language: "kk" },
+      { file: "ru.pdf", language: "russian!" }, { file: "gone.pdf", language: "es" }, { file: "big.pdf", language: "ru" }] }] };
+    const r = checkManifest(m, "/x", fakeRead({ "en.pdf": pdf(1), "en2.pdf": pdf(2), "x.jpg": jpeg(1), "ru.pdf": pdf(3), "big.pdf": big }));
+    const all = r.reports[0].problems.join(" | ");
+    expect(all).toMatch(/not a BCP 47 tag/);
+    expect(all).toMatch(/x\.jpg: not a PDF/);
+    expect(all).toMatch(/gone\.pdf: file not found/);
+    expect(all).toMatch(/larger than the 50 MB storage limit/);
+    expect(r.reports[0].documents.map((d: { file: string }) => d.file)).toEqual(["en.pdf"]);
+  });
+});

@@ -4,7 +4,10 @@ import { EntryCarousel, type CarouselItem } from "@/components/hub/EntryCarousel
 import { EntryMeta } from "@/components/hub/parts";
 import { TeamGallery } from "@/components/media/TeamGallery";
 import type { Dictionary } from "@/i18n/dictionary";
+import { formatBytes } from "@/components/manuals/format";
 import { CATEGORY_SECTIONS, categoryTitle } from "@/lib/hub/categories";
+import { documentReaderHref, orderDocuments } from "@/lib/hub/documents";
+import { languageName, nativeLanguageName } from "@/lib/languages";
 import type { HubEntry } from "@/lib/hub/types";
 import type { MediaItem } from "@/lib/site/repository";
 
@@ -23,6 +26,8 @@ export function EntryView({ e, related, t, locale, country, preview = false }: {
   const slides: CarouselItem[] = visual.length ? visual : e.coverUrl ? [{ url: e.coverUrl, alt: e.title, caption: null }] : [];
   const screenshots: MediaItem[] = e.media.filter((m) => m.kind === "screenshot")
     .map((m) => ({ url: m.url, alt: m.alt, caption: m.caption, focus: "50% 50%", focusMobile: "50% 50%", layout: "standard", aspect: 16 / 9 }));
+  // Readable PDFs (a comic, a booklet…): the visitor's interface language first. The team preview opens the file itself.
+  const documents = orderDocuments(e.documents, locale);
   const hrefFor = (r: HubEntry) => (preview ? `/admin/hub/${r.id}/preview` : `/mavericks/${r.category}/${r.slug}`);
 
   const facts = (
@@ -73,6 +78,34 @@ export function EntryView({ e, related, t, locale, country, preview = false }: {
       {e.subtitle && <p className="mt-4 max-w-xl text-[clamp(1.0625rem,1.3vw,1.1875rem)] leading-relaxed text-ink-muted">{e.subtitle}</p>}
       <div className="mt-5 empty:hidden"><EntryMeta e={e} t={t} locale={locale} countryName={country} /></div>
       {e.summary && <p className="mt-8 max-w-[40rem] text-[17px] leading-[1.7] text-ink">{e.summary}</p>}
+      {documents.length > 0 && (
+        <section aria-labelledby="read-title" className="mt-8 max-w-[40rem] border-t border-ink pt-5">
+          <h2 id="read-title" className="t-label text-ink">{t.manuals.read}</h2>
+          <ul className="mt-3 grid gap-2 sm:grid-cols-3">
+            {documents.map((d, i) => {
+              const native = nativeLanguageName(d.language), local = languageName(d.language, locale);
+              const meta = [d.pages ? `${d.pages} ${t.manuals.pages}` : null, local !== native ? local : null].filter(Boolean).join(" · ");
+              return (
+                <li key={d.language}>
+                  <Link href={preview ? d.url : documentReaderHref(category, e.slug, d.language)} {...(preview ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                    className={`flex min-h-[64px] flex-col justify-center rounded-md border px-4 py-2 transition-colors ${i === 0 ? "border-navy bg-navy text-white hover:bg-navy-800" : "border-line text-ink hover:border-ink"}`}>
+                    <span lang={d.language} className="text-[16px] font-semibold leading-tight">{native}</span>
+                    {meta && <span className={`mt-0.5 text-[13px] leading-tight ${i === 0 ? "text-white/80" : "text-ink-muted"}`}>{meta}</span>}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+          <p className="mt-4 flex flex-wrap gap-x-5 gap-y-1 text-[14px] text-ink-muted">
+            <span>{t.manuals.download}:</span>
+            {documents.map((d) => (
+              <a key={d.language} href={d.url} download className="link-rule text-ink">
+                <span lang={d.language}>{nativeLanguageName(d.language)}</span>{d.bytes ? <span className="t-num text-ink-muted"> · {formatBytes(d.bytes)}</span> : null}
+              </a>
+            ))}
+          </p>
+        </section>
+      )}
       {sections.length > 0 && (
         <div className="mt-10 max-w-[40rem] space-y-7">
           {sections.map((k) => (

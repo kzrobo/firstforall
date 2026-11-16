@@ -5,7 +5,9 @@
 //   NEXT_PUBLIC_SUPABASE_URL=… SUPABASE_SERVICE_ROLE_KEY=… node scripts/import-hub.mjs import <manifest.json>
 //
 // Entries are ALWAYS created as drafts (publish later in Admin → MAVERICKS hub after review). An entry whose
-// category/slug already exists is skipped, never overwritten. Images are stored once per content hash at
+// category/slug already exists is skipped, never overwritten. Optional `documents` ([{file, language}], PDF ≤ 50 MB,
+// one per language) are uploaded unchanged to manuals-public/hub/<category>/<slug>/<lang>-<sha12>.pdf.
+// Images are stored once per content hash at
 // public-media/hub/<category>/<slug>/<sha12>.<ext>. Text must come from the team's own materials; leave a
 // field out rather than guess. The service-role key is server-side only.
 import { readFileSync } from "node:fs";
@@ -25,7 +27,7 @@ for (const r of reports) {
   const missing = ["subtitle", "summary", "eventDate", "stage"].filter((k) => e[k] == null).join(", ");
   const team = e.team ? ` · team ${e.team.name}${e.team.number ? ` #${e.team.number}` : ""}` : "";
   const place = e.location ? ` · ${[e.location.city, e.location.countryCode].filter(Boolean).join(", ")}${e.location.latitude != null ? " (city coordinates)" : " (country centroid)"}` : "";
-  console.log(`${r.problems.length ? "✗" : "✓"} ${e.category}/${e.slug} — "${e.title}"${team}${place}${r.logo ? " · logo" : ""} · ${r.images.length} image(s) · sections: ${Object.keys(e.sections ?? {}).join(", ") || "none"} · not given: ${missing || "—"}`);
+  console.log(`${r.problems.length ? "✗" : "✓"} ${e.category}/${e.slug} — "${e.title}"${team}${place}${r.logo ? " · logo" : ""} · ${r.images.length} image(s)${r.documents.length ? ` · PDF: ${r.documents.map((d) => `${d.language} ${(d.bytes.length / 1048576).toFixed(1)} MB`).join(", ")}` : ""} · sections: ${Object.keys(e.sections ?? {}).join(", ") || "none"} · not given: ${missing || "—"}`);
   for (const p of r.problems) console.log(`    ✗ ${p}`);
   for (const f of e.review ?? []) console.log(`    ⚠ review: ${f}`);
 }
@@ -53,10 +55,18 @@ async function uploadWithRetry(bucketApi, p, bytes, opts) {
   }
   return last;
 }
+/** Number of pages, or null when the PDF cannot be opened (the entry is still imported; fix the count in review). */
+async function pageCount(bytes) {
+  try {
+    const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+    const doc = await pdfjs.getDocument({ data: new Uint8Array(bytes), isEvalSupported: false, verbosity: 0 }).promise;
+    const n = doc.numPages; await doc.destroy(); return n;
+  } catch { return null; }
+}
 const describe = (err) => `${err?.message || err?.error || err?.name || "unknown error"}${err?.statusCode ? ` (HTTP ${err.statusCode})` : ""}`;
 console.log(`\nStorage ${new URL(url).host}: public-media public=${bucket.public} — importing as DRAFTS`);
 
-for (const { entry: e, images, logo } of reports) {
+for (const { entry: e, images, logo, documents } of reports) {
   const { data: existing, error } = await supabase.from("hub_entries").select("id, status").eq("category", e.category).eq("slug", e.slug).maybeSingle();
   if (error) fail(`lookup ${e.category}/${e.slug}: ${error.message}`);
   if (existing) { console.log(`  · ${e.category}/${e.slug} already exists (${existing.status}) — skipped, not overwritten`); continue; }
@@ -73,6 +83,14 @@ for (const { entry: e, images, logo } of reports) {
     const up = await uploadWithRetry(supabase.storage.from("public-media"), logoPath, logo.bytes, { contentType: logo.type, upsert: false, cacheControl: "31536000" });
     if (up.error && !/exists|duplicate/i.test(up.error.message ?? "")) fail(`upload logo ${logo.file}: ${describe(up.error)}`);
   }
+  // PDFs go to the public 'manuals-public' bucket unchanged; page counts are read with PDF.js.
+  const docs = [];
+  for (const d of documents) {
+    const p = `hub/${e.category}/${e.slug}/${d.language}-${d.sha256.slice(0, 12)}.pdf`;
+    const up = await uploadWithRetry(supabase.storage.from("manuals-public"), p, d.bytes, { contentType: "application/pdf", upsert: false, cacheControl: "31536000" });
+    if (up.error && !/exists|duplicate/i.test(up.error.message ?? "")) fail(`upload ${d.file}: ${describe(up.error)}`);
+    docs.push({ path: p, language: d.language, pages: await pageCount(d.bytes), bytes: d.bytes.length });
+  }
   const media = images.map((img) => ({ path: stored[img.file], alt: img.alt, ...(img.caption ? { caption: img.caption } : {}), kind: img.kind }));
   const { error: ie } = await supabase.from("hub_entries").insert({
     category: e.category, slug: e.slug, title: e.title, subtitle: e.subtitle ?? null, summary: e.summary ?? null,
@@ -81,9 +99,10 @@ for (const { entry: e, images, logo } of reports) {
     team_name: e.team?.name ?? null, team_number: e.team?.number ?? null, logo_path: logoPath,
     country_code: e.location?.countryCode ?? null, city: e.location?.city ?? null,
     latitude: e.location?.latitude ?? null, longitude: e.location?.longitude ?? null,
+    ...(docs.length ? { documents: docs } : {}),
     display_order: e.order ?? 0, status: "draft",
   });
   if (ie) fail(`create ${e.category}/${e.slug}: ${ie.message}`);
-  console.log(`  + ${e.category}/${e.slug} (draft) · ${media.length} image(s)${logoPath ? " · logo" : ""}`);
+  console.log(`  + ${e.category}/${e.slug} (draft) · ${media.length} image(s)${logoPath ? " · logo" : ""}${docs.length ? ` · ${docs.length} PDF (${docs.map((d) => `${d.language}: ${d.pages} p.`).join(", ")})` : ""}`);
 }
 console.log("\n✓ Imported as drafts. Review at /admin/hub (Preview), complete missing facts, then publish.");

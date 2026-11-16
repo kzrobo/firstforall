@@ -4,14 +4,27 @@ import { publicStorageUrl } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { HUB_CATEGORIES, type HubCategory } from "./categories";
 import { countryCentroids } from "./countries";
+import { HUB_DOCUMENT_BUCKET } from "./documents";
 import { resolvePosition, type GlobePoint } from "./geo";
 import { sortEntries, toHubEntry, type HubEntry } from "./types";
 
-const COLUMNS = `id, category, slug, title, subtitle, summary, sections, stage, event_date, season, country_code, city,
+const BASE_COLUMNS = `id, category, slug, title, subtitle, summary, sections, stage, event_date, season, country_code, city,
   latitude, longitude, team_name, team_number, logo_path, cover_path, media, milestones, video_youtube_id,
   collaborators, related_ids, is_featured, display_order, status, published_at, updated_at`;
+const COLUMNS = `${BASE_COLUMNS}, documents`;
+
+/**
+ * Runs a hub query; if the database does not have the `documents` column yet (migration
+ * 20261116000000 not applied), it retries without it so the hub keeps working — entries then
+ * simply have no documents.
+ */
+async function withDocuments<T extends { error: { message: string } | null }>(run: (columns: string) => PromiseLike<T>): Promise<T> {
+  const first = await run(COLUMNS);
+  return first.error && /documents/.test(first.error.message) ? run(BASE_COLUMNS) : first;
+}
 
 const url = (path: string) => (path.startsWith("/") ? path : publicStorageUrl("public-media", path));
+const docUrl = (path: string) => publicStorageUrl(HUB_DOCUMENT_BUCKET, path);
 
 export type HubResult<T> = { ok: true; data: T } | { ok: false; reason: "not_configured" | "error"; message?: string };
 
@@ -19,9 +32,9 @@ export type HubResult<T> = { ok: true; data: T } | { ok: false; reason: "not_con
 export const listPublishedEntries = cache(async (): Promise<HubResult<HubEntry[]>> => {
   const supabase = await createSupabaseServerClient();
   if (!supabase) return { ok: false, reason: "not_configured" };
-  const { data, error } = await supabase.from("hub_entries").select(COLUMNS).eq("status", "published");
+  const { data, error } = await withDocuments((c) => supabase.from("hub_entries").select(c).eq("status", "published"));
   if (error) return { ok: false, reason: "error", message: error.message };
-  return { ok: true, data: sortEntries((data ?? []).map((r) => toHubEntry(r, url)).filter((e): e is HubEntry => e !== null)) };
+  return { ok: true, data: sortEntries((data ?? []).map((r) => toHubEntry(r, url, docUrl)).filter((e): e is HubEntry => e !== null)) };
 });
 
 export async function listCategory(category: HubCategory): Promise<HubResult<HubEntry[]>> {
@@ -59,7 +72,7 @@ export function toGlobePoints(entries: HubEntry[]): GlobePoint[] {
 export async function listAllEntriesForAdmin(): Promise<HubResult<HubEntry[]>> {
   const supabase = await createSupabaseServerClient();
   if (!supabase) return { ok: false, reason: "not_configured" };
-  const { data, error } = await supabase.from("hub_entries").select(COLUMNS).order("category").order("display_order").order("updated_at", { ascending: false });
+  const { data, error } = await withDocuments((c) => supabase.from("hub_entries").select(c).order("category").order("display_order").order("updated_at", { ascending: false }));
   if (error) return { ok: false, reason: "error", message: error.message };
-  return { ok: true, data: (data ?? []).map((r) => toHubEntry(r, url)).filter((e): e is HubEntry => e !== null) };
+  return { ok: true, data: (data ?? []).map((r) => toHubEntry(r, url, docUrl)).filter((e): e is HubEntry => e !== null) };
 }
