@@ -3,7 +3,7 @@
 ## Where things are
 | | |
 |---|---|
-| Production (public since 2026-11-10) | https://firstforall.vercel.app — every push to `main` deploys here |
+| Production (public since 2026-11-10) | https://mavrsfirst4all.com (custom domain since 2026-11-16, registered at Cloudflare, DNS-only CNAME to Vercel) — every push to `main` deploys here. `firstforall.vercel.app` redirects to it. |
 | Preview deployments | other branches / PRs keep `SITE_ACCESS_PASSWORD` (Preview + Development env) |
 | Vercel | team `nursaya`, project `firstforall`, linked to `kzrobo/firstforall` (`main`) |
 | Supabase | project `xujypljqstjgueaeamfs` — all 7 migrations applied and recorded in `supabase_migrations.schema_migrations` |
